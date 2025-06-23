@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write New Post - My Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Write New Post</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="write.html">Write Post</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="post">
+            <form id="post-form">
+                <div style="margin-bottom: 15px;">
+                    <label for="title">Post Title:</label><br>
+                    <input type="text" id="title" style="width: 100%; padding: 10px; margin-top: 5px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="content">Content:</label><br>
+                    <textarea id="content" rows="10" style="width: 100%; padding: 10px; margin-top: 5px;"></textarea>
+                </div>
+                <button type="submit" style="background: #35424a; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Create Post</button>
+            </form>
+        </div>
+        <div id="preview" class="post" style="display: none;">
+            <h3>Preview:</h3>
+            <div id="preview-content"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 My Blog. All rights reserved.</p>
+    </footer>
+    <script src="js/main.js"></script>
+</body>
+</html>
