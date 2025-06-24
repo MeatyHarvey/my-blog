@@ -5,7 +5,7 @@ body {
     padding: 0;
     /* Fix the path - remove the leading slash */
     background: linear-gradient(rgba(101, 67, 33, 0.7), rgba(101, 67, 33, 0.7)), 
-            url('../images/background1.min.jpg') center/cover fixed;
+        url('images/background1.min.jpg') center/cover fixed;
     min-height: 100vh;
 }
 
