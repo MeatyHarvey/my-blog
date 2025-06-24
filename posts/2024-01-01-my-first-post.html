@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Post</title>
+    <title>My First Post - Harvey's Blog</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <header>
-        <h1>My First Post</h1>
-        <p>Published on January 1, 2024</p>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../travel.html">Travel</a>
+                <a href="../about.html">About</a>
+                <a href="../write.html">Write</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
     </header>
-    <main>
-        <article>
-            <h2>Welcome to My Blog!</h2>
-            <p>This is my very first blog post. I'm excited to share my thoughts and experiences with you. In this blog, I will cover various topics including programming, technology, and personal development.</p>
-            <p>Stay tuned for more posts, and thank you for visiting!</p>
-        </article>
+    <main class="container">
+        <div class="post single-post">
+            <h1>My First Post</h1>
+            <p class="post-meta">Published on January 1, 2024 by Harvey</p>
+            <div class="post-content">
+                <h2>Welcome to My Blog!</h2>
+                <p>This is my very first blog post. I'm excited to share my thoughts and experiences with you. In this blog, I will cover various topics including programming, technology, and personal development.</p>
+                
+                <p>I'm passionate about learning and sharing knowledge. Here's what you can expect from this blog:</p>
+                
+                <ul>
+                    <li>Web development tutorials and tips</li>
+                    <li>Programming challenges and solutions</li>
+                    <li>Technology insights and trends</li>
+                    <li>Personal development journey</li>
+                </ul>
+                
+                <p>Stay tuned for more posts, and thank you for visiting!</p>
+            </div>
+            <div class="post-navigation">
+                <a href="../index.html" class="back-to-home">← Back to Home</a>
+            </div>
+        </div>
     </main>
     <footer>
-        <p>&copy; 2024 My Blog</p>
+        <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
     </footer>
+    <script src="../js/main.js"></script>
 </body>
 </html>
