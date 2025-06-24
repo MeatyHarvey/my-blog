@@ -3,19 +3,9 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    /* Add background image with overlay - using your own photo */
-    /* For warmer photos - brown/orange overlay */
+    /* Update to match your actual filename */
     background: linear-gradient(rgba(101, 67, 33, 0.7), rgba(101, 67, 33, 0.7)), 
-                url('images/background1.jpg') center/cover fixed;
-    /* For cooler photos - blue/teal overlay */
-    /* background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), 
-                url('images/your-photo-name.jpg') center/cover fixed; */
-    /* For nature photos - green overlay */
-    /* background: linear-gradient(rgba(39, 55, 70, 0.8), rgba(39, 55, 70, 0.8)), 
-                url('images/your-photo-name.jpg') center/cover fixed; */
-    /* For minimal look - light overlay */
-    /* background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), 
-                url('images/your-photo-name.jpg') center/cover fixed; */
+                url('images/background1.min.jpg') center/cover fixed;
     min-height: 100vh;
 }
 
