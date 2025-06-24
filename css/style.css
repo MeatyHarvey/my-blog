@@ -9,34 +9,41 @@ body {
     min-height: 100vh;
 }
 
-/* Even smaller header styling - inspired by minimal design */
+/* Shorter header styling */
 header {
-    background: rgba(53, 66, 74, 0.80); /* More transparent */
+    background: rgba(53, 66, 74, 0.80);
     color: #ffffff;
-    padding: 8px 0; /* Even smaller padding */
+    padding: 4px 0; /* Reduced from 8px to 4px */
     text-align: center;
-    backdrop-filter: blur(20px); /* More blur for glass effect */
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15); /* Lighter shadow */
+    backdrop-filter: blur(20px);
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);
+}
+
+header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0; /* Reduced padding */
 }
 
 header h1 {
     margin: 0;
-    font-size: 1.5rem; /* Even smaller heading */
-    font-weight: 300; /* Light font weight */
+    font-size: 1.4rem; /* Slightly smaller */
+    font-weight: 300;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    min-width: 160px; /* Adjust based on your title length */
+    min-width: 160px;
     display: inline-block;
     text-align: left;
 }
 
 nav {
-    margin: 8px 0; /* Much smaller margin */
+    margin: 4px 0; /* Smaller margin */
 }
 
 nav a {
+    margin: 0 8px; /* Tighter spacing between nav items */
     color: #ffffff;
     text-decoration: none;
-    margin: 0 10px; /* Smaller spacing */
     padding: 4px 12px; /* Smaller padding */
     border-radius: 12px;
     transition: all 0.3s ease;
