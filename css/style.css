@@ -79,6 +79,65 @@ nav a:hover {
     font-size: 0.95rem;
 }
 
+/* Post meta styling */
+.post-meta {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Read more button styling */
+.read-more {
+    display: inline-block;
+    color: #35424a;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 8px 16px;
+    border: 2px solid #35424a;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.read-more:hover {
+    background: #35424a;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Single post styling */
+.single-post {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.single-post h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.post-content {
+    margin: 30px 0;
+}
+
+.post-navigation {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.back-to-home {
+    color: #35424a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-to-home:hover {
+    text-decoration: underline;
+}
+
 /* Update footer for smaller, more elegant look */
 footer {
     text-align: center;
@@ -156,4 +215,49 @@ footer {
 #preview h3 {
     color: #35424a;
     margin-top: 0;
+}
+
+/* About page specific styling */
+.about-content {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 40px;
+    margin: 20px 0;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.bio h2 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.bio h3 {
+    color: #34495e;
+    font-size: 1.3rem;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.bio p {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.bio ul {
+    color: #555;
+    line-height: 1.8;
+    margin-left: 20px;
+}
+
+.bio li {
+    margin-bottom: 8px;
 }
