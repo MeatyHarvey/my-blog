@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Type out each character with a delay
     let charIndex = 0;
-    const typingDelay = 150; // milliseconds per character
+    const startDelay = 500; // ms before typing starts
+    const typingDelayRandom = true; // random typing speed for realism
+    const typingDelayMin = 70; // minimum typing delay
+    const typingDelayMax = 170; // maximum typing delay
     
     function typeTitle() {
         if (charIndex < originalTitle.length) {
@@ -25,10 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
             titleElement.insertBefore(charSpan, cursorSpan);
             
             charIndex++;
-            setTimeout(typeTitle, typingDelay);
+            setTimeout(typeTitle, typingDelayRandom ? 
+                Math.random() * (typingDelayMax - typingDelayMin) + typingDelayMin : 
+                typingDelay);
         }
     }
     
     // Start typing after a short delay
-    setTimeout(typeTitle, 500);
+    setTimeout(typeTitle, startDelay);
 });
