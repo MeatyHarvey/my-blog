@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel - Harvey's Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="travel.html">Travel</a>
+                <a href="about.html">About</a>
+                <a href="write.html">Write</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="travel-intro">
+            <h2>My Travel Adventures</h2>
+            <p>Photos and stories from my journeys around the world.</p>
+        </div>
+        
+        <!-- This div will hold all travel posts -->
+        <div id="travel-container">
+            <!-- Travel posts will be loaded here by JavaScript -->
+        </div>
+        
+        <!-- Add travel photo form -->
+        <div class="about-content">
+            <h3>Add Travel Photo</h3>
+            <form id="travel-form">
+                <div class="form-group">
+                    <label for="travel-title">Location</label>
+                    <input type="text" id="travel-title" placeholder="Where was this photo taken?" required>
+                </div>
+                <div class="form-group">
+                    <label for="travel-image">Image URL</label>
+                    <input type="url" id="travel-image" placeholder="Enter image URL..." required>
+                </div>
+                <div class="form-group">
+                    <label for="travel-description">Description</label>
+                    <textarea id="travel-description" rows="5" placeholder="Tell us about this place..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Add Travel Photo</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+    </footer>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>

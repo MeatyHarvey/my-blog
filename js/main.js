@@ -61,9 +61,20 @@ function loadPosts() {
     return posts;
 }
 
+// Load travel posts from localStorage
+function loadTravelPosts() {
+    const travelPosts = JSON.parse(localStorage.getItem('travelPosts')) || [];
+    return travelPosts;
+}
+
 // Save posts to localStorage
 function savePosts(posts) {
     localStorage.setItem('blogPosts', JSON.stringify(posts));
+}
+
+// Save travel posts to localStorage
+function saveTravelPosts(posts) {
+    localStorage.setItem('travelPosts', JSON.stringify(posts));
 }
 
 // Display posts on index page
@@ -73,19 +84,22 @@ function displayPosts() {
     
     const posts = loadPosts();
     
+    // Filter only blog posts
+    const blogPosts = posts.filter(post => post.category !== 'travel');
+    
     // Clear existing posts
     postsContainer.innerHTML = '';
     
-    if (posts.length === 0) {
-        postsContainer.innerHTML = '<p>No posts yet. Create your first post!</p>';
+    if (blogPosts.length === 0) {
+        postsContainer.innerHTML = '<p>No blog posts yet. Create your first post!</p>';
         return;
     }
     
     // Sort posts by date (newest first)
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     // Create HTML for each post
-    posts.forEach(post => {
+    blogPosts.forEach(post => {
         const postElement = document.createElement('div');
         postElement.className = 'post';
         postElement.innerHTML = `
@@ -110,20 +124,150 @@ function displayPosts() {
     });
 }
 
+// Display travel posts
+function displayTravelPosts() {
+    const travelContainer = document.getElementById('travel-container');
+    if (!travelContainer) return;
+    
+    const travelPosts = loadTravelPosts();
+    
+    // Clear existing posts
+    travelContainer.innerHTML = '';
+    
+    if (travelPosts.length === 0) {
+        travelContainer.innerHTML = '<p>No travel photos yet. Add your first travel memory!</p>';
+        return;
+    }
+    
+    // Sort posts by date (newest first)
+    travelPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Create HTML for each travel post
+    travelPosts.forEach(post => {
+        const travelElement = document.createElement('div');
+        travelElement.className = 'travel-card';
+        travelElement.innerHTML = `
+            <img src="${post.imageUrl}" alt="${post.title}" class="travel-image">
+            <div class="travel-content">
+                <h3>${post.title}</h3>
+                <p class="travel-date">${new Date(post.date).toLocaleDateString()}</p>
+                <p class="travel-description">${post.description}</p>
+                <div class="travel-actions">
+                    <button class="delete-post" data-id="${post.id}">Delete</button>
+                </div>
+                <div class="travel-comments">
+                    <h4>Comments (${post.comments ? post.comments.length : 0})</h4>
+                    ${post.comments && post.comments.length > 0 
+                        ? post.comments.map(comment => `
+                            <div class="comment">
+                                <p class="comment-author">${comment.author}</p>
+                                <p>${comment.text}</p>
+                            </div>
+                        `).join('')
+                        : '<p>No comments yet.</p>'
+                    }
+                    <div class="comment-form">
+                        <div class="form-group">
+                            <input type="text" class="comment-author-input" placeholder="Your name" data-post-id="${post.id}">
+                        </div>
+                        <div class="form-group">
+                            <textarea class="comment-text-input" placeholder="Leave a comment..." data-post-id="${post.id}"></textarea>
+                        </div>
+                        <button class="btn-primary add-comment-btn" data-post-id="${post.id}">Add Comment</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        travelContainer.appendChild(travelElement);
+    });
+    
+    // Add event listeners for delete buttons
+    document.querySelectorAll('.delete-post').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this travel post?')) {
+                deleteTravelPost(this.getAttribute('data-id'));
+            }
+        });
+    });
+    
+    // Add event listeners for comment buttons
+    document.querySelectorAll('.add-comment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            const authorInput = document.querySelector(`.comment-author-input[data-post-id="${postId}"]`);
+            const textInput = document.querySelector(`.comment-text-input[data-post-id="${postId}"]`);
+            
+            const author = authorInput.value.trim();
+            const text = textInput.value.trim();
+            
+            if (!author || !text) {
+                alert('Please enter your name and comment.');
+                return;
+            }
+            
+            addTravelComment(postId, author, text);
+            
+            // Clear inputs
+            authorInput.value = '';
+            textInput.value = '';
+        });
+    });
+}
+
 // Add a new post
-function addPost(title, content, tags) {
+function addPost(title, content, tags, category = 'blog') {
     const posts = loadPosts();
     const newPost = {
         id: Date.now().toString(), // Use timestamp as ID
         title: title,
         content: content,
         tags: tags,
+        category: category,
         date: new Date().toISOString()
     };
     
     posts.push(newPost);
     savePosts(posts);
     return newPost;
+}
+
+// Add a new travel post
+function addTravelPost(title, imageUrl, description) {
+    const travelPosts = loadTravelPosts();
+    const newTravelPost = {
+        id: Date.now().toString(),
+        title: title,
+        imageUrl: imageUrl,
+        description: description,
+        date: new Date().toISOString(),
+        comments: []
+    };
+    
+    travelPosts.push(newTravelPost);
+    saveTravelPosts(travelPosts);
+    return newTravelPost;
+}
+
+// Add a comment to a travel post
+function addTravelComment(postId, author, text) {
+    const travelPosts = loadTravelPosts();
+    const postIndex = travelPosts.findIndex(post => post.id === postId);
+    
+    if (postIndex === -1) return;
+    
+    if (!travelPosts[postIndex].comments) {
+        travelPosts[postIndex].comments = [];
+    }
+    
+    travelPosts[postIndex].comments.push({
+        id: Date.now().toString(),
+        author: author,
+        text: text,
+        date: new Date().toISOString()
+    });
+    
+    saveTravelPosts(travelPosts);
+    displayTravelPosts(); // Refresh the display
 }
 
 // Delete a post
@@ -139,6 +283,14 @@ function deletePost(id) {
         // Redirect to home if on view-post page
         window.location.href = 'index.html';
     }
+}
+
+// Delete a travel post
+function deleteTravelPost(id) {
+    let travelPosts = loadTravelPosts();
+    travelPosts = travelPosts.filter(post => post.id !== id);
+    saveTravelPosts(travelPosts);
+    displayTravelPosts(); // Refresh the display
 }
 
 // Display a single post
@@ -196,17 +348,50 @@ function setupWriteForm() {
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
         const tags = document.getElementById('tags').value;
+        const category = document.getElementById('category').value;
         
-        const newPost = addPost(title, content, tags);
-        alert('Post published successfully!');
+        const newPost = addPost(title, content, tags, category);
+        
+        if (category === 'travel') {
+            alert('Travel post published successfully!');
+            // Reset form
+            blogForm.reset();
+            // Option to view travel page
+            if (confirm('Travel post published! Would you like to view the travel page?')) {
+                window.location.href = 'travel.html';
+            }
+        } else {
+            alert('Blog post published successfully!');
+            // Reset form
+            blogForm.reset();
+            // Option to view the post
+            if (confirm('Blog post published! Would you like to view it?')) {
+                window.location.href = `view-post.html?id=${newPost.id}`;
+            }
+        }
+    });
+}
+
+// Handle travel photo form submission
+function setupTravelForm() {
+    const travelForm = document.getElementById('travel-form');
+    if (!travelForm) return;
+    
+    travelForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const title = document.getElementById('travel-title').value;
+        const imageUrl = document.getElementById('travel-image').value;
+        const description = document.getElementById('travel-description').value;
+        
+        addTravelPost(title, imageUrl, description);
+        alert('Travel photo added successfully!');
         
         // Reset form
-        blogForm.reset();
+        travelForm.reset();
         
-        // Option to view the post
-        if (confirm('Post published! Would you like to view it?')) {
-            window.location.href = `view-post.html?id=${newPost.id}`;
-        }
+        // Refresh the travel posts display
+        displayTravelPosts();
     });
 }
 
@@ -215,9 +400,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup write form if on write page
     setupWriteForm();
     
+    // Setup travel form if on travel page
+    setupTravelForm();
+    
     // Display posts if on index page
     if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
         displayPosts();
+    }
+    
+    // Display travel posts if on travel page
+    if (window.location.pathname.includes('travel.html')) {
+        displayTravelPosts();
     }
     
     // Display single post if on view-post page
