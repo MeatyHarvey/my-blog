@@ -3,9 +3,9 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    /* Test with online image */
+    /* Change back to your local image */
     background: linear-gradient(rgba(101, 67, 33, 0.7), rgba(101, 67, 33, 0.7)), 
-                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
+                url('images/background1.min.jpg') center/cover fixed;
     min-height: 100vh;
 }
 
