@@ -24,6 +24,9 @@ header h1 {
     font-size: 1.5rem; /* Even smaller heading */
     font-weight: 300; /* Light font weight */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    min-width: 160px; /* Adjust based on your title length */
+    display: inline-block;
+    text-align: left;
 }
 
 nav {
@@ -407,4 +410,28 @@ select:focus {
     border-color: rgba(53, 66, 74, 0.6);
     box-shadow: 0 0 0 4px rgba(53, 66, 74, 0.15);
     background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Typing animation styling */
+.cursor {
+    display: inline-block;
+    margin-left: 3px;
+    width: 3px;
+    animation: blink 1s step-end infinite;
+    color: white;
+}
+
+@keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.typed-char {
+    display: inline-block;
+    opacity: 0;
+    animation: fadeIn 0.1s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
 }
