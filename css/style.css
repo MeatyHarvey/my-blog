@@ -9,42 +9,43 @@ body {
     min-height: 100vh;
 }
 
-/* Update header styling for smaller, more elegant look */
+/* Even smaller header styling - inspired by minimal design */
 header {
-    background: rgba(53, 66, 74, 0.85); /* Slightly more transparent */
+    background: rgba(53, 66, 74, 0.80); /* More transparent */
     color: #ffffff;
-    padding: 10px 0; /* Reduced padding */
+    padding: 8px 0; /* Even smaller padding */
     text-align: center;
-    backdrop-filter: blur(15px); /* More blur for glass effect */
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px); /* More blur for glass effect */
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15); /* Lighter shadow */
 }
 
 header h1 {
     margin: 0;
-    font-size: 1.8rem; /* Smaller heading */
-    font-weight: 300; /* Lighter font weight */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    font-size: 1.5rem; /* Even smaller heading */
+    font-weight: 300; /* Light font weight */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 nav {
-    margin: 15px 0; /* Reduced margin */
+    margin: 8px 0; /* Much smaller margin */
 }
 
 nav a {
     color: #ffffff;
     text-decoration: none;
-    margin: 0 12px; /* Slightly smaller spacing */
-    padding: 6px 14px; /* Smaller padding */
-    border-radius: 15px;
+    margin: 0 10px; /* Smaller spacing */
+    padding: 4px 12px; /* Smaller padding */
+    border-radius: 12px;
     transition: all 0.3s ease;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    font-size: 0.9rem; /* Smaller font */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem; /* Smaller font */
+    font-weight: 300; /* Light font weight */
 }
 
 nav a:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     text-decoration: none;
-    transform: translateY(-2px);
+    transform: translateY(-1px); /* Smaller transform */
 }
 
 /* Container adjustments */
@@ -132,10 +133,19 @@ nav a:hover {
     color: #35424a;
     text-decoration: none;
     font-weight: bold;
+    padding: 8px 16px;
+    border: 2px solid rgba(53, 66, 74, 0.4);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
 }
 
 .back-to-home:hover {
-    text-decoration: underline;
+    background: rgba(53, 66, 74, 0.8);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 66, 74, 0.3);
 }
 
 /* Update footer for smaller, more elegant look */
@@ -153,7 +163,7 @@ footer {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Form styling improvements */
+/* Form styling improvements - More transparent glass effect */
 .form-group {
     margin-bottom: 25px;
 }
@@ -170,40 +180,53 @@ footer {
 .form-group textarea {
     width: 100%;
     padding: 15px;
-    border: 2px solid rgba(53, 66, 74, 0.3);
-    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3); /* More transparent border */
+    border-radius: 12px;
     font-size: 16px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.6); /* More transparent background */
+    backdrop-filter: blur(10px); /* More blur for glass effect */
+    box-sizing: border-box;
+    color: #2c3e50;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(44, 62, 80, 0.6); /* Semi-transparent placeholder */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #35424a;
-    box-shadow: 0 0 0 4px rgba(53, 66, 74, 0.1);
-    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(53, 66, 74, 0.6); /* Semi-transparent focus border */
+    box-shadow: 0 0 0 4px rgba(53, 66, 74, 0.15); /* Softer focus glow */
+    background: rgba(255, 255, 255, 0.8); /* Slightly more opaque on focus */
+    backdrop-filter: blur(15px); /* More blur on focus */
+    transform: translateY(-2px); /* Subtle lift effect */
 }
 
+/* Make buttons more glass-like too */
 .btn-primary {
-    background: linear-gradient(135deg, #35424a, #2c3e50);
+    background: linear-gradient(135deg, rgba(53, 66, 74, 0.9), rgba(44, 62, 80, 0.9));
     color: white;
     padding: 15px 30px;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 25px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(53, 66, 74, 0.3);
+    box-shadow: 0 6px 20px rgba(53, 66, 74, 0.3);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(53, 66, 74, 0.4);
-    background: linear-gradient(135deg, #2c3e50, #35424a);
+    box-shadow: 0 10px 30px rgba(53, 66, 74, 0.4);
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(53, 66, 74, 0.9));
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Preview section styling */
