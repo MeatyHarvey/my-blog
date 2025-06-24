@@ -19,20 +19,21 @@
     </header>
     <main class="container">
         <div class="post">
+            <h2>Create New Post</h2>
             <form id="post-form">
-                <div style="margin-bottom: 15px;">
-                    <label for="title">Post Title:</label><br>
-                    <input type="text" id="title" style="width: 100%; padding: 10px; margin-top: 5px;">
+                <div class="form-group">
+                    <label for="title">Post Title</label>
+                    <input type="text" id="title" placeholder="Enter your post title...">
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label for="content">Content:</label><br>
-                    <textarea id="content" rows="10" style="width: 100%; padding: 10px; margin-top: 5px;"></textarea>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea id="content" rows="12" placeholder="Write your post content here..."></textarea>
                 </div>
-                <button type="submit" style="background: #35424a; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Create Post</button>
+                <button type="submit" class="btn-primary">Publish Post</button>
             </form>
         </div>
         <div id="preview" class="post" style="display: none;">
-            <h3>Preview:</h3>
+            <h3>Live Preview</h3>
             <div id="preview-content"></div>
         </div>
     </main>
