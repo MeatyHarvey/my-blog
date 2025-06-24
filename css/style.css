@@ -56,28 +56,30 @@ nav a:hover {
     padding: 15px 0;
 }
 
-/* Make blog posts more transparent */
+/* Make blog posts much more transparent (90%) */
 .post {
-    background: rgba(255, 255, 255, 0.75); /* More transparent */
-    padding: 25px; /* Slightly less padding */
+    background: rgba(255, 255, 255, 0.1); /* 90% transparent */
+    padding: 25px;
     margin: 15px 0;
     border-radius: 12px;
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(15px); /* More blur */
+    backdrop-filter: blur(15px); /* Increased blur for readability */
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .post h2 {
-    color: #2c3e50;
+    color: #1a2530;
     font-size: 1.5rem; /* Smaller post titles */
     margin-top: 0;
-    font-weight: 400;
+    font-weight: 500; /* Slightly bolder for contrast */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Text shadow for readability */
 }
 
 .post p {
-    color: #34495e;
+    color: #1a2530;
     line-height: 1.7;
     font-size: 0.95rem;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); /* Text shadow for readability */
 }
 
 /* Post meta styling */
@@ -242,45 +244,38 @@ footer {
 
 /* About page specific styling */
 .about-content {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.1); /* 90% transparent */
     padding: 40px;
     margin: 20px 0;
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px); /* Increased blur for readability */
     border: 1px solid rgba(255, 255, 255, 0.2);
     max-width: 800px;
     margin: 20px auto;
 }
 
 .bio h2 {
-    color: #2c3e50;
+    color: #1a2530;
     font-size: 2rem;
     margin-bottom: 20px;
-    font-weight: 400;
+    font-weight: 500; /* Slightly bolder for contrast */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Text shadow for readability */
 }
 
 .bio h3 {
-    color: #34495e;
+    color: #1a2530;
     font-size: 1.3rem;
     margin-top: 25px;
     margin-bottom: 15px;
-    font-weight: 500;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-.bio p {
-    color: #555;
+.bio p, .bio li {
+    color: #1a2530;
     line-height: 1.8;
     margin-bottom: 15px;
     font-size: 1rem;
-}
-
-.bio ul {
-    color: #555;
-    line-height: 1.8;
-    margin-left: 20px;
-}
-
-.bio li {
-    margin-bottom: 8px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
