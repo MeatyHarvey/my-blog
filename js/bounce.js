@@ -60,6 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
         isExploding = true;
         console.log("EXPLOSION TRIGGERED!"); // Debug
         
+        // Calculate the center point of the collision FIRST
+        const collisionX = (kumamonX + babyratX) / 2;
+        const collisionY = (kumamonY + babyratY) / 2;
+        
         // Move explosion container directly to body
         if (explosionContainer.parentNode) {
             explosionContainer.parentNode.removeChild(explosionContainer);
@@ -84,25 +88,16 @@ document.addEventListener('DOMContentLoaded', function() {
         explosionImage.style.visibility = 'visible';
         explosionImage.style.opacity = '1';
         
+        // Position at the collision point
         explosionImage.setAttribute('style',
             'display: block !important; ' +
             'position: fixed !important; ' +
             'z-index: 999999 !important; ' +
-            'width: 225px !important; ' +  // Changed from 100% to 225px
-            'height: 225px !important; ' + // Changed from 100% to 225px
+            'width: 225px !important; ' +
+            'height: 225px !important; ' +
             'left: ' + (window.scrollX + collisionX - 112) + 'px !important; ' +
             'top: ' + (window.scrollY + collisionY - 112) + 'px !important;'
         );
-        
-        // Calculate the center point of the collision
-        const collisionX = (kumamonX + babyratX) / 2;
-        const collisionY = (kumamonY + babyratY) / 2;
-        
-        // Position at the collision point
-        explosionImage.style.position = 'fixed';
-        explosionImage.style.left = (window.scrollX + collisionX - 112) + 'px';
-        explosionImage.style.top = (window.scrollY + collisionY - 112) + 'px';
-        explosionImage.style.zIndex = '999999';
         
         // Hide the bouncing images
         kumamonImage.style.display = 'none';
