@@ -1,5 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Animation toggle functionality
+    const toggleButton = document.getElementById('animation-toggle');
     const container = document.getElementById('bouncing-container');
+    
+    // Check if animation was previously disabled
+    const animationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+    toggleButton.checked = animationEnabled;
+    
+    // Apply initial state
+    if (!animationEnabled) {
+        container.style.display = 'none';
+    }
+    
+    // Toggle animation on click
+    toggleButton.addEventListener('change', function() {
+        if (this.checked) {
+            container.style.display = 'block';
+            localStorage.setItem('animationEnabled', 'true');
+        } else {
+            container.style.display = 'none';
+            localStorage.setItem('animationEnabled', 'false');
+        }
+    });
+    
     const kumamonImage = document.getElementById('kumamon-image');
     const babyratImage = document.getElementById('babyrat-image');
     const explosionContainer = document.getElementById('explosion-container');
