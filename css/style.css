@@ -302,29 +302,36 @@ footer {
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-/* Delete post button styling */
+/* Updated delete post button styling */
 .delete-post {
-    background: rgba(220, 53, 69, 0.8);
-    color: white;
-    padding: 6px 12px;
-    border: none;
+    display: inline-block;
+    background: rgba(220, 53, 69, 0.3); /* More transparent background like back-to-home */
+    color: #d9534f; /* Darker red text */
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 16px; /* Match back-to-home padding */
+    border: 2px solid rgba(220, 53, 69, 0.4); /* Add border like back-to-home */
     border-radius: 20px;
-    font-size: 0.8rem;
-    cursor: pointer;
     transition: all 0.3s ease;
-    margin-left: 10px;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px); /* Match back-to-home blur */
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .delete-post:hover {
-    background: rgba(220, 53, 69, 1);
+    background: rgba(220, 53, 69, 0.8); /* Darker on hover like back-to-home */
+    color: white;
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Add shadow like back-to-home */
 }
 
+/* Post actions container styling */
 .post-actions {
     display: flex;
     align-items: center;
     margin-top: 15px;
+    gap: 10px; /* Add space between buttons */
 }
 
 /* Travel gallery styling */
