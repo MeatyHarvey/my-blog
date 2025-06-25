@@ -55,10 +55,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isExploding = true;
         
-        // Position explosion at collision point - adjust for larger image
-        explosionContainer.style.left = (x - 112) + 'px'; // Half of 225px
-        explosionContainer.style.top = (y - 112) + 'px'; // Half of 225px
+        // Position explosion at the collision point (not center of screen)
+        explosionContainer.style.left = (x - 112) + 'px'; // Half of 225px width
+        explosionContainer.style.top = (y - 112) + 'px'; // Half of 225px height
+        explosionContainer.style.transform = ''; // Remove the transform
         explosionContainer.style.display = 'block';
+        explosionContainer.style.zIndex = '9999'; // Very high z-index
+        explosionContainer.style.position = 'fixed'; // Keep it fixed
         
         // Hide the bouncing images
         kumamonImage.style.display = 'none';
@@ -120,15 +123,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const kumamonWidth = kumamonImage.width || 100;  // Updated to your size
         const kumamonHeight = kumamonImage.height || 100; // Updated to your size
         
-        // Bounce Kumamon off edges
+        // Bounce Kumamon off edges - REMOVED color changes
         if (kumamonX + kumamonWidth > containerWidth || kumamonX < 0) {
             kumamonDx = -kumamonDx;
-            kumamonImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
+            // Removed color changing for Kumamon
         }
         
         if (kumamonY + kumamonHeight > containerHeight || kumamonY < 0) {
             kumamonDy = -kumamonDy;
-            kumamonImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
+            // Removed color changing for Kumamon
         }
         
         // Check for collisions with container edges for Baby Rat
