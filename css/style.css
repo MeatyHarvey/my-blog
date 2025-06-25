@@ -462,3 +462,10 @@ select:focus {
 @keyframes fadeIn {
     to { opacity: 1; }
 }
+
+.typed-space {
+    display: inline-block;
+    width: 0.5em; /* Controls the amount of space */
+    opacity: 0;
+    animation: fadeIn 0.1s forwards;
+}
