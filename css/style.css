@@ -302,36 +302,49 @@ footer {
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-/* Updated delete post button styling */
+/* Updated delete post button styling to match Read More exactly */
 .delete-post {
     display: inline-block;
-    background: rgba(220, 53, 69, 0.3); /* More transparent background like back-to-home */
-    color: #d9534f; /* Darker red text */
+    background: rgba(220, 53, 69, 0.3);
+    color: #d9534f;
     text-decoration: none;
     font-weight: bold;
-    padding: 8px 16px; /* Match back-to-home padding */
-    border: 2px solid rgba(220, 53, 69, 0.4); /* Add border like back-to-home */
+    margin-top: 10px; /* Added this to match read-more */
+    padding: 8px 16px;
+    border: 2px solid rgba(220, 53, 69, 0.4);
     border-radius: 20px;
     transition: all 0.3s ease;
-    backdrop-filter: blur(8px); /* Match back-to-home blur */
+    backdrop-filter: blur(8px);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: inherit; /* Match parent font size like read-more */
     text-align: center;
+    min-width: 100px; /* Ensure minimum width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    line-height: 1.5; /* Match read-more line height */
 }
 
+/* Keep hover styling */
 .delete-post:hover {
-    background: rgba(220, 53, 69, 0.8); /* Darker on hover like back-to-home */
+    background: rgba(220, 53, 69, 0.8);
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Add shadow like back-to-home */
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
-/* Post actions container styling */
+/* Update post actions to maintain proper spacing */
 .post-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-start; /* Align buttons to the left */
     margin-top: 15px;
-    gap: 10px; /* Add space between buttons */
+    gap: 15px; /* Increased space between buttons */
+}
+
+/* Make sure read-more and delete buttons have same height */
+.read-more, .delete-post {
+    height: auto;
+    line-height: normal;
+    vertical-align: middle;
 }
 
 /* Travel gallery styling */
