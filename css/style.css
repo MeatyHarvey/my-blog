@@ -446,6 +446,11 @@ select:focus {
     animation: fadeIn 0.1s forwards;
 }
 
+/* Add more space between words in title */
+.typed-char:nth-of-type(8) {
+    margin-right: 0.4em; /* Add extra space after the space character */
+}
+
 @keyframes fadeIn {
     to { opacity: 1; }
 }
