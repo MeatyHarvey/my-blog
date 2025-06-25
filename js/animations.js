@@ -39,7 +39,7 @@
                     if (finalText[i] === ' ') {
                         // Add extra space after "Harvey's"
                         const space = document.createElement('span');
-                        space.innerHTML = '&nbsp;&nbsp;';
+                        space.innerHTML = '&nbsp;';
                         container.appendChild(space);
                     } else {
                         container.textContent += finalText[i];
