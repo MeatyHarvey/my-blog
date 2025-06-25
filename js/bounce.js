@@ -55,18 +55,24 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isExploding = true;
         
-        // Create new explosion for better positioning
+        // Remove the container from its current parent and add directly to body
+        if (explosionContainer.parentNode) {
+            explosionContainer.parentNode.removeChild(explosionContainer);
+        }
         document.body.appendChild(explosionContainer);
         
-        // Center the explosion image within the container
-        explosionContainer.style.display = 'flex';
-        explosionContainer.style.justifyContent = 'center';
-        explosionContainer.style.alignItems = 'center';
+        // Position explosion container to fill the screen
+        explosionContainer.style.display = 'block';
         
-        // Position the actual image at collision point
-        explosionImage.style.position = 'absolute';
-        explosionImage.style.left = (x - 112) + 'px';
-        explosionImage.style.top = (y - 112) + 'px';
+        // Calculate position to center explosion at collision point
+        const viewportX = window.scrollX + x;
+        const viewportY = window.scrollY + y;
+        
+        // Position the explosion image precisely at collision point
+        explosionImage.style.position = 'fixed';
+        explosionImage.style.top = (viewportY - 112) + 'px'; // 112 is half of 225px
+        explosionImage.style.left = (viewportX - 112) + 'px';
+        explosionImage.style.zIndex = '999999';
         
         // Hide the bouncing images
         kumamonImage.style.display = 'none';
