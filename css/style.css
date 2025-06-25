@@ -36,6 +36,14 @@ header h1 {
     min-width: 160px;
     display: inline-block;
     text-align: left;
+    position: relative;
+}
+
+header h1::after {
+    content: '';
+    display: inline-block;
+    width: 0.4em;  /* Adjust the width for desired spacing */
+    height: 1em;
 }
 
 nav {
