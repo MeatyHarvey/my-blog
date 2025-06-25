@@ -3,44 +3,51 @@ document.addEventListener('DOMContentLoaded', function() {
     const titleElement = document.querySelector('header h1');
     if (!titleElement) return;
     
-    const originalTitle = titleElement.textContent;
-    titleElement.textContent = ''; // Clear the title
+    // Split the title into "Harvey's" and "Blog"
+    const titleText = titleElement.textContent.trim();
+    const parts = titleText.split(' ');
     
-    // Add a blinking cursor element
-    const cursorSpan = document.createElement('span');
-    cursorSpan.className = 'cursor';
-    cursorSpan.innerHTML = '|';
-    titleElement.appendChild(cursorSpan);
-    
-    // Type out each character with a delay
-    let charIndex = 0;
-    const startDelay = 500; // ms before typing starts
-    const typingDelayRandom = true; // random typing speed for realism
-    const typingDelayMin = 70; // minimum typing delay
-    const typingDelayMax = 170; // maximum typing delay
-    
-    function typeTitle() {
-        if (charIndex < originalTitle.length) {
-            // Create a text node for the current character
-            const charSpan = document.createElement('span');
-            charSpan.className = 'typed-char';
-            
-            // Add extra space after "Harvey's"
-            if (originalTitle.charAt(charIndex) === ' ' && charIndex > 0) {
-                charSpan.innerHTML = '&nbsp;&nbsp;'; // Two spaces instead of one
+    if (parts.length === 2) {
+        // Clear the title
+        titleElement.textContent = '';
+        
+        // Create blinking cursor
+        const cursorSpan = document.createElement('span');
+        cursorSpan.className = 'cursor';
+        cursorSpan.innerHTML = '|';
+        
+        // Type out characters with a delay
+        let fullText = parts[0]; // First word "Harvey's"
+        fullText += ' '; // Add a space
+        fullText += parts[1]; // Second word "Blog"
+        
+        let charIndex = 0;
+        const typingDelayMin = 70;
+        const typingDelayMax = 170;
+        
+        function typeTitle() {
+            if (charIndex < fullText.length) {
+                const charSpan = document.createElement('span');
+                charSpan.className = 'typed-char';
+                
+                // If this is the space between words, add extra space
+                if (fullText.charAt(charIndex) === ' ') {
+                    charSpan.innerHTML = '&nbsp;&nbsp;&nbsp;'; // Three spaces
+                } else {
+                    charSpan.textContent = fullText.charAt(charIndex);
+                }
+                
+                titleElement.appendChild(charSpan);
+                charIndex++;
+                
+                const delay = Math.random() * (typingDelayMax - typingDelayMin) + typingDelayMin;
+                setTimeout(typeTitle, delay);
             } else {
-                charSpan.textContent = originalTitle.charAt(charIndex);
+                titleElement.appendChild(cursorSpan);
             }
-            
-            titleElement.insertBefore(charSpan, cursorSpan);
-            
-            charIndex++;
-            setTimeout(typeTitle, typingDelayRandom ? 
-                Math.random() * (typingDelayMax - typingDelayMin) + typingDelayMin : 
-                typingDelay);
         }
+        
+        // Start typing after a short delay
+        setTimeout(typeTitle, 500);
     }
-    
-    // Start typing after a short delay
-    setTimeout(typeTitle, startDelay);
 });
