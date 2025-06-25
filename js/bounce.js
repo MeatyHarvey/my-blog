@@ -1,16 +1,25 @@
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('bouncing-container');
-    const image = document.getElementById('bouncing-image');
+    const kumamonImage = document.getElementById('kumamon-image');
+    const babyratImage = document.getElementById('babyrat-image');
+    const explosionContainer = document.getElementById('explosion-container');
+    const explosionImage = document.getElementById('explosion-image');
     
-    if (!container || !image) return;
+    if (!container || !kumamonImage || !babyratImage || !explosionContainer || !explosionImage) return;
     
-    // Initial position
-    let x = 50;
-    let y = 50;
+    let isExploding = false;
+    
+    // Initial positions - start at opposite corners
+    let kumamonX = 50;
+    let kumamonY = 50;
+    let babyratX = window.innerWidth - 150;
+    let babyratY = window.innerHeight - 150;
     
     // Speed and direction
-    let dx = 2.5; // Slightly faster horizontal movement
-    let dy = 2.0; // Slightly faster vertical movement
+    let kumamonDx = 2.5;
+    let kumamonDy = 2.0;
+    let babyratDx = -2.2;
+    let babyratDy = -1.8;
     
     // Colors for tint changes
     const colors = [
@@ -22,39 +31,163 @@ document.addEventListener('DOMContentLoaded', function() {
         'hue-rotate(300deg) brightness(1.8)'
     ];
     
-    function animate() {
-        // Update position
-        x += dx;
-        y += dy;
+    // Random position generator
+    function getRandomPosition(maxX, maxY) {
+        return {
+            x: Math.random() * (maxX - 100),
+            y: Math.random() * (maxY - 100)
+        };
+    }
+    
+    // Check for collision between two images
+    function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return !(
+            x1 + w1 < x2 ||
+            x2 + w2 < x1 ||
+            y1 + h1 < y2 ||
+            y2 + h2 < y1
+        );
+    }
+    
+    // Trigger explosion effect
+    function explode(x, y) {
+        if (isExploding) return;
         
-        // Check for collisions
+        isExploding = true;
+        
+        // Position explosion at collision point - adjust for larger image
+        explosionContainer.style.left = (x - 112) + 'px'; // Half of 225px
+        explosionContainer.style.top = (y - 112) + 'px'; // Half of 225px
+        explosionContainer.style.display = 'block';
+        
+        // Hide the bouncing images
+        kumamonImage.style.display = 'none';
+        babyratImage.style.display = 'none';
+        
+        // Reset after 2 seconds
+        setTimeout(function() {
+            explosionContainer.style.display = 'none';
+            
+            // Reset positions to random locations
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            const kumaPos = getRandomPosition(containerWidth, containerHeight);
+            const ratPos = getRandomPosition(containerWidth, containerHeight);
+            
+            // Make sure they start far apart
+            while (Math.abs(kumaPos.x - ratPos.x) < 200 || Math.abs(kumaPos.y - ratPos.y) < 200) {
+                kumaPos.x = Math.random() * (containerWidth - 100);
+                ratPos.y = Math.random() * (containerHeight - 100);
+            }
+            
+            kumamonX = kumaPos.x;
+            kumamonY = kumaPos.y;
+            babyratX = ratPos.x;
+            babyratY = ratPos.y;
+            
+            // Randomize directions
+            kumamonDx = Math.random() > 0.5 ? 2.5 : -2.5;
+            kumamonDy = Math.random() > 0.5 ? 2.0 : -2.0;
+            babyratDx = Math.random() > 0.5 ? 2.2 : -2.2;
+            babyratDy = Math.random() > 0.5 ? 1.8 : -1.8;
+            
+            // Show images again
+            kumamonImage.style.display = 'block';
+            babyratImage.style.display = 'block';
+            
+            isExploding = false;
+        }, 2000);
+    }
+    
+    function animate() {
+        if (isExploding) {
+            requestAnimationFrame(animate);
+            return;
+        }
+        
+        // Update Kumamon position
+        kumamonX += kumamonDx;
+        kumamonY += kumamonDy;
+        
+        // Update Baby Rat position
+        babyratX += babyratDx;
+        babyratY += babyratDy;
+        
+        // Check for collisions with container edges for Kumamon
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
-        const imageWidth = image.width;
-        const imageHeight = image.height;
+        const kumamonWidth = kumamonImage.width || 100;  // Updated to your size
+        const kumamonHeight = kumamonImage.height || 100; // Updated to your size
         
-        // Bounce off edges
-        if (x + imageWidth > containerWidth || x < 0) {
-            dx = -dx;
-            image.style.filter = `${colors[Math.floor(Math.random() * colors.length)]} brightness(1.5)`;
+        // Bounce Kumamon off edges
+        if (kumamonX + kumamonWidth > containerWidth || kumamonX < 0) {
+            kumamonDx = -kumamonDx;
+            kumamonImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
         }
         
-        if (y + imageHeight > containerHeight || y < 0) {
-            dy = -dy;
-            image.style.filter = `${colors[Math.floor(Math.random() * colors.length)]} brightness(1.5)`;
+        if (kumamonY + kumamonHeight > containerHeight || kumamonY < 0) {
+            kumamonDy = -kumamonDy;
+            kumamonImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
         }
         
-        // Apply position
-        image.style.left = x + 'px';
-        image.style.top = y + 'px';
+        // Check for collisions with container edges for Baby Rat
+        const babyratWidth = babyratImage.width || 80;
+        const babyratHeight = babyratImage.height || 100;
+        
+        // Bounce Baby Rat off edges
+        if (babyratX + babyratWidth > containerWidth || babyratX < 0) {
+            babyratDx = -babyratDx;
+            babyratImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
+        }
+        
+        if (babyratY + babyratHeight > containerHeight || babyratY < 0) {
+            babyratDy = -babyratDy;
+            babyratImage.style.filter = `${colors[Math.floor(Math.random() * colors.length)]}`;
+        }
+        
+        // Check for collision between Kumamon and Baby Rat
+        if (checkCollision(
+            kumamonX, kumamonY, kumamonWidth, kumamonHeight,
+            babyratX, babyratY, babyratWidth, babyratHeight
+        )) {
+            // They collided! Trigger explosion
+            explode((kumamonX + babyratX) / 2, (kumamonY + babyratY) / 2);
+        }
+        
+        // Apply positions
+        kumamonImage.style.left = kumamonX + 'px';
+        kumamonImage.style.top = kumamonY + 'px';
+        babyratImage.style.left = babyratX + 'px';
+        babyratImage.style.top = babyratY + 'px';
         
         requestAnimationFrame(animate);
     }
     
-    // Start animation when image loads
-    if (image.complete) {
-        animate();
+    // Start animation when images load
+    let imagesLoaded = 0;
+    function checkAllImagesLoaded() {
+        imagesLoaded++;
+        if (imagesLoaded >= 3) { // 3 images total
+            animate();
+        }
+    }
+    
+    if (kumamonImage.complete) {
+        checkAllImagesLoaded();
     } else {
-        image.onload = animate;
+        kumamonImage.onload = checkAllImagesLoaded;
+    }
+    
+    if (babyratImage.complete) {
+        checkAllImagesLoaded();
+    } else {
+        babyratImage.onload = checkAllImagesLoaded;
+    }
+    
+    if (explosionImage.complete) {
+        checkAllImagesLoaded();
+    } else {
+        explosionImage.onload = checkAllImagesLoaded;
     }
 });
