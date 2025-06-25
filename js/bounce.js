@@ -88,10 +88,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'display: block !important; ' +
             'position: fixed !important; ' +
             'z-index: 999999 !important; ' +
-            'top: 0 !important; ' +
-            'left: 0 !important; ' +
-            'width: 100% !important; ' +
-            'height: 100% !important;'
+            'width: 225px !important; ' +  // Changed from 100% to 225px
+            'height: 225px !important; ' + // Changed from 100% to 225px
+            'left: ' + (window.scrollX + collisionX - 112) + 'px !important; ' +
+            'top: ' + (window.scrollY + collisionY - 112) + 'px !important;'
         );
         
         // Calculate the center point of the collision
