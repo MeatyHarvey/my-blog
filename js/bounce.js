@@ -54,24 +54,24 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isExploding) return;
         
         isExploding = true;
+        console.log("EXPLOSION TRIGGERED!"); // Debug
         
-        // Remove the container from its current parent and add directly to body
-        if (explosionContainer.parentNode) {
-            explosionContainer.parentNode.removeChild(explosionContainer);
-        }
-        document.body.appendChild(explosionContainer);
-        
-        // Position explosion container to fill the screen
+        // Force display the explosion container
         explosionContainer.style.display = 'block';
         
-        // Calculate position to center explosion at collision point
-        const viewportX = window.scrollX + x;
-        const viewportY = window.scrollY + y;
+        // Force display the explosion image
+        explosionImage.style.display = 'block';
+        explosionImage.style.visibility = 'visible';
+        explosionImage.style.opacity = '1';
         
-        // Position the explosion image precisely at collision point
+        // Calculate the center point of the collision
+        const collisionX = (kumamonX + babyratX) / 2;
+        const collisionY = (kumamonY + babyratY) / 2;
+        
+        // Position at the collision point
         explosionImage.style.position = 'fixed';
-        explosionImage.style.top = (viewportY - 112) + 'px'; // 112 is half of 225px
-        explosionImage.style.left = (viewportX - 112) + 'px';
+        explosionImage.style.left = (window.scrollX + collisionX - 112) + 'px';
+        explosionImage.style.top = (window.scrollY + collisionY - 112) + 'px';
         explosionImage.style.zIndex = '999999';
         
         // Hide the bouncing images

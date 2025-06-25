@@ -546,12 +546,15 @@ select:focus {
     transform: none !important;
 }
 
+/* Explosion image styling */
 #explosion-image {
-    width: 225px;
-    height: 225px;
-    filter: none !important;
-    animation: explode 2s forwards;
-    position: relative !important;
+    width: 225px !important;
+    height: 225px !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: fixed !important;
+    z-index: 999999 !important;
 }
 
 @keyframes explode {
