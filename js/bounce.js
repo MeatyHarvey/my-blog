@@ -9,17 +9,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let y = 50;
     
     // Speed and direction
-    let dx = 2;
-    let dy = 2;
+    let dx = 2.5; // Slightly faster horizontal movement
+    let dy = 2.0; // Slightly faster vertical movement
     
     // Colors for tint changes
     const colors = [
-        'hue-rotate(0deg)',
-        'hue-rotate(60deg)',
-        'hue-rotate(120deg)',
-        'hue-rotate(180deg)',
-        'hue-rotate(240deg)',
-        'hue-rotate(300deg)'
+        'hue-rotate(0deg) brightness(1.8)',
+        'hue-rotate(60deg) brightness(1.8)',
+        'hue-rotate(120deg) brightness(1.8)',
+        'hue-rotate(180deg) brightness(1.8)',
+        'hue-rotate(240deg) brightness(1.8)',
+        'hue-rotate(300deg) brightness(1.8)'
     ];
     
     function animate() {
