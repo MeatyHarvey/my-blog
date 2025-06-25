@@ -3,25 +3,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('animation-toggle');
     const container = document.getElementById('bouncing-container');
     
-    // Check if animation was previously disabled
-    const animationEnabled = localStorage.getItem('animationEnabled') !== 'false';
-    toggleButton.checked = animationEnabled;
-    
-    // Apply initial state
-    if (!animationEnabled) {
-        container.style.display = 'none';
+    // CHECK IF TOGGLE EXISTS before trying to use it
+    if (toggleButton) {
+        // Check if animation was previously disabled
+        const animationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+        toggleButton.checked = animationEnabled;
+        
+        // Toggle animation on click
+        toggleButton.addEventListener('change', function() {
+            if (this.checked) {
+                container.style.display = 'block';
+                localStorage.setItem('animationEnabled', 'true');
+            } else {
+                container.style.display = 'none';
+                localStorage.setItem('animationEnabled', 'false');
+            }
+        });
     }
     
-    // Toggle animation on click
-    toggleButton.addEventListener('change', function() {
-        if (this.checked) {
-            container.style.display = 'block';
-            localStorage.setItem('animationEnabled', 'true');
-        } else {
-            container.style.display = 'none';
-            localStorage.setItem('animationEnabled', 'false');
-        }
-    });
+    // Apply initial state for animation based on local storage
+    if (container && localStorage.getItem('animationEnabled') === 'false') {
+        container.style.display = 'none';
+    }
     
     const kumamonImage = document.getElementById('kumamon-image');
     const babyratImage = document.getElementById('babyrat-image');
@@ -68,11 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check for collision between two images
     function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+        // Shrink collision box slightly to be more efficient
+        const padding = 5;
         return !(
-            x1 + w1 < x2 ||
-            x2 + w2 < x1 ||
-            y1 + h1 < y2 ||
-            y2 + h2 < y1
+            x1 + w1 - padding < x2 + padding ||
+            x2 + w2 - padding < x1 + padding ||
+            y1 + h1 - padding < y2 + padding ||
+            y2 + h2 - padding < y1 + padding
         );
     }
     
@@ -162,7 +167,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
     
+    let lastFrameTime = 0;
     function animate() {
+        // Limit animation to 30fps instead of 60fps to reduce CPU usage
+        if (performance.now() - lastFrameTime < 33) { // ~30fps
+            requestAnimationFrame(animate);
+            return;
+        }
+        lastFrameTime = performance.now();
+        
         if (isExploding) {
             requestAnimationFrame(animate);
             return;
