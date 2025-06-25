@@ -323,28 +323,48 @@ footer {
     line-height: 1.5; /* Match read-more line height */
 }
 
-/* Keep hover styling */
+/* Make Back to Home and Delete Post buttons align properly */
+.back-to-home, .delete-post {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    vertical-align: middle;
+    margin: 0; /* Remove any default margins */
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.back-to-home {
+    color: #35424a;
+    border: 2px solid rgba(53, 66, 74, 0.4);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.delete-post {
+    color: #d9534f;
+    border: 2px solid rgba(220, 53, 69, 0.4);
+    background: rgba(220, 53, 69, 0.3);
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Hover states */
+.back-to-home:hover {
+    background: rgba(53, 66, 74, 0.8);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 66, 74, 0.3);
+}
+
 .delete-post:hover {
     background: rgba(220, 53, 69, 0.8);
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-}
-
-/* Update post actions to maintain proper spacing */
-.post-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Align buttons to the left */
-    margin-top: 15px;
-    gap: 15px; /* Increased space between buttons */
-}
-
-/* Make sure read-more and delete buttons have same height */
-.read-more, .delete-post {
-    height: auto;
-    line-height: normal;
-    vertical-align: middle;
 }
 
 /* Travel gallery styling */
