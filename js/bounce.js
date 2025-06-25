@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const explosionContainer = document.getElementById('explosion-container');
     const explosionImage = document.getElementById('explosion-image');
     
+    console.log("Explosion image element:", explosionImage);
+    console.log("Explosion image src:", explosionImage.src);
+    console.log("Explosion container:", explosionContainer);
+    
     if (!container || !kumamonImage || !babyratImage || !explosionContainer || !explosionImage) return;
     
     let isExploding = false;
@@ -56,13 +60,39 @@ document.addEventListener('DOMContentLoaded', function() {
         isExploding = true;
         console.log("EXPLOSION TRIGGERED!"); // Debug
         
+        // Move explosion container directly to body
+        if (explosionContainer.parentNode) {
+            explosionContainer.parentNode.removeChild(explosionContainer);
+        }
+        document.body.appendChild(explosionContainer);
+        
         // Force display the explosion container
         explosionContainer.style.display = 'block';
+        
+        explosionContainer.setAttribute('style', 
+            'display: block !important; ' +
+            'position: fixed !important; ' +
+            'z-index: 999999 !important; ' +
+            'top: 0 !important; ' +
+            'left: 0 !important; ' +
+            'width: 100% !important; ' +
+            'height: 100% !important;'
+        );
         
         // Force display the explosion image
         explosionImage.style.display = 'block';
         explosionImage.style.visibility = 'visible';
         explosionImage.style.opacity = '1';
+        
+        explosionImage.setAttribute('style',
+            'display: block !important; ' +
+            'position: fixed !important; ' +
+            'z-index: 999999 !important; ' +
+            'top: 0 !important; ' +
+            'left: 0 !important; ' +
+            'width: 100% !important; ' +
+            'height: 100% !important;'
+        );
         
         // Calculate the center point of the collision
         const collisionX = (kumamonX + babyratX) / 2;

@@ -550,16 +550,20 @@ select:focus {
 #explosion-image {
     width: 225px !important;
     height: 225px !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: fixed !important;
-    z-index: 999999 !important;
+    animation: boom 2s forwards !important;
+    transform-origin: center center;
 }
 
 @keyframes explode {
     0% { transform: scale(0.1); opacity: 0; }
     10% { transform: scale(1.2); opacity: 1; }
     90% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes boom {
+    0% { transform: scale(0.2); opacity: 0; }
+    20% { transform: scale(1.2); opacity: 1; }
+    80% { transform: scale(1.2); opacity: 1; }
     100% { transform: scale(1.5); opacity: 0; }
 }
