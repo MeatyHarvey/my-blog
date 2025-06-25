@@ -1,75 +1,62 @@
-// Add this guard at the very top to prevent multiple executions
-if (window.animationInitialized) {
-    // Animation already running, exit
-    console.log("Animation already initialized, preventing duplicate");
-} else {
-    // Set flag to prevent multiple executions
-    window.animationInitialized = true;
-
-    // Typing animation for the blog title
+// Self-executing function to prevent global scope pollution
+(function() {
+    // Only add the event listener once
+    if (window.animationListenerAdded) return;
+    window.animationListenerAdded = true;
+    
+    // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
-        const titleElement = document.querySelector('header h1');
-        if (!titleElement || titleElement.querySelector('.typed-char')) return;
+        // Completely remove any existing animation first
+        const allHeadings = document.querySelectorAll('header h1');
         
-        // Hard-coded parts of the title to ensure consistent spacing
-        const part1 = "Harvey's";
-        const part2 = "Blog";
-        
-        // Clear the title element
-        titleElement.textContent = '';
-        
-        // Create blinking cursor
-        const cursorSpan = document.createElement('span');
-        cursorSpan.className = 'cursor';
-        cursorSpan.innerHTML = '|';
-        
-        let charIndex = 0;
-        let currentPart = 0;
-        let typingComplete = false;
-        
-        // Typing the first part "Harvey's"
-        function typeTitle() {
-            if (currentPart === 0) {
-                if (charIndex < part1.length) {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'typed-char';
-                    charSpan.textContent = part1.charAt(charIndex);
-                    titleElement.appendChild(charSpan);
-                    charIndex++;
-                    
-                    setTimeout(typeTitle, Math.random() * 100 + 70);
+        // Process each heading (there should only be one, but just in case)
+        allHeadings.forEach(function(heading) {
+            // Skip if already animated
+            if (heading.hasAttribute('data-animated')) return;
+            
+            // Mark as animated
+            heading.setAttribute('data-animated', 'true');
+            
+            // Store original text for fallback
+            const originalText = heading.textContent || "Harvey's Blog";
+            
+            // Clear ALL content
+            heading.innerHTML = '';
+            
+            // Create a container for the animated text
+            const container = document.createElement('div');
+            container.style.display = 'inline';
+            heading.appendChild(container);
+            
+            // Define text to type
+            const finalText = "Harvey's Blog";
+            
+            // Type each character with a delay
+            let i = 0;
+            function typeNextChar() {
+                if (i < finalText.length) {
+                    // Handle space character specially
+                    if (finalText[i] === ' ') {
+                        // Add extra space after "Harvey's"
+                        const space = document.createElement('span');
+                        space.innerHTML = '&nbsp;&nbsp;';
+                        container.appendChild(space);
+                    } else {
+                        container.textContent += finalText[i];
+                    }
+                    i++;
+                    setTimeout(typeNextChar, 120);
                 } else {
-                    // First part complete, add space
-                    charIndex = 0;
-                    currentPart = 1;
-                    
-                    const spaceSpan = document.createElement('span');
-                    spaceSpan.className = 'typed-space';
-                    spaceSpan.innerHTML = '&nbsp;';
-                    titleElement.appendChild(spaceSpan);
-                    
-                    setTimeout(typeTitle, 200); // Pause before second part
+                    // Add blinking cursor at the end
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    cursor.textContent = '|';
+                    heading.appendChild(cursor);
                 }
             }
-            // Typing the second part "Blog"
-            else if (currentPart === 1) {
-                if (charIndex < part2.length) {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'typed-char';
-                    charSpan.textContent = part2.charAt(charIndex);
-                    titleElement.appendChild(charSpan);
-                    charIndex++;
-                    
-                    setTimeout(typeTitle, Math.random() * 100 + 70);
-                } else if (!typingComplete) {
-                    // All done, add cursor
-                    titleElement.appendChild(cursorSpan);
-                    typingComplete = true;
-                }
-            }
-        }
-        
-        // Start typing after a delay
-        setTimeout(typeTitle, 500);
+            
+            // Start typing after a delay
+            setTimeout(typeNextChar, 500);
+        });
     });
-}
+})();
