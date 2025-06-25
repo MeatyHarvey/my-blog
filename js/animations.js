@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const titleElement = document.querySelector('header h1');
     if (!titleElement) return;
     
-    // Store original title text
-    const titleText = titleElement.textContent.trim();
+    // Hard-coded parts of the title to ensure consistent spacing
+    const part1 = "Harvey's";
+    const part2 = "Blog";
     
     // Clear the title element
     titleElement.textContent = '';
@@ -14,49 +15,52 @@ document.addEventListener('DOMContentLoaded', function() {
     cursorSpan.className = 'cursor';
     cursorSpan.innerHTML = '|';
     
-    // Type out each character
     let charIndex = 0;
-    const typingDelayMin = 70;
-    const typingDelayMax = 170;
-    
-    // IMPORTANT: Split the title into words
-    const words = ["Harvey's", "Blog"];
-    let currentText = "";
+    let currentPart = 0;
+    let typingComplete = false;
     
     function typeTitle() {
-        if (words.length > 0) {
-            if (charIndex < words[0].length) {
-                // Still typing the current word
+        // Typing the first part "Harvey's"
+        if (currentPart === 0) {
+            if (charIndex < part1.length) {
                 const charSpan = document.createElement('span');
                 charSpan.className = 'typed-char';
-                charSpan.textContent = words[0].charAt(charIndex);
+                charSpan.textContent = part1.charAt(charIndex);
                 titleElement.appendChild(charSpan);
                 charIndex++;
                 
-                const delay = Math.random() * (typingDelayMax - typingDelayMin) + typingDelayMin;
-                setTimeout(typeTitle, delay);
+                setTimeout(typeTitle, Math.random() * 100 + 70);
             } else {
-                // Finished a word
+                // First part complete, add space
                 charIndex = 0;
-                currentText = words.shift();
+                currentPart = 1;
                 
-                // Add space between words if more words remain
-                if (words.length > 0) {
-                    const spaceSpan = document.createElement('span');
-                    spaceSpan.className = 'typed-space';
-                    spaceSpan.innerHTML = '&nbsp;&nbsp;&nbsp;'; // Three spaces between words
-                    titleElement.appendChild(spaceSpan);
-                    
-                    // Slight pause between words
-                    setTimeout(typeTitle, 200);
-                } else {
-                    // Add cursor at the end
-                    titleElement.appendChild(cursorSpan);
-                }
+                const spaceSpan = document.createElement('span');
+                spaceSpan.className = 'typed-space';
+                spaceSpan.innerHTML = '&nbsp;';
+                titleElement.appendChild(spaceSpan);
+                
+                setTimeout(typeTitle, 200); // Pause before second part
+            }
+        }
+        // Typing the second part "Blog"
+        else if (currentPart === 1) {
+            if (charIndex < part2.length) {
+                const charSpan = document.createElement('span');
+                charSpan.className = 'typed-char';
+                charSpan.textContent = part2.charAt(charIndex);
+                titleElement.appendChild(charSpan);
+                charIndex++;
+                
+                setTimeout(typeTitle, Math.random() * 100 + 70);
+            } else if (!typingComplete) {
+                // All done, add cursor
+                titleElement.appendChild(cursorSpan);
+                typingComplete = true;
             }
         }
     }
     
-    // Start typing after a short delay
+    // Start typing after a delay
     setTimeout(typeTitle, 500);
 });

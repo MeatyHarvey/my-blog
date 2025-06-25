@@ -3,12 +3,15 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    /* Fix the path - remove the leading slash */
     background: linear-gradient(rgba(101, 67, 33, 0.7), rgba(101, 67, 33, 0.7)), 
         url('../images/background1.min.jpg') center/cover fixed;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+html, body {
+    height: 100%;
 }
 
 /* Shorter header styling */
@@ -37,13 +40,6 @@ header h1 {
     display: inline-block;
     text-align: left;
     position: relative;
-}
-
-header h1::after {
-    content: '';
-    display: inline-block;
-    width: 0.4em;  /* Adjust the width for desired spacing */
-    height: 1em;
 }
 
 nav {
@@ -77,7 +73,8 @@ nav a:hover {
 }
 
 main.container {
-    flex: 1;
+    flex: 1 0 auto; /* Changed from just flex: 1 */
+    padding-bottom: 30px; /* Add space before footer */
 }
 
 /* Make blog posts much more transparent (90%) */
@@ -454,18 +451,13 @@ select:focus {
     animation: fadeIn 0.1s forwards;
 }
 
-/* Add more space between words in title */
-.typed-char:nth-of-type(8) {
-    margin-right: 0.4em; /* Add extra space after the space character */
-}
-
 @keyframes fadeIn {
     to { opacity: 1; }
 }
 
 .typed-space {
     display: inline-block;
-    width: 0.5em; /* Controls the amount of space */
+    width: 0.4em; /* Controls the amount of space */
     opacity: 0;
     animation: fadeIn 0.1s forwards;
 }
