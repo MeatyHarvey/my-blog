@@ -7,6 +7,8 @@ body {
     background: linear-gradient(rgba(101, 67, 33, 0.7), rgba(101, 67, 33, 0.7)), 
         url('../images/background1.min.jpg') center/cover fixed;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Shorter header styling */
@@ -64,6 +66,10 @@ nav a:hover {
     margin: auto;
     overflow: hidden;
     padding: 15px 0;
+}
+
+main.container {
+    flex: 1;
 }
 
 /* Make blog posts much more transparent (90%) */
@@ -173,6 +179,7 @@ footer {
     box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.2);
     font-size: 0.85rem; /* Smaller copyright text */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin-top: auto; /* This pushes the footer down */
 }
 
 /* Form styling improvements - More transparent glass effect */
