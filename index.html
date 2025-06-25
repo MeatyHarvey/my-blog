@@ -53,24 +53,6 @@
     
     <script src="js/main.js"></script>
     <script src="js/animations.js"></script>
-    <script>
-// Simple inline title animation
-document.addEventListener('DOMContentLoaded', function() {
-  const h1 = document.querySelector('header h1');
-  if(h1) {
-    const text = "Harvey's Blog";
-    h1.textContent = '';
-    let i = 0;
-    function type() {
-      if(i < text.length) {
-        h1.textContent += text.charAt(i);
-        i++;
-        setTimeout(type, 100);
-      }
-    }
-    setTimeout(type, 500);
-  }
-});
-</script>
+
 </body>
 </html>
