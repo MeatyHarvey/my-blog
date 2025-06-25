@@ -24,7 +24,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create a text node for the current character
             const charSpan = document.createElement('span');
             charSpan.className = 'typed-char';
-            charSpan.textContent = originalTitle.charAt(charIndex);
+            
+            // Add extra space after "Harvey's"
+            if (originalTitle.charAt(charIndex) === ' ' && charIndex > 0) {
+                charSpan.innerHTML = '&nbsp;&nbsp;'; // Two spaces instead of one
+            } else {
+                charSpan.textContent = originalTitle.charAt(charIndex);
+            }
+            
             titleElement.insertBefore(charSpan, cursorSpan);
             
             charIndex++;
