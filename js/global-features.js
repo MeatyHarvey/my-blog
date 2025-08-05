@@ -21,14 +21,17 @@ async function checkFirebaseConnection() {
         if (typeof firebase !== 'undefined' && firebase.firestore) {
             // Initialize database reference
             db = firebase.firestore();
-            // Test Firebase connection
-            await db.collection('test').limit(1).get();
+            // Test Firebase connection with a simple read
+            const testDoc = await db.collection('test').limit(1).get();
             useFirebase = true;
             console.log('Firebase connected successfully');
+        } else {
+            throw new Error('Firebase not available');
         }
     } catch (error) {
-        console.log('Firebase not available, using local storage fallback');
+        console.log('Firebase not available or failed to connect, using local storage fallback:', error.message);
         useFirebase = false;
+        db = null;
     }
 }
 
@@ -262,10 +265,24 @@ async function loadCommentsForPost(postId) {
 }
 
 async function submitGlobalComment(form) {
+    console.log('submitGlobalComment called');
+    
     const postId = form.getAttribute('data-post-id');
     const authorInput = form.querySelector('.comment-author');
     const textInput = form.querySelector('.comment-text');
     const submitBtn = form.querySelector('.comment-submit');
+    
+    if (!postId) {
+        console.error('No post ID found');
+        alert('Error: Post ID not found. Please refresh and try again.');
+        return;
+    }
+    
+    if (!authorInput || !textInput) {
+        console.error('Form inputs not found');
+        alert('Error: Form inputs not found. Please refresh and try again.');
+        return;
+    }
     
     const author = authorInput.value.trim();
     const text = textInput.value.trim();
@@ -276,8 +293,10 @@ async function submitGlobalComment(form) {
     }
     
     // Disable form during submission
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Posting...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Posting...';
+    }
     
     try {
         const newComment = {
@@ -286,6 +305,8 @@ async function submitGlobalComment(form) {
             text: text,
             timestamp: new Date().toISOString()
         };
+        
+        console.log('Submitting comment:', newComment);
         
         if (useFirebase && db) {
             console.log('Posting comment to Firebase...');
@@ -319,10 +340,14 @@ async function submitGlobalComment(form) {
         await loadCommentsForPost(postId);
         
         // Show success message briefly
-        submitBtn.textContent = 'Posted!';
-        setTimeout(() => {
-            submitBtn.textContent = 'Post Comment';
-        }, 1000);
+        if (submitBtn) {
+            submitBtn.textContent = 'Posted!';
+            setTimeout(() => {
+                submitBtn.textContent = 'Post Comment';
+            }, 1000);
+        }
+        
+        console.log('Comment posted successfully');
         
     } catch (error) {
         console.error('Error posting comment:', error);
@@ -356,19 +381,23 @@ async function submitGlobalComment(form) {
             // Reload comments
             await loadCommentsForPost(postId);
             
-            submitBtn.textContent = 'Posted!';
-            setTimeout(() => {
-                submitBtn.textContent = 'Post Comment';
-            }, 1000);
+            if (submitBtn) {
+                submitBtn.textContent = 'Posted!';
+                setTimeout(() => {
+                    submitBtn.textContent = 'Post Comment';
+                }, 1000);
+            }
             
         } catch (fallbackError) {
             console.error('Fallback also failed:', fallbackError);
             alert('Failed to post comment. Please try again.');
         }
     } finally {
-        submitBtn.disabled = false;
-        if (submitBtn.textContent === 'Posting...') {
-            submitBtn.textContent = 'Post Comment';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            if (submitBtn.textContent === 'Posting...') {
+                submitBtn.textContent = 'Post Comment';
+            }
         }
     }
 }
@@ -412,45 +441,61 @@ function escapeHtml(text) {
 
 // Global function for submitting comments from individual post pages
 function submitComment(postId) {
+    console.log('submitComment called with postId:', postId);
+    
+    // First try to find the proper form
     const form = document.querySelector(`form[data-post-id="${postId}"]`) || 
                  document.querySelector('.comment-form');
     
-    if (form) {
+    if (form && form.tagName === 'FORM') {
+        console.log('Found proper form, dispatching submit event');
         // Create a submit event and trigger the existing handler
-        const submitEvent = new Event('submit');
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
         form.dispatchEvent(submitEvent);
-    } else {
-        // Fallback: try to submit using input values directly
-        const authorInput = document.getElementById('comment-author');
-        const textInput = document.getElementById('comment-text');
+        return;
+    }
+    
+    // Fallback: try to submit using input values directly
+    console.log('Using fallback method for comment submission');
+    const authorInput = document.getElementById('comment-author') || 
+                       document.querySelector('.comment-author');
+    const textInput = document.getElementById('comment-text') || 
+                     document.querySelector('.comment-text');
+    
+    if (authorInput && textInput) {
+        const author = authorInput.value.trim();
+        const text = textInput.value.trim();
         
-        if (authorInput && textInput) {
-            const author = authorInput.value.trim();
-            const text = textInput.value.trim();
-            
-            if (!author || !text) {
-                alert('Please fill in both name and comment.');
-                return;
-            }
-            
-            // Create a temporary form object
-            const tempForm = {
-                getAttribute: () => postId,
-                querySelector: (selector) => {
-                    if (selector === '.comment-author') return authorInput;
-                    if (selector === '.comment-text') return textInput;
-                    if (selector === '.comment-submit') {
-                        return document.querySelector('.submit-comment-btn') || {
-                            disabled: false,
-                            textContent: 'Post Comment'
-                        };
-                    }
-                    return null;
-                }
-            };
-            
-            submitGlobalComment(tempForm);
+        if (!author || !text) {
+            alert('Please fill in both name and comment.');
+            return;
         }
+        
+        // Create a temporary form object that mimics the expected structure
+        const tempForm = {
+            getAttribute: (attr) => {
+                if (attr === 'data-post-id') return postId;
+                return null;
+            },
+            querySelector: (selector) => {
+                if (selector === '.comment-author') return authorInput;
+                if (selector === '.comment-text') return textInput;
+                if (selector === '.comment-submit') {
+                    return document.querySelector('.submit-comment-btn') || 
+                           document.querySelector('.comment-submit') || {
+                        disabled: false,
+                        textContent: 'Post Comment'
+                    };
+                }
+                return null;
+            }
+        };
+        
+        console.log('Calling submitGlobalComment with temp form');
+        submitGlobalComment(tempForm);
+    } else {
+        console.error('Could not find comment form inputs');
+        alert('Could not find comment form. Please refresh the page and try again.');
     }
 }
 

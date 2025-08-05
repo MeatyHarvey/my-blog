@@ -42,6 +42,37 @@
                 
                 <p>My aspiration to become a special person stems from my desire not to be worthless or insignificant. I aim to be a useful individual whom others will rely on in the future.</p>
             </div>
+            
+            <!-- Like and Share Section -->
+            <div class="post-actions">
+                <button class="like-btn" data-post="special-one">
+                    <span class="heart">♡</span> <span class="like-count">0</span>
+                </button>
+                <div class="share-buttons">
+                    <span>Share:</span>
+                    <button class="share-btn" data-platform="twitter">🐦</button>
+                    <button class="share-btn" data-platform="facebook">📘</button>
+                    <button class="share-btn" data-platform="copy">📋</button>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <form class="comment-form" data-post-id="special-one">
+                    <div class="form-group">
+                        <input type="text" class="comment-author" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="comment-text" placeholder="Write your comment here..." rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary comment-submit">Post Comment</button>
+                </form>
+                <div class="comments-list" id="comments-special-one">
+                    <div class="loading">Loading comments...</div>
+                </div>
+            </div>
+            
             <div class="post-navigation">
                 <a href="../index.html" class="back-to-home">← Back to Home</a>
             </div>
@@ -50,6 +81,15 @@
     <footer>
         <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
     </footer>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Blog Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/global-features.js"></script>
+    <script src="../js/features.js"></script>
     <script src="../js/animations.js"></script>
     <script src="../js/bounce.js"></script>
 </body>
