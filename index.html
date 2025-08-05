@@ -33,29 +33,130 @@
                 <a href="write.html">Write</a>
                 <a href="contact.html">Contact</a>
             </nav>
+            <div class="header-controls">
+                <div class="theme-toggle">
+                    <span>🌙</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>☀️</span>
+                </div>
+                <div class="animation-toggle">
+                    <span>Animation</span>
+                    <label class="switch">
+                        <input type="checkbox" id="animation-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
         </div>
     </header>
     <main class="container">
-
-        <!-- Updated blog posts -->
-        <div class="post">
-            <h2>I will be the special one</h2>
-            <p class="post-meta">July 2, 2024</p>
-            <p>I had a discussion with Bok Han about my desire to become a special person. He asked me to define what it means to be special. To ensure I don't forget, I'm noting down some concepts here.</p>
-            <a href="posts/2024-07-02-i-will-be-the-special-one.html" class="read-more">Read More</a>
+        <!-- Search and Filter Section -->
+        <div class="blog-controls">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search posts..." />
+                <button id="search-btn">🔍</button>
+            </div>
+            <div class="filter-container">
+                <select id="category-filter">
+                    <option value="all">All Categories</option>
+                    <option value="blog">Blog Posts</option>
+                    <option value="personal">Personal</option>
+                    <option value="tech">Technology</option>
+                </select>
+                <select id="sort-filter">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="popular">Most Popular</option>
+                </select>
+            </div>
         </div>
-        <div class="post">
-            <h2>Future Fear</h2>
-            <p class="post-meta">October 26, 2024</p>
-            <p>I've been reflecting on the kind of life I want to lead while I'm in Korea. Observing those who are 25 or 26 and still in their third year of university, I realize that at 19, I'm the youngest among the exchange students. This is quite normal in Hong Kong, but it makes me wonder what my life will be like at their age.</p>
-            <a href="posts/2024-10-26-future-fear.html" class="read-more">Read More</a>
-        </div>
 
-       
-        
-        <!-- Dynamic posts -->
-        <div id="posts-container">
-            <!-- Posts will be loaded here by JavaScript -->
+        <div class="main-content">
+            <div class="posts-section">
+                <!-- Updated blog posts with new features -->
+                <div class="post" data-category="personal">
+                    <h2>I will be the special one</h2>
+                    <p class="post-meta">July 2, 2024 • <span class="view-count">152 views</span> • <span class="category-tag personal">Personal</span></p>
+                    <p>I had a discussion with Bok Han about my desire to become a special person. He asked me to define what it means to be special. To ensure I don't forget, I'm noting down some concepts here.</p>
+                    <div class="post-actions">
+                        <a href="posts/2024-07-02-i-will-be-the-special-one.html" class="read-more">Read More</a>
+                        <button class="like-btn" data-post="special-one">
+                            <span class="heart">♡</span>
+                            <span class="like-count">24</span>
+                        </button>
+                        <div class="share-buttons">
+                            <button class="share-btn" data-platform="twitter">🐦</button>
+                            <button class="share-btn" data-platform="facebook">📘</button>
+                            <button class="share-btn" data-platform="copy">📋</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post" data-category="personal">
+                    <h2>Future Fear</h2>
+                    <p class="post-meta">October 26, 2024 • <span class="view-count">89 views</span> • <span class="category-tag personal">Personal</span></p>
+                    <p>I've been reflecting on the kind of life I want to lead while I'm in Korea. Observing those who are 25 or 26 and still in their third year of university, I realize that at 19, I'm the youngest among the exchange students. This is quite normal in Hong Kong, but it makes me wonder what my life will be like at their age.</p>
+                    <div class="post-actions">
+                        <a href="posts/2024-10-26-future-fear.html" class="read-more">Read More</a>
+                        <button class="like-btn" data-post="future-fear">
+                            <span class="heart">♡</span>
+                            <span class="like-count">18</span>
+                        </button>
+                        <div class="share-buttons">
+                            <button class="share-btn" data-platform="twitter">🐦</button>
+                            <button class="share-btn" data-platform="facebook">📘</button>
+                            <button class="share-btn" data-platform="copy">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic posts -->
+                <div id="posts-container">
+                    <!-- Posts will be loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-widget">
+                    <h3>Recent Posts</h3>
+                    <div id="recent-posts">
+                        <!-- Recent posts will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="sidebar-widget">
+                    <h3>Popular Tags</h3>
+                    <div class="tag-cloud">
+                        <span class="tag">personal</span>
+                        <span class="tag">motivation</span>
+                        <span class="tag">life</span>
+                        <span class="tag">goals</span>
+                        <span class="tag">reflection</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-widget">
+                    <h3>Blog Stats</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-posts">2</span>
+                            <span class="stat-label">Posts</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-views">241</span>
+                            <span class="stat-label">Views</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-likes">42</span>
+                            <span class="stat-label">Likes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     <footer>
@@ -65,7 +166,6 @@
     <script src="js/main.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/bounce.js"></script>
-
-    
+    <script src="js/features.js"></script>
 </body>
 </html>
