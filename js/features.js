@@ -1,5 +1,9 @@
 // Optimized Advanced Blog Features
 
+// Global variables
+let useFirebase = false;
+let db;
+
 // Use event delegation and throttling for better performance
 let searchTimeout;
 let isInitialized = false;
@@ -12,6 +16,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeFeatures() {
+    // Set up Firebase variables if available
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+        try {
+            db = firebase.firestore();
+            useFirebase = true;
+        } catch (error) {
+            console.log('Firebase not available, using local storage');
+            useFirebase = false;
+        }
+    }
+    
     // Initialize features with performance optimizations
     requestAnimationFrame(() => {
         initializeSearch();
@@ -20,6 +35,7 @@ function initializeFeatures() {
         initializeSharing();
         initializeThemeToggle();
         loadRecentPosts();
+        updateStats();
     });
 }
 
@@ -297,7 +313,6 @@ document.addEventListener('click', function(e) {
         }
     }
 });
-}
 
 // Update Blog Stats
 function updateStats() {
@@ -329,14 +344,121 @@ function updateStats() {
     }
 }
 
-// Tag Cloud Functionality
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('tag')) {
-        const tag = e.target.textContent;
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-            searchInput.value = tag;
-            searchInput.dispatchEvent(new Event('input'));
-        }
+// Enhanced Viewer Counter System
+function initializeViewCounter() {
+    const currentPage = window.location.pathname;
+    const pageId = currentPage.replace(/[^a-zA-Z0-9]/g, '_') || 'home';
+    
+    // Increment view count
+    incrementViewCount(pageId);
+    
+    // Display view count if element exists
+    const viewCountEl = document.getElementById('view-count');
+    if (viewCountEl) {
+        displayViewCount(pageId, viewCountEl);
     }
+}
+
+async function incrementViewCount(pageId) {
+    try {
+        if (useFirebase && typeof firebase !== 'undefined') {
+            // Firebase implementation
+            const viewRef = db.collection('views').doc(pageId);
+            const viewDoc = await viewRef.get();
+            
+            if (viewDoc.exists) {
+                await viewRef.update({
+                    count: firebase.firestore.FieldValue.increment(1),
+                    lastViewed: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                await viewRef.set({
+                    count: 1,
+                    lastViewed: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        } else {
+            // Local storage fallback
+            const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
+            views[pageId] = (views[pageId] || 0) + 1;
+            localStorage.setItem('pageViews', JSON.stringify(views));
+        }
+    } catch (error) {
+        console.error('Error incrementing view count:', error);
+        // Fallback to local storage
+        const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
+        views[pageId] = (views[pageId] || 0) + 1;
+        localStorage.setItem('pageViews', JSON.stringify(views));
+    }
+}
+
+async function displayViewCount(pageId, element) {
+    try {
+        let viewCount = 0;
+        
+        if (useFirebase && typeof firebase !== 'undefined') {
+            // Firebase implementation
+            const viewDoc = await db.collection('views').doc(pageId).get();
+            if (viewDoc.exists) {
+                viewCount = viewDoc.data().count || 0;
+            }
+        } else {
+            // Local storage fallback
+            const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
+            viewCount = views[pageId] || 0;
+        }
+        
+        element.textContent = `${viewCount} views`;
+    } catch (error) {
+        console.error('Error displaying view count:', error);
+        element.textContent = '0 views';
+    }
+}
+
+// Enhanced Comment System Integration
+function initializeCommentNotifications() {
+    // Check for new comments periodically
+    setInterval(checkForNewComments, 30000); // Check every 30 seconds
+    
+    // Initial check
+    checkForNewComments();
+}
+
+async function checkForNewComments() {
+    try {
+        const notificationEl = document.getElementById('comment-notification');
+        if (!notificationEl) return;
+        
+        if (useFirebase && typeof firebase !== 'undefined') {
+            // Get comments from the last 24 hours
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const commentsQuery = await db.collection('comments')
+                .where('timestamp', '>', yesterday)
+                .orderBy('timestamp', 'desc')
+                .get();
+            
+            const newComments = commentsQuery.docs.length;
+            
+            if (newComments > 0) {
+                notificationEl.style.display = 'block';
+                notificationEl.textContent = `${newComments} new comment${newComments > 1 ? 's' : ''}`;
+                notificationEl.classList.add('notification-badge');
+            } else {
+                notificationEl.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking for new comments:', error);
+    }
+}
+
+// Initialize enhanced features
+document.addEventListener('DOMContentLoaded', function() {
+    // Add viewer counter to existing initialization
+    setTimeout(() => {
+        initializeViewCounter();
+        initializeCommentNotifications();
+    }, 1000); // Delay to ensure Firebase is loaded
 });

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Harvey's Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Complete favicon set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dashboard-card h3 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ade80;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .recent-comments {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .comment-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .comment-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        
+        .comment-text {
+            color: #fff;
+            line-height: 1.4;
+        }
+        
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .refresh-btn:hover {
+            background: #2563eb;
+        }
+        
+        .page-views {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .page-view-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .page-name {
+            color: #fff;
+        }
+        
+        .view-count {
+            color: #4ade80;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Admin Dashboard</h1>
+            <nav>
+                <a href="index.html">← Back to Blog</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="admin-container">
+        <div class="dashboard-grid">
+            <!-- Stats Overview -->
+            <div class="dashboard-card">
+                <h3>📊 Site Statistics</h3>
+                <div>
+                    <span class="stat-number" id="total-posts-admin">0</span>
+                    <span>Total Posts</span>
+                </div>
+                <div style="margin-top: 15px;">
+                    <span class="stat-number" id="total-views-admin">0</span>
+                    <span>Total Views</span>
+                </div>
+                <div style="margin-top: 15px;">
+                    <span class="stat-number" id="total-comments-admin">0</span>
+                    <span>Total Comments</span>
+                </div>
+            </div>
+            
+            <!-- Recent Comments -->
+            <div class="dashboard-card">
+                <h3>💬 Recent Comments</h3>
+                <button class="refresh-btn" onclick="loadRecentComments()">Refresh</button>
+                <div id="recent-comments-list" class="recent-comments">
+                    <p style="color: #94a3b8;">Loading comments...</p>
+                </div>
+            </div>
+            
+            <!-- Page Views -->
+            <div class="dashboard-card">
+                <h3>👁️ Page Views</h3>
+                <button class="refresh-btn" onclick="loadPageViews()">Refresh</button>
+                <div id="page-views-list" class="page-views">
+                    <p style="color: #94a3b8;">Loading page views...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comment Management -->
+        <div class="dashboard-card">
+            <h3>🛠️ Comment Management</h3>
+            <div id="all-comments">
+                <p style="color: #94a3b8;">Loading all comments...</p>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script>
+        let useFirebase = false;
+        let db;
+        
+        // Initialize Firebase
+        async function initializeAdmin() {
+            try {
+                if (typeof firebase !== 'undefined' && firebase.firestore) {
+                    db = firebase.firestore();
+                    useFirebase = true;
+                    console.log('Admin dashboard: Firebase connected');
+                    
+                    // Load initial data
+                    loadDashboardStats();
+                    loadRecentComments();
+                    loadPageViews();
+                    loadAllComments();
+                } else {
+                    console.log('Admin dashboard: Using local storage fallback');
+                    loadLocalStorageData();
+                }
+            } catch (error) {
+                console.error('Admin initialization error:', error);
+                loadLocalStorageData();
+            }
+        }
+        
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                if (useFirebase) {
+                    // Get total comments
+                    const commentsSnapshot = await db.collection('comments').get();
+                    document.getElementById('total-comments-admin').textContent = commentsSnapshot.size;
+                    
+                    // Get total views
+                    const viewsSnapshot = await db.collection('views').get();
+                    let totalViews = 0;
+                    viewsSnapshot.forEach(doc => {
+                        totalViews += doc.data().count || 0;
+                    });
+                    document.getElementById('total-views-admin').textContent = totalViews;
+                } else {
+                    // Local storage fallback
+                    const comments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+                    const commentCount = Object.values(comments).reduce((total, postComments) => total + postComments.length, 0);
+                    document.getElementById('total-comments-admin').textContent = commentCount;
+                    
+                    const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
+                    const totalViews = Object.values(views).reduce((total, count) => total + count, 0);
+                    document.getElementById('total-views-admin').textContent = totalViews;
+                }
+                
+                // Set total posts (static for now)
+                document.getElementById('total-posts-admin').textContent = '2';
+                
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+        
+        // Load recent comments
+        async function loadRecentComments() {
+            const container = document.getElementById('recent-comments-list');
+            
+            try {
+                if (useFirebase) {
+                    const commentsQuery = await db.collection('comments')
+                        .orderBy('timestamp', 'desc')
+                        .limit(10)
+                        .get();
+                    
+                    if (commentsQuery.empty) {
+                        container.innerHTML = '<p style="color: #94a3b8;">No comments yet.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    commentsQuery.forEach(doc => {
+                        const comment = doc.data();
+                        const date = comment.timestamp ? comment.timestamp.toDate().toLocaleDateString() : 'Unknown date';
+                        html += `
+                            <div class="comment-item">
+                                <div class="comment-meta">
+                                    ${comment.author || 'Anonymous'} • ${date} • Post: ${comment.postId}
+                                </div>
+                                <div class="comment-text">${comment.text}</div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    // Local storage fallback
+                    const comments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+                    let allComments = [];
+                    
+                    Object.entries(comments).forEach(([postId, postComments]) => {
+                        postComments.forEach(comment => {
+                            allComments.push({...comment, postId});
+                        });
+                    });
+                    
+                    allComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    allComments = allComments.slice(0, 10);
+                    
+                    if (allComments.length === 0) {
+                        container.innerHTML = '<p style="color: #94a3b8;">No comments yet.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    allComments.forEach(comment => {
+                        const date = new Date(comment.timestamp).toLocaleDateString();
+                        html += `
+                            <div class="comment-item">
+                                <div class="comment-meta">
+                                    ${comment.author || 'Anonymous'} • ${date} • Post: ${comment.postId}
+                                </div>
+                                <div class="comment-text">${comment.text}</div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading recent comments:', error);
+                container.innerHTML = '<p style="color: #ef4444;">Error loading comments.</p>';
+            }
+        }
+        
+        // Load page views
+        async function loadPageViews() {
+            const container = document.getElementById('page-views-list');
+            
+            try {
+                if (useFirebase) {
+                    const viewsSnapshot = await db.collection('views').get();
+                    
+                    if (viewsSnapshot.empty) {
+                        container.innerHTML = '<p style="color: #94a3b8;">No page views recorded.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    viewsSnapshot.forEach(doc => {
+                        const pageId = doc.id;
+                        const count = doc.data().count || 0;
+                        const pageName = pageId.replace(/_/g, '/').replace('html', '') || 'Home';
+                        
+                        html += `
+                            <div class="page-view-item">
+                                <span class="page-name">${pageName}</span>
+                                <span class="view-count">${count}</span>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    // Local storage fallback
+                    const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
+                    
+                    if (Object.keys(views).length === 0) {
+                        container.innerHTML = '<p style="color: #94a3b8;">No page views recorded.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    Object.entries(views).forEach(([pageId, count]) => {
+                        const pageName = pageId.replace(/_/g, '/').replace('html', '') || 'Home';
+                        html += `
+                            <div class="page-view-item">
+                                <span class="page-name">${pageName}</span>
+                                <span class="view-count">${count}</span>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading page views:', error);
+                container.innerHTML = '<p style="color: #ef4444;">Error loading page views.</p>';
+            }
+        }
+        
+        // Load all comments for management
+        async function loadAllComments() {
+            const container = document.getElementById('all-comments');
+            
+            try {
+                if (useFirebase) {
+                    const commentsQuery = await db.collection('comments')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+                    
+                    if (commentsQuery.empty) {
+                        container.innerHTML = '<p style="color: #94a3b8;">No comments to manage.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    commentsQuery.forEach(doc => {
+                        const comment = doc.data();
+                        const date = comment.timestamp ? comment.timestamp.toDate().toLocaleDateString() : 'Unknown date';
+                        html += `
+                            <div class="comment-item">
+                                <div class="comment-meta">
+                                    ${comment.author || 'Anonymous'} • ${date} • Post: ${comment.postId}
+                                    <button onclick="deleteComment('${doc.id}')" style="background: #ef4444; color: white; border: none; padding: 2px 6px; border-radius: 3px; margin-left: 10px; cursor: pointer;">Delete</button>
+                                </div>
+                                <div class="comment-text">${comment.text}</div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p style="color: #94a3b8;">Comment management requires Firebase connection.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading all comments:', error);
+                container.innerHTML = '<p style="color: #ef4444;">Error loading comments.</p>';
+            }
+        }
+        
+        // Delete comment (Firebase only)
+        async function deleteComment(commentId) {
+            if (!useFirebase || !confirm('Are you sure you want to delete this comment?')) {
+                return;
+            }
+            
+            try {
+                await db.collection('comments').doc(commentId).delete();
+                console.log('Comment deleted successfully');
+                loadRecentComments();
+                loadAllComments();
+                loadDashboardStats();
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                alert('Error deleting comment. Please try again.');
+            }
+        }
+        
+        // Local storage fallback
+        function loadLocalStorageData() {
+            loadDashboardStats();
+            loadRecentComments();
+            loadPageViews();
+            
+            document.getElementById('all-comments').innerHTML = 
+                '<p style="color: #94a3b8;">Comment management requires Firebase connection.</p>';
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeAdmin);
+    </script>
+</body>
+</html>

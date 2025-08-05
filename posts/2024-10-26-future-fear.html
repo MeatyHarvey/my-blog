@@ -34,7 +34,7 @@
     <main class="container">
         <div class="post single-post">
             <h1>Future Fear</h1>
-            <p class="post-meta">Published on October 26, 2024 by Harvey</p>
+            <p class="post-meta">Published on October 26, 2024 by Harvey • <span id="view-count">Loading views...</span></p>
             <div class="post-content">
                 <p>I've been reflecting on the kind of life I want to lead while I'm in Korea. Observing those who are 25 or 26 and still in their third year of university, I realize that at 19, I'm the youngest among the exchange students. This is quite normal in Hong Kong, but it makes me wonder what my life will be like at their age.</p>
                 
@@ -44,6 +44,33 @@
                 
                 <p>However, I feel lost right now. I'm not excelling in my studies, and I'm uncertain if I'll pass all my courses during this exchange. I worry about securing an internship in my third year, and I'm unsure if I'll need to defer my studies because of this exchange. I'm anxious about finding a job after graduation. This uncertainty leaves me feeling confused, scared, and worried about my future.</p>
             </div>
+            
+            <!-- Post Actions -->
+            <div class="post-actions">
+                <button class="like-btn" data-post="future-fear">
+                    <span class="heart">♡</span>
+                    <span class="like-count">0</span>
+                </button>
+                <div class="share-buttons">
+                    <button class="share-btn" data-platform="twitter">🐦</button>
+                    <button class="share-btn" data-platform="facebook">📘</button>
+                    <button class="share-btn" data-platform="copy">📋</button>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <div class="comment-form">
+                    <input type="text" id="comment-author" placeholder="Your name" required>
+                    <textarea id="comment-text" placeholder="Write your comment here..." required></textarea>
+                    <button onclick="submitComment('future-fear')" class="submit-comment-btn">Post Comment</button>
+                </div>
+                <div id="comments-container" class="comments-container">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+            
             <div class="post-navigation">
                 <a href="../index.html" class="back-to-home">← Back to Home</a>
             </div>
@@ -52,6 +79,15 @@
     <footer>
         <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
     </footer>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Blog Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/global-features.js"></script>
+    <script src="../js/features.js"></script>
     <script src="../js/animations.js"></script>
     <script src="../js/bounce.js"></script>
 </body>
