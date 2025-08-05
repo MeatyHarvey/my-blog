@@ -172,11 +172,20 @@
     </main>
     
     <footer>
-        <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+        <div class="footer-content">
+            <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+            <div class="website-stats">
+                <div class="running-time">
+                    <span class="stats-label">Website running for:</span>
+                    <span id="website-uptime" class="stats-value">Loading...</span>
+                </div>
+            </div>
+        </div>
     </footer>
     
     <!-- Scripts -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/features.js"></script>
     <script>
         let useFirebase = false;
         let db;

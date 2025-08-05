@@ -34,6 +34,7 @@ function initializeFeatures() {
         loadRecentPosts();
         initializeViewCounter();
         initializeCommentNotifications();
+        initializeWebsiteUptime();
     });
 }
 
@@ -407,4 +408,51 @@ async function checkForNewComments() {
     } catch (error) {
         console.error('Error checking for new comments:', error);
     }
+}
+
+// Website Uptime System
+function initializeWebsiteUptime() {
+    // Set the website launch date (you can change this to your actual launch date)
+    const websiteLaunchDate = new Date('2024-07-01T00:00:00Z'); // July 1, 2024
+    
+    function updateUptime() {
+        const uptimeEl = document.getElementById('website-uptime');
+        if (!uptimeEl) return;
+        
+        const now = new Date();
+        const timeDiff = now - websiteLaunchDate;
+        
+        if (timeDiff < 0) {
+            uptimeEl.textContent = 'Coming soon...';
+            return;
+        }
+        
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        let uptimeText = '';
+        
+        if (days > 0) {
+            uptimeText += `${days} day${days !== 1 ? 's' : ''}`;
+            if (hours > 0) {
+                uptimeText += `, ${hours} hour${hours !== 1 ? 's' : ''}`;
+            }
+        } else if (hours > 0) {
+            uptimeText += `${hours} hour${hours !== 1 ? 's' : ''}`;
+            if (minutes > 0) {
+                uptimeText += `, ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+            }
+        } else {
+            uptimeText += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+        }
+        
+        uptimeEl.textContent = uptimeText;
+    }
+    
+    // Update immediately
+    updateUptime();
+    
+    // Update every minute
+    setInterval(updateUptime, 60000);
 }

@@ -187,6 +187,38 @@ footer {
     bottom: 0; /* Stick to bottom */
 }
 
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.website-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.running-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+.stats-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 300;
+}
+
+.stats-value {
+    color: #fbbf24;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 /* Form styling improvements - More transparent glass effect */
 .form-group {
     margin-bottom: 25px;
