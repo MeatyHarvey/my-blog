@@ -413,8 +413,8 @@ async function checkForNewComments() {
 // Website Uptime System
 function initializeWebsiteUptime() {
     // Set the website launch date (you can change this to your actual launch date)
-    const websiteLaunchDate = new Date('2024-07-01T00:00:00Z'); // July 1, 2024
-    
+    const websiteLaunchDate = new Date('2025-06-24T00:00:00Z'); // June 24, 2025
+
     function updateUptime() {
         const uptimeEl = document.getElementById('website-uptime');
         if (!uptimeEl) return;
