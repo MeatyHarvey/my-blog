@@ -1,14 +1,31 @@
-// Global Comments and Likes System using Firebase
+// Global Comments and Likes System with Local Storage Fallback
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeGlobalFeatures();
 });
 
 function initializeGlobalFeatures() {
+    checkFirebaseConnection();
     loadGlobalLikes();
     loadGlobalComments();
     setupGlobalCommentForms();
     setupGlobalLikeButtons();
+}
+
+// Check if Firebase is available
+let useFirebase = false;
+async function checkFirebaseConnection() {
+    try {
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+            // Test Firebase connection
+            await firebase.firestore().collection('test').limit(1).get();
+            useFirebase = true;
+            console.log('Firebase connected successfully');
+        }
+    } catch (error) {
+        console.log('Firebase not available, using local storage fallback');
+        useFirebase = false;
+    }
 }
 
 // Global Likes System
@@ -29,14 +46,27 @@ function setupGlobalLikeButtons() {
 
 async function loadLikeStatus(postId, button) {
     try {
-        const likeDoc = await db.collection('posts').doc(postId).get();
-        
-        if (likeDoc.exists) {
-            const data = likeDoc.data();
-            const likeCount = data.likes || 0;
+        if (useFirebase) {
+            const likeDoc = await db.collection('posts').doc(postId).get();
+            
+            if (likeDoc.exists) {
+                const data = likeDoc.data();
+                const likeCount = data.likes || 0;
+                const userLiked = hasUserLiked(postId);
+                
+                button.querySelector('.like-count').textContent = likeCount;
+                
+                if (userLiked) {
+                    button.classList.add('liked');
+                    button.querySelector('.heart').textContent = '♥';
+                }
+            }
+        } else {
+            // Use local storage fallback
+            const localLikes = parseInt(localStorage.getItem(`global_likes_${postId}`)) || 0;
             const userLiked = hasUserLiked(postId);
             
-            button.querySelector('.like-count').textContent = likeCount;
+            button.querySelector('.like-count').textContent = localLikes;
             
             if (userLiked) {
                 button.classList.add('liked');
@@ -46,7 +76,7 @@ async function loadLikeStatus(postId, button) {
     } catch (error) {
         console.error('Error loading likes:', error);
         // Fallback to local storage
-        const localLikes = localStorage.getItem(`likes_${postId}`) || '0';
+        const localLikes = parseInt(localStorage.getItem(`global_likes_${postId}`)) || 0;
         button.querySelector('.like-count').textContent = localLikes;
     }
 }
@@ -55,42 +85,63 @@ async function toggleGlobalLike(postId, button) {
     const isLiked = button.classList.contains('liked');
     const likeCountSpan = button.querySelector('.like-count');
     const heartSpan = button.querySelector('.heart');
+    let currentCount = parseInt(likeCountSpan.textContent) || 0;
     
     try {
-        const postRef = db.collection('posts').doc(postId);
-        
-        if (isLiked) {
-            // Unlike
-            await postRef.update({
-                likes: firebase.firestore.FieldValue.increment(-1)
-            });
+        if (useFirebase) {
+            const postRef = db.collection('posts').doc(postId);
             
-            button.classList.remove('liked');
-            heartSpan.textContent = '♡';
-            removeUserLike(postId);
+            if (isLiked) {
+                await postRef.update({
+                    likes: firebase.firestore.FieldValue.increment(-1)
+                });
+                button.classList.remove('liked');
+                heartSpan.textContent = '♡';
+                removeUserLike(postId);
+            } else {
+                await postRef.set({
+                    likes: firebase.firestore.FieldValue.increment(1)
+                }, { merge: true });
+                button.classList.add('liked');
+                heartSpan.textContent = '♥';
+                setUserLike(postId);
+                
+                // Animation
+                button.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 200);
+            }
             
+            const doc = await postRef.get();
+            if (doc.exists) {
+                likeCountSpan.textContent = doc.data().likes || 0;
+            }
         } else {
-            // Like
-            await postRef.set({
-                likes: firebase.firestore.FieldValue.increment(1)
-            }, { merge: true });
+            // Local storage fallback
+            if (isLiked) {
+                currentCount--;
+                button.classList.remove('liked');
+                heartSpan.textContent = '♡';
+                removeUserLike(postId);
+            } else {
+                currentCount++;
+                button.classList.add('liked');
+                heartSpan.textContent = '♥';
+                setUserLike(postId);
+                
+                // Animation
+                button.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 200);
+            }
             
-            button.classList.add('liked');
-            heartSpan.textContent = '♥';
-            setUserLike(postId);
-            
-            // Animation
-            button.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 200);
+            localStorage.setItem(`global_likes_${postId}`, currentCount.toString());
+            likeCountSpan.textContent = currentCount;
         }
         
-        // Update display
-        const doc = await postRef.get();
-        if (doc.exists) {
-            likeCountSpan.textContent = doc.data().likes || 0;
-        }
+        updateStats();
         
     } catch (error) {
         console.error('Error updating like:', error);
@@ -98,7 +149,7 @@ async function toggleGlobalLike(postId, button) {
     }
 }
 
-// User like tracking (to prevent multiple likes from same user)
+// User like tracking
 function hasUserLiked(postId) {
     const userLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
     return userLikes.includes(postId);
@@ -121,21 +172,22 @@ function removeUserLike(postId) {
     }
 }
 
-// Global Comments System
+// Global Comments System with Local Storage Fallback
 function setupGlobalCommentForms() {
-    // Add comment forms to each post
     const posts = document.querySelectorAll('.post[data-category]');
     
     posts.forEach(post => {
-        const postId = post.querySelector('.like-btn').getAttribute('data-post');
+        const likeBtn = post.querySelector('.like-btn');
+        if (!likeBtn) return;
         
-        // Add comment section if it doesn't exist
+        const postId = likeBtn.getAttribute('data-post');
+        
         if (!post.querySelector('.comments-section')) {
             const commentsHTML = `
                 <div class="comments-section">
                     <h4>Comments</h4>
                     <div class="comments-list" id="comments-${postId}">
-                        <!-- Comments will be loaded here -->
+                        <div class="loading">Loading comments...</div>
                     </div>
                     <form class="comment-form" data-post-id="${postId}">
                         <div class="form-group">
@@ -144,7 +196,7 @@ function setupGlobalCommentForms() {
                         <div class="form-group">
                             <textarea class="comment-text" placeholder="Write a comment..." rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="btn-primary">Post Comment</button>
+                        <button type="submit" class="btn-primary comment-submit">Post Comment</button>
                     </form>
                 </div>
             `;
@@ -152,7 +204,6 @@ function setupGlobalCommentForms() {
             post.insertAdjacentHTML('beforeend', commentsHTML);
         }
         
-        // Load existing comments
         loadCommentsForPost(postId);
     });
     
@@ -166,35 +217,43 @@ function setupGlobalCommentForms() {
 }
 
 async function loadCommentsForPost(postId) {
+    const commentsList = document.getElementById(`comments-${postId}`);
+    if (!commentsList) return;
+    
     try {
-        const commentsQuery = await db.collection('comments')
-            .where('postId', '==', postId)
-            .orderBy('timestamp', 'desc')
-            .limit(50)
-            .get();
+        let comments = [];
         
-        const commentsList = document.getElementById(`comments-${postId}`);
-        if (!commentsList) return;
+        if (useFirebase) {
+            const commentsQuery = await db.collection('comments')
+                .where('postId', '==', postId)
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .get();
+            
+            commentsQuery.forEach(doc => {
+                comments.push(doc.data());
+            });
+        } else {
+            // Load from local storage
+            const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+            comments = localComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
         
         commentsList.innerHTML = '';
         
-        if (commentsQuery.empty) {
+        if (comments.length === 0) {
             commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to comment!</p>';
             return;
         }
         
-        commentsQuery.forEach(doc => {
-            const comment = doc.data();
+        comments.forEach(comment => {
             const commentElement = createCommentElement(comment);
             commentsList.appendChild(commentElement);
         });
         
     } catch (error) {
         console.error('Error loading comments:', error);
-        const commentsList = document.getElementById(`comments-${postId}`);
-        if (commentsList) {
-            commentsList.innerHTML = '<p class="error">Unable to load comments. Please refresh the page.</p>';
-        }
+        commentsList.innerHTML = '<p class="error">Unable to load comments. Please refresh the page.</p>';
     }
 }
 
@@ -202,7 +261,7 @@ async function submitGlobalComment(form) {
     const postId = form.getAttribute('data-post-id');
     const authorInput = form.querySelector('.comment-author');
     const textInput = form.querySelector('.comment-text');
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = form.querySelector('.comment-submit');
     
     const author = authorInput.value.trim();
     const text = textInput.value.trim();
@@ -217,13 +276,24 @@ async function submitGlobalComment(form) {
     submitBtn.textContent = 'Posting...';
     
     try {
-        await db.collection('comments').add({
+        const newComment = {
             postId: postId,
             author: author,
             text: text,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            ip: await getUserIP() // Optional: for moderation
-        });
+            timestamp: new Date().toISOString()
+        };
+        
+        if (useFirebase) {
+            await db.collection('comments').add({
+                ...newComment,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            // Save to local storage
+            const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+            localComments.push(newComment);
+            localStorage.setItem(`comments_${postId}`, JSON.stringify(localComments));
+        }
         
         // Clear form
         authorInput.value = '';
@@ -232,14 +302,20 @@ async function submitGlobalComment(form) {
         // Reload comments
         await loadCommentsForPost(postId);
         
-        alert('Comment posted successfully!');
+        // Show success message briefly
+        submitBtn.textContent = 'Posted!';
+        setTimeout(() => {
+            submitBtn.textContent = 'Post Comment';
+        }, 1000);
         
     } catch (error) {
         console.error('Error posting comment:', error);
         alert('Failed to post comment. Please try again.');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Post Comment';
+        if (submitBtn.textContent === 'Posting...') {
+            submitBtn.textContent = 'Post Comment';
+        }
     }
 }
 
@@ -247,9 +323,18 @@ function createCommentElement(comment) {
     const div = document.createElement('div');
     div.className = 'comment-item';
     
-    const timestamp = comment.timestamp ? 
-        comment.timestamp.toDate().toLocaleDateString() : 
-        'Just now';
+    let timestamp;
+    if (comment.timestamp) {
+        if (typeof comment.timestamp === 'string') {
+            timestamp = new Date(comment.timestamp).toLocaleDateString();
+        } else if (comment.timestamp.toDate) {
+            timestamp = comment.timestamp.toDate().toLocaleDateString();
+        } else {
+            timestamp = 'Just now';
+        }
+    } else {
+        timestamp = 'Just now';
+    }
     
     div.innerHTML = `
         <div class="comment-header">
@@ -271,18 +356,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-async function getUserIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch (error) {
-        return 'unknown';
-    }
-}
-
 async function loadGlobalLikes() {
-    // Initialize like counts from Firebase
     const posts = document.querySelectorAll('.like-btn');
     
     for (const button of posts) {
@@ -292,6 +366,71 @@ async function loadGlobalLikes() {
 }
 
 async function loadGlobalComments() {
-    // Comments are loaded individually per post
     setupGlobalCommentForms();
 }
+
+// Real view tracking with more realistic increments
+function initializeViewTracking() {
+    const posts = document.querySelectorAll('.post[data-category]');
+    
+    posts.forEach(post => {
+        const likeBtn = post.querySelector('.like-btn');
+        if (!likeBtn) return;
+        
+        const postId = likeBtn.getAttribute('data-post');
+        const viewElement = post.querySelector('.view-count');
+        
+        if (viewElement) {
+            // Get stored view count
+            let views = parseInt(localStorage.getItem(`views_${postId}`)) || 0;
+            
+            // Increment view count for this session
+            const sessionKey = `viewed_${postId}_${Date.now().toString().slice(-6)}`;
+            if (!sessionStorage.getItem(sessionKey)) {
+                views++;
+                localStorage.setItem(`views_${postId}`, views.toString());
+                sessionStorage.setItem(sessionKey, 'true');
+            }
+            
+            viewElement.textContent = `${views} views`;
+        }
+    });
+}
+
+// Update stats with real data
+function updateStats() {
+    const totalPostsEl = document.getElementById('total-posts');
+    const totalViewsEl = document.getElementById('total-views');
+    const totalLikesEl = document.getElementById('total-likes');
+    
+    if (totalPostsEl) {
+        const posts = document.querySelectorAll('.post').length;
+        totalPostsEl.textContent = posts;
+    }
+    
+    if (totalViewsEl) {
+        let totalViews = 0;
+        const viewElements = document.querySelectorAll('.view-count');
+        viewElements.forEach(el => {
+            totalViews += parseInt(el.textContent.split(' ')[0]) || 0;
+        });
+        totalViewsEl.textContent = totalViews;
+    }
+    
+    if (totalLikesEl) {
+        let totalLikes = 0;
+        const likeElements = document.querySelectorAll('.like-count');
+        likeElements.forEach(el => {
+            totalLikes += parseInt(el.textContent) || 0;
+        });
+        totalLikesEl.textContent = totalLikes;
+    }
+}
+
+// Initialize view tracking when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initializeViewTracking();
+        updateStats();
+    }, 1000);
+});
