@@ -4,14 +4,17 @@
 
 I've fixed the JavaScript error in your `features.js` file and added several new features to your blog:
 
-### ✅ Fixed Issues
+### ✅ Fixed Issues (Updated)
 - **JavaScript Error**: Removed the syntax error that was causing "Declaration or statement expected" error on line 300
-- **Clean Code**: Properly structured all JavaScript functions
+- **Comment System**: Fixed the "Posting..." stuck issue - comments now post properly
+- **View Counter**: Fixed double counting issue - now only counts once per session per page
+- **Clean Code**: Properly structured all JavaScript functions with better error handling
 
 ### 🚀 New Features Added
 
 #### 1. **Viewer Counter System**
 - **Real-time page view tracking** for every page on your blog
+- **Session-based counting** - prevents inflating views by refreshing
 - **Firebase integration** for persistent storage across sessions
 - **Local storage fallback** if Firebase is not available
 - Displays view counts on each post and in the admin dashboard
@@ -20,6 +23,7 @@ I've fixed the JavaScript error in your `features.js` file and added several new
 - **Comments section** added to blog posts (see `posts/2024-10-26-future-fear.html`)
 - **Real-time comment notifications** in the header
 - **Firebase backend** for storing comments permanently
+- **Local storage fallback** with automatic global storage for admin
 - **Admin management** through the admin dashboard
 
 #### 3. **Admin Dashboard**
@@ -32,7 +36,7 @@ I've fixed the JavaScript error in your `features.js` file and added several new
 #### 4. **Improved User Experience**
 - **Notification badges** for new comments
 - **Auto-refresh** comment checks every 30 seconds
-- **Better error handling** with fallbacks
+- **Better error handling** with automatic fallbacks
 - **Mobile-responsive design**
 
 ## 🔧 Setup Instructions

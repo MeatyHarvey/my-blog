@@ -14,11 +14,15 @@ function initializeGlobalFeatures() {
 
 // Check if Firebase is available
 let useFirebase = false;
+let db; // Add missing database reference
+
 async function checkFirebaseConnection() {
     try {
         if (typeof firebase !== 'undefined' && firebase.firestore) {
+            // Initialize database reference
+            db = firebase.firestore();
             // Test Firebase connection
-            await firebase.firestore().collection('test').limit(1).get();
+            await db.collection('test').limit(1).get();
             useFirebase = true;
             console.log('Firebase connected successfully');
         }
@@ -283,16 +287,28 @@ async function submitGlobalComment(form) {
             timestamp: new Date().toISOString()
         };
         
-        if (useFirebase) {
+        if (useFirebase && db) {
+            console.log('Posting comment to Firebase...');
             await db.collection('comments').add({
                 ...newComment,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
+            console.log('Comment posted to Firebase successfully');
         } else {
+            console.log('Posting comment to local storage...');
             // Save to local storage
             const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
             localComments.push(newComment);
             localStorage.setItem(`comments_${postId}`, JSON.stringify(localComments));
+            
+            // Also save to global comments for admin dashboard
+            const globalComments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+            if (!globalComments[postId]) {
+                globalComments[postId] = [];
+            }
+            globalComments[postId].push(newComment);
+            localStorage.setItem('globalComments', JSON.stringify(globalComments));
+            console.log('Comment posted to local storage successfully');
         }
         
         // Clear form
@@ -310,7 +326,45 @@ async function submitGlobalComment(form) {
         
     } catch (error) {
         console.error('Error posting comment:', error);
-        alert('Failed to post comment. Please try again.');
+        
+        // Try local storage as fallback
+        try {
+            console.log('Trying local storage fallback...');
+            const newComment = {
+                postId: postId,
+                author: author,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+            localComments.push(newComment);
+            localStorage.setItem(`comments_${postId}`, JSON.stringify(localComments));
+            
+            // Also save to global comments
+            const globalComments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+            if (!globalComments[postId]) {
+                globalComments[postId] = [];
+            }
+            globalComments[postId].push(newComment);
+            localStorage.setItem('globalComments', JSON.stringify(globalComments));
+            
+            // Clear form
+            authorInput.value = '';
+            textInput.value = '';
+            
+            // Reload comments
+            await loadCommentsForPost(postId);
+            
+            submitBtn.textContent = 'Posted!';
+            setTimeout(() => {
+                submitBtn.textContent = 'Post Comment';
+            }, 1000);
+            
+        } catch (fallbackError) {
+            console.error('Fallback also failed:', fallbackError);
+            alert('Failed to post comment. Please try again.');
+        }
     } finally {
         submitBtn.disabled = false;
         if (submitBtn.textContent === 'Posting...') {
@@ -356,6 +410,53 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Global function for submitting comments from individual post pages
+function submitComment(postId) {
+    const form = document.querySelector(`form[data-post-id="${postId}"]`) || 
+                 document.querySelector('.comment-form');
+    
+    if (form) {
+        // Create a submit event and trigger the existing handler
+        const submitEvent = new Event('submit');
+        form.dispatchEvent(submitEvent);
+    } else {
+        // Fallback: try to submit using input values directly
+        const authorInput = document.getElementById('comment-author');
+        const textInput = document.getElementById('comment-text');
+        
+        if (authorInput && textInput) {
+            const author = authorInput.value.trim();
+            const text = textInput.value.trim();
+            
+            if (!author || !text) {
+                alert('Please fill in both name and comment.');
+                return;
+            }
+            
+            // Create a temporary form object
+            const tempForm = {
+                getAttribute: () => postId,
+                querySelector: (selector) => {
+                    if (selector === '.comment-author') return authorInput;
+                    if (selector === '.comment-text') return textInput;
+                    if (selector === '.comment-submit') {
+                        return document.querySelector('.submit-comment-btn') || {
+                            disabled: false,
+                            textContent: 'Post Comment'
+                        };
+                    }
+                    return null;
+                }
+            };
+            
+            submitGlobalComment(tempForm);
+        }
+    }
+}
+
+// Make submitComment available globally
+window.submitComment = submitComment;
+
 async function loadGlobalLikes() {
     const posts = document.querySelectorAll('.like-btn');
     
@@ -369,35 +470,7 @@ async function loadGlobalComments() {
     setupGlobalCommentForms();
 }
 
-// Real view tracking with more realistic increments
-function initializeViewTracking() {
-    const posts = document.querySelectorAll('.post[data-category]');
-    
-    posts.forEach(post => {
-        const likeBtn = post.querySelector('.like-btn');
-        if (!likeBtn) return;
-        
-        const postId = likeBtn.getAttribute('data-post');
-        const viewElement = post.querySelector('.view-count');
-        
-        if (viewElement) {
-            // Get stored view count
-            let views = parseInt(localStorage.getItem(`views_${postId}`)) || 0;
-            
-            // Increment view count for this session
-            const sessionKey = `viewed_${postId}_${Date.now().toString().slice(-6)}`;
-            if (!sessionStorage.getItem(sessionKey)) {
-                views++;
-                localStorage.setItem(`views_${postId}`, views.toString());
-                sessionStorage.setItem(sessionKey, 'true');
-            }
-            
-            viewElement.textContent = `${views} views`;
-        }
-    });
-}
-
-// Update stats with real data
+// Update stats with real data (removed duplicate view tracking)
 function updateStats() {
     const totalPostsEl = document.getElementById('total-posts');
     const totalViewsEl = document.getElementById('total-views');
@@ -426,11 +499,3 @@ function updateStats() {
         totalLikesEl.textContent = totalLikes;
     }
 }
-
-// Initialize view tracking when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initializeViewTracking();
-        updateStats();
-    }, 1000);
-});

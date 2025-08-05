@@ -1,8 +1,10 @@
-// Optimized Blog Features - Clean Version
+// Optimized Advanced Blog Features
 
 // Global variables
 let useFirebase = false;
 let db;
+
+// Use event delegation and throttling for better performance
 let searchTimeout;
 let isInitialized = false;
 
@@ -29,30 +31,32 @@ function initializeFeatures() {
     requestAnimationFrame(() => {
         initializeSearch();
         initializeFilters();
+        initializeLikes();
         initializeSharing();
         initializeThemeToggle();
         loadRecentPosts();
-        initializeViewCounter();
-        initializeCommentNotifications();
+        updateStats();
     });
 }
 
-// Search with throttling
+// Optimized Search with throttling
 function initializeSearch() {
     const searchInput = document.getElementById('search-input');
     const searchBtn = document.getElementById('search-btn');
     
     if (!searchInput || !searchBtn) return;
     
+    // Throttled search function
     function throttledSearch() {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(performSearch, 300);
+        searchTimeout = setTimeout(performSearch, 300); // Wait 300ms after user stops typing
     }
     
     function performSearch() {
         const query = searchInput.value.toLowerCase().trim();
         const posts = document.querySelectorAll('.post[data-category]');
         
+        // Use document fragment for better performance
         posts.forEach(post => {
             const title = post.querySelector('h2')?.textContent?.toLowerCase() || '';
             const content = post.querySelector('p:not(.post-meta)')?.textContent?.toLowerCase() || '';
@@ -74,7 +78,7 @@ function initializeSearch() {
     });
 }
 
-// Filter Functions
+// Optimized Filter Functions
 function initializeFilters() {
     const categoryFilter = document.getElementById('category-filter');
     const sortFilter = document.getElementById('sort-filter');
@@ -88,13 +92,13 @@ function initializeFilters() {
     }
 }
 
+// Debounce utility function
 function debounce(func, wait) {
     let timeout;
-    return function executedFunction() {
-        const args = arguments;
+    return function executedFunction(...args) {
         const later = () => {
             clearTimeout(timeout);
-            func.apply(this, args);
+            func(...args);
         };
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
@@ -170,8 +174,15 @@ function sortPosts() {
     });
 }
 
-// Social Sharing
+// Optimized Like System (now handled by global-features.js)
+function initializeLikes() {
+    // This is now handled by global-features.js
+    console.log('Like system initialized by global-features.js');
+}
+
+// Optimized Social Sharing
 function initializeSharing() {
+    // Use event delegation for better performance
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('share-btn')) {
             const platform = e.target.getAttribute('data-platform');
@@ -221,6 +232,7 @@ function fallbackCopyToClipboard(text) {
 }
 
 function showToast(message) {
+    // Create a simple toast notification
     const toast = document.createElement('div');
     toast.style.cssText = `
         position: fixed;
@@ -242,12 +254,13 @@ function showToast(message) {
     }, 3000);
 }
 
-// Theme Toggle
+// Optimized Theme Toggle
 function initializeThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
     
     if (!themeToggle) return;
     
+    // Load saved theme immediately to prevent flash
     const savedTheme = localStorage.getItem('theme') || 'light';
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
@@ -265,7 +278,7 @@ function initializeThemeToggle() {
     });
 }
 
-// Recent Posts
+// Optimized Recent Posts
 function loadRecentPosts() {
     const recentPostsContainer = document.getElementById('recent-posts');
     if (!recentPostsContainer) return;
@@ -275,6 +288,7 @@ function loadRecentPosts() {
         { title: 'I will be the special one', date: 'Jul 2, 2024', url: 'posts/2024-07-02-i-will-be-the-special-one.html' }
     ];
     
+    // Use template literals for better performance
     const html = recentPosts.map(post => `
         <div class="recent-post-item">
             <a href="${post.url}" class="recent-post-title">${post.title}</a>
@@ -285,7 +299,7 @@ function loadRecentPosts() {
     recentPostsContainer.innerHTML = html;
 }
 
-// Tag Cloud
+// Optimized Tag Cloud with event delegation
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('tag')) {
         const tag = e.target.textContent;
@@ -300,13 +314,45 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Viewer Counter System
+// Update Blog Stats
+function updateStats() {
+    const totalPostsEl = document.getElementById('total-posts');
+    const totalViewsEl = document.getElementById('total-views');
+    const totalLikesEl = document.getElementById('total-likes');
+    
+    if (totalPostsEl) {
+        const posts = document.querySelectorAll('.post').length;
+        totalPostsEl.textContent = posts;
+    }
+    
+    if (totalViewsEl) {
+        let totalViews = 0;
+        const viewElements = document.querySelectorAll('.view-count');
+        viewElements.forEach(el => {
+            totalViews += parseInt(el.textContent.split(' ')[0]) || 0;
+        });
+        totalViewsEl.textContent = totalViews;
+    }
+    
+    if (totalLikesEl) {
+        let totalLikes = 0;
+        const likeElements = document.querySelectorAll('.like-count');
+        likeElements.forEach(el => {
+            totalLikes += parseInt(el.textContent) || 0;
+        });
+        totalLikesEl.textContent = totalLikes;
+    }
+}
+
+// Enhanced Viewer Counter System
 function initializeViewCounter() {
     const currentPage = window.location.pathname;
     const pageId = currentPage.replace(/[^a-zA-Z0-9]/g, '_') || 'home';
     
+    // Increment view count
     incrementViewCount(pageId);
     
+    // Display view count if element exists
     const viewCountEl = document.getElementById('view-count');
     if (viewCountEl) {
         displayViewCount(pageId, viewCountEl);
@@ -314,14 +360,16 @@ function initializeViewCounter() {
 }
 
 async function incrementViewCount(pageId) {
+    // Check if this page was already viewed in this session
     const sessionKey = `viewed_${pageId}_${new Date().toDateString()}`;
     if (sessionStorage.getItem(sessionKey)) {
         console.log('Page already viewed in this session');
-        return;
+        return; // Don't increment again
     }
     
     try {
         if (useFirebase && typeof firebase !== 'undefined') {
+            // Firebase implementation
             const viewRef = db.collection('views').doc(pageId);
             const viewDoc = await viewRef.get();
             
@@ -337,15 +385,18 @@ async function incrementViewCount(pageId) {
                 });
             }
         } else {
+            // Local storage fallback
             const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
             views[pageId] = (views[pageId] || 0) + 1;
             localStorage.setItem('pageViews', JSON.stringify(views));
         }
         
+        // Mark this page as viewed in this session
         sessionStorage.setItem(sessionKey, 'true');
         
     } catch (error) {
         console.error('Error incrementing view count:', error);
+        // Fallback to local storage
         const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
         views[pageId] = (views[pageId] || 0) + 1;
         localStorage.setItem('pageViews', JSON.stringify(views));
@@ -358,11 +409,13 @@ async function displayViewCount(pageId, element) {
         let viewCount = 0;
         
         if (useFirebase && typeof firebase !== 'undefined') {
+            // Firebase implementation
             const viewDoc = await db.collection('views').doc(pageId).get();
             if (viewDoc.exists) {
                 viewCount = viewDoc.data().count || 0;
             }
         } else {
+            // Local storage fallback
             const views = JSON.parse(localStorage.getItem('pageViews') || '{}');
             viewCount = views[pageId] || 0;
         }
@@ -374,9 +427,12 @@ async function displayViewCount(pageId, element) {
     }
 }
 
-// Comment Notifications
+// Enhanced Comment System Integration
 function initializeCommentNotifications() {
-    setInterval(checkForNewComments, 30000);
+    // Check for new comments periodically
+    setInterval(checkForNewComments, 30000); // Check every 30 seconds
+    
+    // Initial check
     checkForNewComments();
 }
 
@@ -386,6 +442,7 @@ async function checkForNewComments() {
         if (!notificationEl) return;
         
         if (useFirebase && typeof firebase !== 'undefined') {
+            // Get comments from the last 24 hours
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             
@@ -408,3 +465,12 @@ async function checkForNewComments() {
         console.error('Error checking for new comments:', error);
     }
 }
+
+// Initialize enhanced features
+document.addEventListener('DOMContentLoaded', function() {
+    // Add viewer counter to existing initialization
+    setTimeout(() => {
+        initializeViewCounter();
+        initializeCommentNotifications();
+    }, 1000); // Delay to ensure Firebase is loaded
+});
