@@ -2,7 +2,7 @@
 
 // Global variables
 let useFirebase = false;
-let db;
+// db is already declared in firebase-config.js
 let searchTimeout;
 let isInitialized = false;
 
@@ -14,15 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeFeatures() {
-    // Set up Firebase variables if available
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
-        try {
-            db = firebase.firestore();
-            useFirebase = true;
-        } catch (error) {
-            console.log('Firebase not available, using local storage');
-            useFirebase = false;
-        }
+    // Use the global db from firebase-config.js
+    if (typeof db !== 'undefined' && db !== null) {
+        useFirebase = true;
+        console.log('Using Firebase database from global config');
+    } else {
+        console.log('Firebase not available, using local storage');
+        useFirebase = false;
     }
     
     // Initialize features with performance optimizations

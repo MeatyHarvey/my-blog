@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const explosionImage = document.getElementById('explosion-image');
     
     console.log("Explosion image element:", explosionImage);
-    console.log("Explosion image src:", explosionImage.src);
+    if (explosionImage) {
+        console.log("Explosion image src:", explosionImage.src);
+    }
     console.log("Explosion container:", explosionContainer);
     
     if (!container || !kumamonImage || !babyratImage || !explosionContainer || !explosionImage) return;
