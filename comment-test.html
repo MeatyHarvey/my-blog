@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .test-form { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .form-group { margin: 10px 0; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        #console { background: #1e1e1e; color: #fff; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Comment System Test</h1>
+    
+    <div class="test-form">
+        <h3>Test Comment Form</h3>
+        <form class="comment-form" data-post-id="test-post">
+            <div class="form-group">
+                <input type="text" class="comment-author" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+                <textarea class="comment-text" placeholder="Write your comment here..." rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary comment-submit">Post Comment</button>
+        </form>
+    </div>
+    
+    <div id="result-container"></div>
+    <div id="console"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Load Firebase config -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/global-features.js"></script>
+    
+    <script>
+        const consoleEl = document.getElementById('console');
+        const resultContainer = document.getElementById('result-container');
+        
+        // Override console.log to show in the page
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${args.join(' ')}`;
+            consoleEl.appendChild(logEntry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #ff6b6b;">[${timestamp}] ERROR:</span> ${args.join(' ')}`;
+            consoleEl.appendChild(logEntry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+        
+        // Test Firebase connection on load
+        window.addEventListener('load', function() {
+            console.log('🚀 Testing Firebase connection...');
+            console.log('Firebase available:', typeof firebase !== 'undefined');
+            console.log('Database available:', typeof db !== 'undefined' && db !== null);
+            console.log('Global features loaded:', typeof initializeGlobalFeatures !== 'undefined');
+            
+            if (typeof initializeGlobalFeatures === 'function') {
+                initializeGlobalFeatures();
+            }
+        });
+        
+        // Add form submission handler
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-form')) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('📝 Form submitted, testing comment posting...');
+                resultContainer.innerHTML = '<div class="result">Testing comment submission...</div>';
+                
+                // This should trigger the global comment system
+                if (typeof submitGlobalComment === 'function') {
+                    submitGlobalComment(e.target).then(() => {
+                        resultContainer.innerHTML = '<div class="result success">✅ Comment posted successfully!</div>';
+                    }).catch(error => {
+                        resultContainer.innerHTML = `<div class="result error">❌ Comment posting failed: ${error.message}</div>`;
+                    });
+                } else {
+                    resultContainer.innerHTML = '<div class="result error">❌ submitGlobalComment function not found</div>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #console-output {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔥 Firebase Connection Test</h1>
+        <p>This page will test if your Firebase database is properly set up and accessible.</p>
+        
+        <div id="status-container">
+            <div class="status info">Testing Firebase connection...</div>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="testFirebaseConnection()">🔍 Test Connection</button>
+            <button onclick="testWriteData()">✍️ Test Write</button>
+            <button onclick="testReadData()">📖 Test Read</button>
+            <button onclick="clearConsole()">🧹 Clear Console</button>
+        </div>
+        
+        <div id="console-output"></div>
+    </div>
+
+    <!-- Load Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Load your Firebase config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <script>
+        const consoleOutput = document.getElementById('console-output');
+        const statusContainer = document.getElementById('status-container');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+            consoleOutput.appendChild(logEntry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+        
+        // Test Firebase connection
+        function testFirebaseConnection() {
+            log('🔍 Testing Firebase connection...', 'info');
+            
+            try {
+                if (typeof firebase === 'undefined') {
+                    log('❌ Firebase SDK not loaded', 'error');
+                    updateStatus('❌ Firebase SDK not loaded', 'error');
+                    return;
+                }
+                
+                log('✅ Firebase SDK loaded successfully', 'success');
+                
+                if (typeof db === 'undefined' || db === null) {
+                    log('❌ Firebase database not initialized', 'error');
+                    updateStatus('❌ Firebase database not initialized', 'error');
+                    return;
+                }
+                
+                log('✅ Firebase database reference created', 'success');
+                log(`📊 Project ID: ${firebase.app().options.projectId}`, 'info');
+                log(`🌍 Auth Domain: ${firebase.app().options.authDomain}`, 'info');
+                
+                updateStatus('✅ Firebase connection successful!', 'success');
+                
+            } catch (error) {
+                log(`❌ Error testing Firebase: ${error.message}`, 'error');
+                updateStatus(`❌ Firebase connection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test writing data
+        async function testWriteData() {
+            log('✍️ Testing Firebase write operation...', 'info');
+            
+            if (!db) {
+                log('❌ Database not available for write test', 'error');
+                updateStatus('❌ Database not available', 'error');
+                return;
+            }
+            
+            try {
+                const testData = {
+                    message: 'Firebase test successful!',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    testId: Math.random().toString(36).substr(2, 9)
+                };
+                
+                log('📝 Writing test data to Firestore...', 'info');
+                
+                const docRef = await db.collection('test').add(testData);
+                
+                log(`✅ Write successful! Document ID: ${docRef.id}`, 'success');
+                updateStatus('✅ Write test successful!', 'success');
+                
+            } catch (error) {
+                log(`❌ Write failed: ${error.message}`, 'error');
+                updateStatus(`❌ Write test failed: ${error.message}`, 'error');
+                
+                if (error.code === 'permission-denied') {
+                    log('💡 This might be due to Firestore security rules. Check your Firebase Console.', 'info');
+                }
+            }
+        }
+        
+        // Test reading data
+        async function testReadData() {
+            log('📖 Testing Firebase read operation...', 'info');
+            
+            if (!db) {
+                log('❌ Database not available for read test', 'error');
+                updateStatus('❌ Database not available', 'error');
+                return;
+            }
+            
+            try {
+                log('🔍 Reading test data from Firestore...', 'info');
+                
+                const snapshot = await db.collection('test').limit(5).get();
+                
+                if (snapshot.empty) {
+                    log('📭 No test documents found', 'info');
+                    updateStatus('📭 Read successful but no data found', 'info');
+                } else {
+                    log(`✅ Read successful! Found ${snapshot.size} document(s)`, 'success');
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        log(`📄 Document ${doc.id}: ${JSON.stringify(data, null, 2)}`, 'info');
+                    });
+                    
+                    updateStatus('✅ Read test successful!', 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Read failed: ${error.message}`, 'error');
+                updateStatus(`❌ Read test failed: ${error.message}`, 'error');
+                
+                if (error.code === 'permission-denied') {
+                    log('💡 This might be due to Firestore security rules. Check your Firebase Console.', 'info');
+                }
+            }
+        }
+        
+        // Auto-run connection test when page loads
+        window.addEventListener('load', function() {
+            setTimeout(testFirebaseConnection, 1000);
+        });
+    </script>
+</body>
+</html>
