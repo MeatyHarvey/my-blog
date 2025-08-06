@@ -1,12 +1,12 @@
-// Firebase configuration - Using placeholder values (Firebase will fall back to local storage)
+// Firebase configuration - Real Firebase config from your project
 const firebaseConfig = {
-    // You'll get these values when you create a Firebase project
-    apiKey: "your-api-key-here",
-    authDomain: "your-project.firebaseapp.com", 
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "your-app-id"
+    apiKey: "AIzaSyD_0XvuWXso1AD1830Ans8IyIYImp0B_E",
+    authDomain: "website-85d6d.firebaseapp.com",
+    projectId: "website-85d6d",
+    storageBucket: "website-85d6d.firebasestorage.app",
+    messagingSenderId: "362859485714",
+    appId: "1:362859485714:web:796fdcc5cab401e5da96cb",
+    measurementId: "G-5MPR5DSLX7"
 };
 
 // Initialize Firebase only if we have real config values
