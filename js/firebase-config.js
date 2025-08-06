@@ -11,30 +11,35 @@ const firebaseConfig = {
 
 // Initialize Firebase only if we have real config values
 let firebaseInitialized = false;
+let db = null;
+
 try {
     // Check if we have real Firebase config (not placeholder values)
     if (firebaseConfig.apiKey !== "your-api-key-here" && 
         firebaseConfig.projectId !== "your-project-id") {
         firebase.initializeApp(firebaseConfig);
         firebaseInitialized = true;
-        console.log('Firebase initialized with real config');
+        console.log('🔥 Firebase initialized with real config');
+        
+        // Initialize Firestore
+        db = firebase.firestore();
+        console.log('💾 Firestore database initialized');
+        
     } else {
         console.log('Firebase config contains placeholder values, will use local storage');
     }
 } catch (error) {
     console.log('Firebase initialization failed:', error.message);
     firebaseInitialized = false;
+    db = null;
 }
 
-// Only create db reference if Firebase is properly initialized
-let db = null;
-if (firebaseInitialized) {
-    try {
-        db = firebase.firestore();
-        // For development, you can use Firebase emulator
-        // db.useEmulator("localhost", 8080);
-    } catch (error) {
-        console.log('Failed to initialize Firestore:', error.message);
-        db = null;
-    }
-}
+// Make variables globally available
+window.firebaseInitialized = firebaseInitialized;
+window.db = db;
+
+console.log('📊 Firebase setup complete:', {
+    firebaseInitialized: firebaseInitialized,
+    dbAvailable: db !== null,
+    firebaseSDK: typeof firebase !== 'undefined'
+});

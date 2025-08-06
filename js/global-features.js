@@ -16,7 +16,7 @@ function initializeGlobalFeatures() {
 
 // Check if Firebase is available
 let useFirebase = false;
-let db; // Add missing database reference
+// Use the global db from firebase-config.js instead of declaring a new one
 
 async function checkFirebaseConnection() {
     try {
@@ -24,9 +24,9 @@ async function checkFirebaseConnection() {
         if (typeof firebase !== 'undefined' && 
             typeof firebaseInitialized !== 'undefined' && 
             firebaseInitialized && 
-            db) {
+            typeof db !== 'undefined' && db !== null) {
             
-            console.log('Attempting to test Firebase connection...');
+            console.log('🔍 Attempting to test Firebase connection...');
             // Test Firebase connection with a simple read
             const testDoc = await db.collection('test').limit(1).get();
             useFirebase = true;
@@ -38,7 +38,6 @@ async function checkFirebaseConnection() {
         console.log('❌ Firebase not available or failed to connect:', error.message);
         console.log('📱 Using local storage fallback for comments and data');
         useFirebase = false;
-        db = null;
     }
 }
 
