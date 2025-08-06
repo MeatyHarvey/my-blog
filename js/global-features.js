@@ -313,10 +313,39 @@ async function loadCommentsForPost(postId) {
             return;
         }
         
+        // Add bulk delete controls if there are comments
+        const bulkDeleteControls = `
+            <div class="bulk-delete-controls" style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; display: none;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <label>
+                        <input type="checkbox" id="select-all-${postId}" onchange="toggleSelectAll('${postId}')">
+                        Select All
+                    </label>
+                    <button class="bulk-delete-btn" onclick="bulkDeleteComments('${postId}')" disabled>
+                        🗑️ Delete Selected (<span id="selected-count-${postId}">0</span>)
+                    </button>
+                    <button class="cancel-selection-btn" onclick="cancelSelection('${postId}')">
+                        ❌ Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        commentsList.innerHTML = bulkDeleteControls;
+        
         comments.forEach(comment => {
             const commentElement = createCommentElement(comment, postId);
             commentsList.appendChild(commentElement);
         });
+        
+        // Show bulk controls if there are comments with IDs
+        const hasCommentsWithIds = comments.some(comment => comment.id);
+        if (hasCommentsWithIds) {
+            const bulkControls = commentsList.querySelector('.bulk-delete-controls');
+            if (bulkControls) {
+                bulkControls.style.display = 'block';
+            }
+        }
         
         console.log('✅ Comments displayed for post:', postId);
         
@@ -491,6 +520,7 @@ async function submitGlobalComment(form) {
 function createCommentElement(comment, postId) {
     const div = document.createElement('div');
     div.className = 'comment-item';
+    div.setAttribute('data-comment-id', comment.id || '');
     
     let timestamp;
     if (comment.timestamp) {
@@ -505,18 +535,23 @@ function createCommentElement(comment, postId) {
         timestamp = 'Just now';
     }
     
-    // Add delete button for admin (password protected)
-    const deleteButton = comment.id ? `
-        <button class="delete-comment-btn" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete comment (Admin only)">
-            🗑️
-        </button>
+    // Add checkbox for bulk selection and individual delete button
+    const deleteControls = comment.id ? `
+        <div class="comment-controls">
+            <input type="checkbox" class="comment-checkbox" value="${comment.id}" onchange="updateBulkDeleteButton()">
+            <button class="delete-comment-btn" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete this comment">
+                🗑️
+            </button>
+        </div>
     ` : '';
     
     div.innerHTML = `
         <div class="comment-header">
-            <strong class="comment-author">${escapeHtml(comment.author)}</strong>
-            <span class="comment-date">${timestamp}</span>
-            ${deleteButton}
+            <div class="comment-info">
+                <strong class="comment-author">${escapeHtml(comment.author)}</strong>
+                <span class="comment-date">${timestamp}</span>
+            </div>
+            ${deleteControls}
         </div>
         <div class="comment-content">
             ${escapeHtml(comment.text).replace(/\n/g, '<br>')}
@@ -691,3 +726,140 @@ async function deleteComment(commentId, postId) {
 
 // Make deleteComment available globally
 window.deleteComment = deleteComment;
+
+// Bulk delete functions
+function updateBulkDeleteButton() {
+    // Find all comment sections and update their bulk delete buttons
+    document.querySelectorAll('.comments-list').forEach(commentsList => {
+        const postId = commentsList.id.replace('comments-', '');
+        const checkboxes = commentsList.querySelectorAll('.comment-checkbox:checked');
+        const bulkDeleteBtn = commentsList.querySelector('.bulk-delete-btn');
+        const selectedCountSpan = commentsList.querySelector(`#selected-count-${postId}`);
+        
+        if (bulkDeleteBtn && selectedCountSpan) {
+            bulkDeleteBtn.disabled = checkboxes.length === 0;
+            selectedCountSpan.textContent = checkboxes.length;
+        }
+    });
+}
+
+function toggleSelectAll(postId) {
+    const commentsList = document.getElementById(`comments-${postId}`);
+    const selectAllCheckbox = document.getElementById(`select-all-${postId}`);
+    const commentCheckboxes = commentsList.querySelectorAll('.comment-checkbox');
+    
+    commentCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+    
+    updateBulkDeleteButton();
+}
+
+function cancelSelection(postId) {
+    const commentsList = document.getElementById(`comments-${postId}`);
+    const selectAllCheckbox = document.getElementById(`select-all-${postId}`);
+    const commentCheckboxes = commentsList.querySelectorAll('.comment-checkbox');
+    
+    // Uncheck all checkboxes
+    selectAllCheckbox.checked = false;
+    commentCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    updateBulkDeleteButton();
+}
+
+async function bulkDeleteComments(postId) {
+    const commentsList = document.getElementById(`comments-${postId}`);
+    const selectedCheckboxes = commentsList.querySelectorAll('.comment-checkbox:checked');
+    
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one comment to delete.');
+        return;
+    }
+    
+    // Admin password protection
+    const adminPassword = prompt(`Enter admin password to delete ${selectedCheckboxes.length} selected comments:`);
+    if (adminPassword !== 'harvey123') {
+        alert('Incorrect password. Only admin can delete comments.');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selectedCheckboxes.length} comments? This action cannot be undone.`)) {
+        return;
+    }
+    
+    const commentIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+    let successCount = 0;
+    let errorCount = 0;
+    
+    // Show progress
+    const bulkDeleteBtn = commentsList.querySelector('.bulk-delete-btn');
+    const originalText = bulkDeleteBtn.textContent;
+    bulkDeleteBtn.disabled = true;
+    
+    try {
+        console.log(`🗑️ Starting bulk deletion of ${commentIds.length} comments...`);
+        
+        for (let i = 0; i < commentIds.length; i++) {
+            const commentId = commentIds[i];
+            bulkDeleteBtn.textContent = `Deleting... (${i + 1}/${commentIds.length})`;
+            
+            try {
+                if (useFirebase && db && !commentId.startsWith('local_')) {
+                    console.log('🗑️ Deleting comment from Firebase:', commentId);
+                    await db.collection('comments').doc(commentId).delete();
+                } else {
+                    console.log('🗑️ Deleting comment from local storage:', commentId);
+                    // Delete from local storage
+                    const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+                    const filteredComments = localComments.filter(comment => 
+                        comment.id !== commentId && 
+                        comment.timestamp !== commentId.replace('local_', '')
+                    );
+                    localStorage.setItem(`comments_${postId}`, JSON.stringify(filteredComments));
+                    
+                    // Also remove from global comments
+                    const globalComments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+                    if (globalComments[postId]) {
+                        globalComments[postId] = globalComments[postId].filter(comment => 
+                            comment.id !== commentId &&
+                            comment.timestamp !== commentId.replace('local_', '')
+                        );
+                        localStorage.setItem('globalComments', JSON.stringify(globalComments));
+                    }
+                }
+                
+                successCount++;
+                console.log(`✅ Comment ${commentId} deleted successfully`);
+                
+            } catch (error) {
+                console.error(`❌ Error deleting comment ${commentId}:`, error);
+                errorCount++;
+            }
+        }
+        
+        // Show results
+        if (errorCount === 0) {
+            alert(`✅ Successfully deleted all ${successCount} comments!`);
+        } else {
+            alert(`Deleted ${successCount} comments successfully. ${errorCount} failed to delete.`);
+        }
+        
+        // Reload comments to reflect the deletions
+        await loadCommentsForPost(postId);
+        
+    } catch (error) {
+        console.error('❌ Bulk delete operation failed:', error);
+        alert('Bulk delete operation failed. Please try again.');
+    } finally {
+        bulkDeleteBtn.textContent = originalText;
+        bulkDeleteBtn.disabled = false;
+    }
+}
+
+// Make bulk delete functions available globally
+window.updateBulkDeleteButton = updateBulkDeleteButton;
+window.toggleSelectAll = toggleSelectAll;
+window.cancelSelection = cancelSelection;
+window.bulkDeleteComments = bulkDeleteComments;
