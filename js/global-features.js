@@ -6,13 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeGlobalFeatures() {
     console.log('🚀 Initializing Global Features...');
-    checkFirebaseConnection().then(() => {
+    
+    // Add delay to ensure Firebase loads first
+    setTimeout(async () => {
+        await checkFirebaseConnection();
         loadGlobalLikes();
         loadGlobalComments();
         setupGlobalCommentForms();
         setupGlobalLikeButtons();
         console.log('✅ Global Features initialized');
-    });
+    }, 1000);
 }
 
 // Check if Firebase is available
@@ -188,6 +191,7 @@ function removeUserLike(postId) {
 
 // Global Comments System with Local Storage Fallback
 function setupGlobalCommentForms() {
+    console.log('🔧 Setting up global comment forms...');
     const posts = document.querySelectorAll('.post[data-category]');
     
     posts.forEach(post => {
@@ -195,6 +199,7 @@ function setupGlobalCommentForms() {
         if (!likeBtn) return;
         
         const postId = likeBtn.getAttribute('data-post');
+        console.log('📝 Setting up comments for post:', postId);
         
         if (!post.querySelector('.comments-section')) {
             const commentsHTML = `
@@ -218,6 +223,7 @@ function setupGlobalCommentForms() {
             post.insertAdjacentHTML('beforeend', commentsHTML);
         }
         
+        // Load comments immediately
         loadCommentsForPost(postId);
     });
     
@@ -241,13 +247,20 @@ function setupGlobalCommentForms() {
 }
 
 async function loadCommentsForPost(postId) {
+    console.log('📖 Loading comments for post:', postId);
     const commentsList = document.getElementById(`comments-${postId}`);
-    if (!commentsList) return;
+    if (!commentsList) {
+        console.log('❌ Comments list element not found for post:', postId);
+        return;
+    }
     
     try {
         let comments = [];
         
-        if (useFirebase) {
+        console.log('🔥 useFirebase:', useFirebase, 'db:', !!db);
+        
+        if (useFirebase && db) {
+            console.log('🔍 Loading comments from Firebase...');
             try {
                 // Try the optimized query with index first
                 const commentsQuery = await db.collection('comments')
@@ -261,8 +274,9 @@ async function loadCommentsForPost(postId) {
                     commentData.id = doc.id; // Add document ID for deletion
                     comments.push(commentData);
                 });
+                console.log('✅ Loaded', comments.length, 'comments from Firebase');
             } catch (indexError) {
-                console.log('Index not ready yet, using simple query:', indexError.message);
+                console.log('⚠️ Index not ready yet, using simple query:', indexError.message);
                 // Fallback to simple query without orderBy
                 const commentsQuery = await db.collection('comments')
                     .where('postId', '==', postId)
@@ -281,17 +295,21 @@ async function loadCommentsForPost(postId) {
                     const timestampB = b.timestamp?.toDate?.() || new Date(b.timestamp);
                     return timestampB - timestampA; // Newest first
                 });
+                console.log('✅ Loaded', comments.length, 'comments from Firebase (fallback)');
             }
         } else {
+            console.log('💾 Loading comments from local storage...');
             // Load from local storage
             const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
             comments = localComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            console.log('✅ Loaded', comments.length, 'comments from local storage');
         }
         
         commentsList.innerHTML = '';
         
         if (comments.length === 0) {
             commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to comment!</p>';
+            console.log('📝 No comments found for post:', postId);
             return;
         }
         
@@ -300,8 +318,10 @@ async function loadCommentsForPost(postId) {
             commentsList.appendChild(commentElement);
         });
         
+        console.log('✅ Comments displayed for post:', postId);
+        
     } catch (error) {
-        console.error('Error loading comments:', error);
+        console.error('❌ Error loading comments for post', postId, ':', error);
         commentsList.innerHTML = '<p class="error">Unable to load comments. Please refresh the page.</p>';
     }
 }
