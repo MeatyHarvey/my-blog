@@ -247,22 +247,36 @@ async function loadCommentsForPost(postId) {
         let comments = [];
         
         if (useFirebase) {
-            // Simplified query without orderBy to avoid index requirement
-            const commentsQuery = await db.collection('comments')
-                .where('postId', '==', postId)
-                .limit(50)
-                .get();
-            
-            commentsQuery.forEach(doc => {
-                comments.push(doc.data());
-            });
-            
-            // Sort on the client side instead
-            comments.sort((a, b) => {
-                const timestampA = a.timestamp?.toDate?.() || new Date(a.timestamp);
-                const timestampB = b.timestamp?.toDate?.() || new Date(b.timestamp);
-                return timestampB - timestampA; // Newest first
-            });
+            try {
+                // Try the optimized query with index first
+                const commentsQuery = await db.collection('comments')
+                    .where('postId', '==', postId)
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                commentsQuery.forEach(doc => {
+                    comments.push(doc.data());
+                });
+            } catch (indexError) {
+                console.log('Index not ready yet, using simple query:', indexError.message);
+                // Fallback to simple query without orderBy
+                const commentsQuery = await db.collection('comments')
+                    .where('postId', '==', postId)
+                    .limit(50)
+                    .get();
+                
+                commentsQuery.forEach(doc => {
+                    comments.push(doc.data());
+                });
+                
+                // Sort on the client side
+                comments.sort((a, b) => {
+                    const timestampA = a.timestamp?.toDate?.() || new Date(a.timestamp);
+                    const timestampB = b.timestamp?.toDate?.() || new Date(b.timestamp);
+                    return timestampB - timestampA; // Newest first
+                });
+            }
         } else {
             // Load from local storage
             const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
