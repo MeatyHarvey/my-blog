@@ -6,12 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeGlobalFeatures() {
     console.log('🚀 Initializing Global Features...');
-    checkFirebaseConnection();
-    loadGlobalLikes();
-    loadGlobalComments();
-    setupGlobalCommentForms();
-    setupGlobalLikeButtons();
-    console.log('✅ Global Features initialized');
+    checkFirebaseConnection().then(() => {
+        loadGlobalLikes();
+        loadGlobalComments();
+        setupGlobalCommentForms();
+        setupGlobalLikeButtons();
+        console.log('✅ Global Features initialized');
+    });
 }
 
 // Check if Firebase is available
@@ -256,7 +257,9 @@ async function loadCommentsForPost(postId) {
                     .get();
                 
                 commentsQuery.forEach(doc => {
-                    comments.push(doc.data());
+                    const commentData = doc.data();
+                    commentData.id = doc.id; // Add document ID for deletion
+                    comments.push(commentData);
                 });
             } catch (indexError) {
                 console.log('Index not ready yet, using simple query:', indexError.message);
@@ -267,7 +270,9 @@ async function loadCommentsForPost(postId) {
                     .get();
                 
                 commentsQuery.forEach(doc => {
-                    comments.push(doc.data());
+                    const commentData = doc.data();
+                    commentData.id = doc.id; // Add document ID for deletion
+                    comments.push(commentData);
                 });
                 
                 // Sort on the client side
@@ -291,7 +296,7 @@ async function loadCommentsForPost(postId) {
         }
         
         comments.forEach(comment => {
-            const commentElement = createCommentElement(comment);
+            const commentElement = createCommentElement(comment, postId);
             commentsList.appendChild(commentElement);
         });
         
@@ -336,6 +341,12 @@ async function submitGlobalComment(form) {
         return;
     }
     
+    // Prevent double submission
+    if (submitBtn && submitBtn.disabled) {
+        console.log('🚫 Submission already in progress, ignoring duplicate request');
+        return;
+    }
+    
     // Disable form during submission
     if (submitBtn) {
         submitBtn.disabled = true;
@@ -356,11 +367,11 @@ async function submitGlobalComment(form) {
         if (useFirebase && db) {
             console.log('🔥 Attempting to post comment to Firebase...');
             try {
-                await db.collection('comments').add({
+                const docRef = await db.collection('comments').add({
                     ...newComment,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                console.log('✅ Comment posted to Firebase successfully');
+                console.log('✅ Comment posted to Firebase successfully with ID:', docRef.id);
             } catch (firebaseError) {
                 console.error('❌ Firebase posting failed:', firebaseError);
                 throw firebaseError; // This will trigger the local storage fallback
@@ -369,6 +380,7 @@ async function submitGlobalComment(form) {
             console.log('💾 Posting comment to local storage...');
             // Save to local storage
             const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+            newComment.id = 'local_' + Date.now(); // Add ID for local storage
             localComments.push(newComment);
             localStorage.setItem(`comments_${postId}`, JSON.stringify(localComments));
             
@@ -409,7 +421,8 @@ async function submitGlobalComment(form) {
                 postId: postId,
                 author: author,
                 text: text,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                id: 'local_' + Date.now()
             };
             
             const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
@@ -455,7 +468,7 @@ async function submitGlobalComment(form) {
     }
 }
 
-function createCommentElement(comment) {
+function createCommentElement(comment, postId) {
     const div = document.createElement('div');
     div.className = 'comment-item';
     
@@ -472,10 +485,18 @@ function createCommentElement(comment) {
         timestamp = 'Just now';
     }
     
+    // Add delete button for admin (password protected)
+    const deleteButton = comment.id ? `
+        <button class="delete-comment-btn" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete comment (Admin only)">
+            🗑️
+        </button>
+    ` : '';
+    
     div.innerHTML = `
         <div class="comment-header">
             <strong class="comment-author">${escapeHtml(comment.author)}</strong>
             <span class="comment-date">${timestamp}</span>
+            ${deleteButton}
         </div>
         <div class="comment-content">
             ${escapeHtml(comment.text).replace(/\n/g, '<br>')}
@@ -597,3 +618,56 @@ function updateStats() {
         totalLikesEl.textContent = totalLikes;
     }
 }
+
+// Admin function to delete comments (password protected)
+async function deleteComment(commentId, postId) {
+    // Admin password protection
+    const adminPassword = prompt('Enter admin password to delete this comment:');
+    if (adminPassword !== 'harvey123') { // Change this to your preferred password
+        alert('Incorrect password. Only admin can delete comments.');
+        return;
+    }
+    
+    if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        if (useFirebase && db && !commentId.startsWith('local_')) {
+            console.log('🗑️ Deleting comment from Firebase:', commentId);
+            await db.collection('comments').doc(commentId).delete();
+            console.log('✅ Comment deleted from Firebase successfully');
+        } else {
+            console.log('🗑️ Deleting comment from local storage:', commentId);
+            // Delete from local storage
+            const localComments = JSON.parse(localStorage.getItem(`comments_${postId}`) || '[]');
+            const filteredComments = localComments.filter(comment => 
+                comment.id !== commentId && 
+                comment.timestamp !== commentId.replace('local_', '') // Fallback for old comments without ID
+            );
+            localStorage.setItem(`comments_${postId}`, JSON.stringify(filteredComments));
+            
+            // Also remove from global comments
+            const globalComments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+            if (globalComments[postId]) {
+                globalComments[postId] = globalComments[postId].filter(comment => 
+                    comment.id !== commentId &&
+                    comment.timestamp !== commentId.replace('local_', '')
+                );
+                localStorage.setItem('globalComments', JSON.stringify(globalComments));
+            }
+            console.log('✅ Comment deleted from local storage successfully');
+        }
+        
+        // Reload comments to reflect the deletion
+        await loadCommentsForPost(postId);
+        alert('Comment deleted successfully!');
+        
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment. Please try again.');
+    }
+}
+
+// Make deleteComment available globally
+window.deleteComment = deleteComment;
