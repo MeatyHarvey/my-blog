@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Posts - Harvey's Blog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1em;
+        }
+
+        .auth-notice {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: rgba(0, 123, 255, 0.8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 123, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4ECDC4;
+        }
+
+        .post-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .post-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .post-title {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+
+        .post-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .post-excerpt {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid rgba(0, 123, 255, 0.8);
+        }
+
+        .post-content-preview {
+            max-height: 80px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .glass-panel {
+                padding: 20px;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .actions-bar, .post-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-panel">
+            <div class="header">
+                <h1>📝 My Posts</h1>
+                <p>Manage your published content</p>
+            </div>
+
+            <div id="auth-notice" class="auth-notice" style="display: none;">
+                🔐 You need to be logged in to view your posts. 
+                <button onclick="showAuthModal()" style="background: rgba(0,123,255,0.8); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                    Login / Register
+                </button>
+            </div>
+
+            <div id="user-content" style="display: none;">
+                <div class="user-info">
+                    <div class="user-details">
+                        <div id="user-avatar" class="user-avatar">U</div>
+                        <div>
+                            <h3 style="color: white; margin-bottom: 5px;" id="user-name">User</h3>
+                            <p style="color: rgba(255,255,255,0.7);" id="user-status">Member since today</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="logout()" class="btn btn-secondary">🚪 Logout</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>📝 Total Posts</h3>
+                        <div class="stat-number" id="total-posts">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📅 This Month</h3>
+                        <div class="stat-number" id="month-posts">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>👀 Total Views</h3>
+                        <div class="stat-number" id="total-views">--</div>
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <a href="user-write.html" class="btn btn-primary">✍️ Write New Post</a>
+                    <button onclick="refreshPosts()" class="btn btn-secondary">🔄 Refresh</button>
+                    <a href="index.html" class="btn btn-secondary">🏠 Back to Blog</a>
+                </div>
+
+                <div id="posts-container">
+                    <p style="color: rgba(255,255,255,0.8); text-align: center;">Loading your posts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); padding: 30px; max-width: 400px; width: 90%;">
+            <h2 id="modal-title" style="color: white; text-align: center; margin-bottom: 20px;">🔐 Login Required</h2>
+            
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="login-username" placeholder="Username" required style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <input type="password" id="login-password" placeholder="Password" required style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: rgba(0,123,255,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Login</button>
+                <p style="text-align: center; color: rgba(255,255,255,0.8);">
+                    Don't have an account? 
+                    <button type="button" onclick="showRegisterForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Register here</button>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="register-username" placeholder="Choose username" required style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <input type="password" id="register-password" placeholder="Create password" required style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <input type="password" id="register-confirm-password" placeholder="Confirm password" required style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px);">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: rgba(40,167,69,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Create Account</button>
+                <p style="text-align: center; color: rgba(255,255,255,0.8);">
+                    Already have an account? 
+                    <button type="button" onclick="showLoginForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Login here</button>
+                </p>
+            </form>
+
+            <button onclick="hideAuthModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
+        </div>
+    </div>
+
+    <!-- Include required scripts -->
+    <script src="js/user-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
+
+        function checkAuthStatus() {
+            const authNotice = document.getElementById('auth-notice');
+            const userContent = document.getElementById('user-content');
+            
+            if (!window.userAuth.isLoggedIn()) {
+                authNotice.style.display = 'block';
+                userContent.style.display = 'none';
+            } else {
+                authNotice.style.display = 'none';
+                userContent.style.display = 'block';
+                loadUserInfo();
+                loadUserPosts();
+            }
+        }
+
+        function loadUserInfo() {
+            const user = window.userAuth.getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').textContent = user.username;
+                document.getElementById('user-avatar').textContent = user.avatar;
+                document.getElementById('user-status').textContent = `Member since ${new Date(user.registeredAt).toLocaleDateString()}`;
+            }
+        }
+
+        async function loadUserPosts() {
+            const user = window.userAuth.getCurrentUser();
+            if (!user) return;
+
+            try {
+                let userPosts = [];
+                
+                // Try to load from Firebase first
+                if (window.db) {
+                    const snapshot = await window.db.collection('userPosts')
+                        .where('author', '==', user.username)
+                        .orderBy('publishedAt', 'desc')
+                        .get();
+                    userPosts = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } else {
+                    // Fallback to localStorage
+                    const allPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    userPosts = allPosts.filter(post => post.author === user.username);
+                    userPosts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+                }
+
+                displayUserPosts(userPosts);
+                updateStats(userPosts);
+                
+            } catch (error) {
+                console.error('Error loading user posts:', error);
+                document.getElementById('posts-container').innerHTML = 
+                    '<p style="color: rgba(255,100,100,0.8); text-align: center;">Error loading your posts.</p>';
+            }
+        }
+
+        function displayUserPosts(posts) {
+            const container = document.getElementById('posts-container');
+            
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: white; margin-bottom: 15px;">📝 No posts yet</h3>
+                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Start sharing your thoughts with the community!</p>
+                        <a href="user-write.html" class="btn btn-primary">✍️ Write Your First Post</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let postsHtml = '';
+            posts.forEach(post => {
+                postsHtml += `
+                    <div class="post-item">
+                        <div class="post-header">
+                            <div style="flex: 1;">
+                                <h4 class="post-title">${post.title}</h4>
+                                <div class="post-meta">
+                                    📅 Published ${new Date(post.publishedAt).toLocaleDateString()} • 📂 ${post.category}
+                                </div>
+                            </div>
+                        </div>
+                        ${post.excerpt ? `<div class="post-excerpt">${post.excerpt}</div>` : ''}
+                        <div class="post-content-preview">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</div>
+                        <div class="post-actions">
+                            <button onclick="viewFullPost('${post.id}')" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">
+                                👁️ View Full
+                            </button>
+                            <button onclick="editPost('${post.id}')" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">
+                                ✏️ Edit
+                            </button>
+                            <button onclick="deleteMyPost('${post.id}')" class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = postsHtml;
+        }
+
+        function updateStats(posts) {
+            document.getElementById('total-posts').textContent = posts.length;
+            
+            // Count posts from this month
+            const thisMonth = new Date().getMonth();
+            const thisYear = new Date().getFullYear();
+            const monthPosts = posts.filter(post => {
+                const postDate = new Date(post.publishedAt);
+                return postDate.getMonth() === thisMonth && postDate.getFullYear() === thisYear;
+            }).length;
+            
+            document.getElementById('month-posts').textContent = monthPosts;
+        }
+
+        function viewFullPost(postId) {
+            const allPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+            const post = allPosts.find(p => p.id === postId);
+            
+            if (!post) {
+                alert('Post not found.');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; 
+                display: flex; align-items: center; justify-content: center; padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); padding: 30px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                        <h2 style="color: white; flex: 1; margin-right: 20px;">${post.title}</h2>
+                        <button onclick="this.closest('div').parentElement.remove()" style="background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px;">×</button>
+                    </div>
+                    <div style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
+                        👤 ${post.author} • 📅 ${new Date(post.publishedAt).toLocaleDateString()} • 📂 ${post.category}
+                    </div>
+                    ${post.excerpt ? `<div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid rgba(0,123,255,0.8);"><p style="color: rgba(255,255,255,0.9); font-style: italic; margin: 0;">${post.excerpt}</p></div>` : ''}
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="color: rgba(255,255,255,0.9); line-height: 1.6; white-space: pre-wrap;">${post.content}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function editPost(postId) {
+            // For now, just show a message - in a full implementation, this would navigate to an edit page
+            alert('Edit functionality coming soon! For now, you can delete and rewrite the post.');
+        }
+
+        async function deleteMyPost(postId) {
+            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
+            
+            try {
+                if (window.db) {
+                    await window.db.collection('userPosts').doc(postId).delete();
+                } else {
+                    const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    const filteredPosts = userPosts.filter(p => p.id !== postId);
+                    localStorage.setItem('userPosts', JSON.stringify(filteredPosts));
+                }
+                
+                loadUserPosts(); // Refresh the list
+                alert('✅ Post deleted successfully.');
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('❌ Error deleting post. Please try again.');
+            }
+        }
+
+        function refreshPosts() {
+            loadUserPosts();
+        }
+
+        function logout() {
+            window.userAuth.logout();
+            checkAuthStatus();
+        }
+
+        // Override auth functions to refresh page state
+        const originalUpdateAuthUI = window.updateAuthUI;
+        window.updateAuthUI = function() {
+            if (originalUpdateAuthUI) originalUpdateAuthUI();
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html>

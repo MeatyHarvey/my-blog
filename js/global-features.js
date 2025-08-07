@@ -339,20 +339,20 @@ async function loadCommentsForPost(postId) {
         
         // Add admin controls that are hidden by default
         const adminControls = `
-            <div class="admin-controls" style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; border: 1px solid #dee2e6;">
+            <div class="admin-controls" style="margin-bottom: 15px; padding: 12px; background: rgba(248, 249, 250, 0.1); backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                    <button class="admin-mode-btn" onclick="toggleAdminMode('${postId}')" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s;">
+                    <button class="admin-mode-btn" onclick="toggleAdminMode('${postId}')" style="background: rgba(108, 117, 125, 0.9); backdrop-filter: blur(10px); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1);">
                         🔧 Admin Mode
                     </button>
                     <div class="bulk-delete-controls" style="display: none; flex: 1;">
-                        <label style="margin-right: 15px; font-weight: 500; color: #495057;">
+                        <label style="margin-right: 15px; font-weight: 500; color: rgba(73, 80, 87, 0.9);">
                             <input type="checkbox" id="select-all-${postId}" onchange="toggleSelectAll('${postId}')" style="margin-right: 5px;">
                             Select All
                         </label>
-                        <button class="bulk-delete-btn" onclick="bulkDeleteComments('${postId}')" disabled style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <button class="bulk-delete-btn" onclick="bulkDeleteComments('${postId}')" disabled style="background: rgba(220, 53, 69, 0.9); backdrop-filter: blur(10px); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">
                             🗑️ Delete Selected (<span id="selected-count-${postId}">0</span>)
                         </button>
-                        <button class="cancel-selection-btn" onclick="cancelSelection('${postId}')" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <button class="cancel-selection-btn" onclick="cancelSelection('${postId}')" style="background: rgba(108, 117, 125, 0.9); backdrop-filter: blur(10px); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">
                             ❌ Cancel
                         </button>
                     </div>
@@ -549,7 +549,7 @@ function createCommentElement(comment, postId) {
     const div = document.createElement('div');
     div.className = 'comment-item';
     div.setAttribute('data-comment-id', comment.id || '');
-    div.style.cssText = 'margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-left: 3px solid #007bff; border-radius: 0 5px 5px 0;';
+    div.style.cssText = 'margin-bottom: 15px; padding: 15px; background: rgba(248, 249, 250, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);';
     
     let timestamp;
     if (comment.timestamp) {
@@ -568,7 +568,7 @@ function createCommentElement(comment, postId) {
     const deleteControls = comment.id ? `
         <div class="comment-controls admin-only" style="display: none; align-items: center; gap: 8px;">
             <input type="checkbox" class="comment-checkbox" value="${comment.id}" onchange="updateBulkDeleteButton()" style="margin: 0;">
-            <button class="delete-comment-btn" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete this comment" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.2s;">
+            <button class="delete-comment-btn" onclick="deleteComment('${comment.id}', '${postId}')" title="Delete this comment" style="background: rgba(220, 53, 69, 0.9); backdrop-filter: blur(10px); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1);">
                 🗑️
             </button>
         </div>
@@ -577,12 +577,12 @@ function createCommentElement(comment, postId) {
     div.innerHTML = `
         <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div class="comment-info">
-                <strong class="comment-author" style="color: #2c3e50;">${escapeHtml(comment.author)}</strong>
-                <span class="comment-date" style="color: #7f8c8d; font-size: 0.9em; margin-left: 10px;">${timestamp}</span>
+                <strong class="comment-author" style="color: rgba(44, 62, 80, 0.9); text-shadow: 0 1px 2px rgba(255,255,255,0.5);">${escapeHtml(comment.author)}</strong>
+                <span class="comment-date" style="color: rgba(127, 140, 141, 0.8); font-size: 0.9em; margin-left: 10px;">${timestamp}</span>
             </div>
             ${deleteControls}
         </div>
-        <div class="comment-content" style="color: #34495e; line-height: 1.5; margin-left: 5px;">
+        <div class="comment-content" style="color: rgba(52, 73, 94, 0.9); line-height: 1.6; margin-left: 5px; text-shadow: 0 1px 2px rgba(255,255,255,0.3);">
             ${escapeHtml(comment.text).replace(/\n/g, '<br>')}
         </div>
     `;
