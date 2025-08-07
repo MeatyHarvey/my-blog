@@ -1,4 +1,5 @@
 // Global Comments and Likes System with Local Storage Fallback
+// Updated: 2025-08-07 - Admin Mode UI Improvements
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeGlobalFeatures();
