@@ -7,15 +7,33 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeGlobalFeatures() {
     console.log('🚀 Initializing Global Features...');
     
-    // Add delay to ensure Firebase loads first
+    // Wait longer for Firebase to fully load, then initialize everything
     setTimeout(async () => {
+        console.log('🔧 Starting delayed initialization...');
         await checkFirebaseConnection();
-        loadGlobalLikes();
-        loadGlobalComments();
+        
+        // Set up forms first, then load content
         setupGlobalCommentForms();
         setupGlobalLikeButtons();
+        
+        // Load existing data
+        loadGlobalLikes();
+        loadGlobalComments();
+        
+        // Force load comments for current page based on URL
+        setTimeout(() => {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('future-fear')) {
+                console.log('🎯 Force loading comments for current page: future-fear');
+                loadCommentsForPost('future-fear');
+            } else if (currentPath.includes('special-one')) {
+                console.log('🎯 Force loading comments for current page: special-one');
+                loadCommentsForPost('special-one');
+            }
+        }, 1000);
+        
         console.log('✅ Global Features initialized');
-    }, 1000);
+    }, 2000); // Increased delay to 2 seconds
 }
 
 // Check if Firebase is available
@@ -24,15 +42,18 @@ let useFirebase = false;
 
 async function checkFirebaseConnection() {
     try {
+        // Wait a bit more for Firebase to fully initialize
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Check if Firebase was properly initialized in firebase-config.js
         if (typeof firebase !== 'undefined' && 
-            typeof firebaseInitialized !== 'undefined' && 
-            firebaseInitialized && 
-            typeof db !== 'undefined' && db !== null) {
+            typeof window.firebaseInitialized !== 'undefined' && 
+            window.firebaseInitialized && 
+            typeof window.db !== 'undefined' && window.db !== null) {
             
             console.log('🔍 Attempting to test Firebase connection...');
             // Test Firebase connection with a simple read
-            const testDoc = await db.collection('test').limit(1).get();
+            const testDoc = await window.db.collection('test').limit(1).get();
             useFirebase = true;
             console.log('✅ Firebase connected successfully');
         } else {
@@ -224,7 +245,9 @@ function setupGlobalCommentForms() {
         }
         
         // Load comments immediately
-        loadCommentsForPost(postId);
+        setTimeout(() => {
+            loadCommentsForPost(postId);
+        }, 100);
     });
     
     // Setup form submission with better event handling
@@ -259,11 +282,11 @@ async function loadCommentsForPost(postId) {
         
         console.log('🔥 useFirebase:', useFirebase, 'db:', !!db);
         
-        if (useFirebase && db) {
+        if (useFirebase && window.db) {
             console.log('🔍 Loading comments from Firebase...');
             try {
                 // Try the optimized query with index first
-                const commentsQuery = await db.collection('comments')
+                const commentsQuery = await window.db.collection('comments')
                     .where('postId', '==', postId)
                     .orderBy('timestamp', 'desc')
                     .limit(50)
@@ -274,11 +297,11 @@ async function loadCommentsForPost(postId) {
                     commentData.id = doc.id; // Add document ID for deletion
                     comments.push(commentData);
                 });
-                console.log('✅ Loaded', comments.length, 'comments from Firebase');
+                console.log('✅ Loaded', comments.length, 'comments from Firebase (with index)');
             } catch (indexError) {
                 console.log('⚠️ Index not ready yet, using simple query:', indexError.message);
                 // Fallback to simple query without orderBy
-                const commentsQuery = await db.collection('comments')
+                const commentsQuery = await window.db.collection('comments')
                     .where('postId', '==', postId)
                     .limit(50)
                     .get();
@@ -351,7 +374,15 @@ async function loadCommentsForPost(postId) {
         
     } catch (error) {
         console.error('❌ Error loading comments for post', postId, ':', error);
-        commentsList.innerHTML = '<p class="error">Unable to load comments. Please refresh the page.</p>';
+        commentsList.innerHTML = '<p class="error">Unable to load comments. <button onclick="loadCommentsForPost(\'' + postId + '\')">🔄 Retry</button></p>';
+        
+        // Auto-retry once after 3 seconds if Firebase wasn't ready
+        if (error.message.includes('Firebase') || error.message.includes('db')) {
+            setTimeout(() => {
+                console.log('🔄 Auto-retrying comment load for post:', postId);
+                loadCommentsForPost(postId);
+            }, 3000);
+        }
     }
 }
 
@@ -413,10 +444,10 @@ async function submitGlobalComment(form) {
         
         console.log('💬 New comment object:', newComment);
         
-        if (useFirebase && db) {
+        if (useFirebase && window.db) {
             console.log('🔥 Attempting to post comment to Firebase...');
             try {
-                const docRef = await db.collection('comments').add({
+                const docRef = await window.db.collection('comments').add({
                     ...newComment,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -641,7 +672,51 @@ async function loadGlobalLikes() {
 }
 
 async function loadGlobalComments() {
+    console.log('🔄 Loading global comments for all posts...');
     setupGlobalCommentForms();
+    
+    // Find all comment forms with data-post-id and load comments for each
+    const commentForms = document.querySelectorAll('.comment-form[data-post-id]');
+    
+    commentForms.forEach(form => {
+        const postId = form.getAttribute('data-post-id');
+        if (postId) {
+            console.log('📝 Loading comments for post:', postId);
+            // Add a small delay to ensure Firebase is ready
+            setTimeout(() => {
+                loadCommentsForPost(postId);
+            }, 500);
+        }
+    });
+    
+    // Also find comment sections that follow the pattern "comments-{postId}"
+    const commentsSections = document.querySelectorAll('[id^="comments-"]');
+    
+    commentsSections.forEach(section => {
+        const postId = section.id.replace('comments-', '');
+        if (postId && postId !== section.id) { // Make sure we actually found a postId
+            console.log('📝 Loading comments for post from ID pattern:', postId);
+            setTimeout(() => {
+                loadCommentsForPost(postId);
+            }, 600);
+        }
+    });
+    
+    // If no specific comment sections found, try to load from URL pattern
+    if (commentForms.length === 0 && commentsSections.length === 0) {
+        const urlPath = window.location.pathname;
+        if (urlPath.includes('future-fear')) {
+            console.log('📝 Loading comments for future-fear from URL pattern');
+            setTimeout(() => {
+                loadCommentsForPost('future-fear');
+            }, 700);
+        } else if (urlPath.includes('special-one')) {
+            console.log('📝 Loading comments for special-one from URL pattern');
+            setTimeout(() => {
+                loadCommentsForPost('special-one');
+            }, 700);
+        }
+    }
 }
 
 // Update stats with real data (removed duplicate view tracking)
@@ -688,9 +763,9 @@ async function deleteComment(commentId, postId) {
     }
     
     try {
-        if (useFirebase && db && !commentId.startsWith('local_')) {
+        if (useFirebase && window.db && !commentId.startsWith('local_')) {
             console.log('🗑️ Deleting comment from Firebase:', commentId);
-            await db.collection('comments').doc(commentId).delete();
+            await window.db.collection('comments').doc(commentId).delete();
             console.log('✅ Comment deleted from Firebase successfully');
         } else {
             console.log('🗑️ Deleting comment from local storage:', commentId);
@@ -806,9 +881,9 @@ async function bulkDeleteComments(postId) {
             bulkDeleteBtn.textContent = `Deleting... (${i + 1}/${commentIds.length})`;
             
             try {
-                if (useFirebase && db && !commentId.startsWith('local_')) {
+                if (useFirebase && window.db && !commentId.startsWith('local_')) {
                     console.log('🗑️ Deleting comment from Firebase:', commentId);
-                    await db.collection('comments').doc(commentId).delete();
+                    await window.db.collection('comments').doc(commentId).delete();
                 } else {
                     console.log('🗑️ Deleting comment from local storage:', commentId);
                     // Delete from local storage
