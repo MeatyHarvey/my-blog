@@ -12,6 +12,10 @@
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     <link rel="shortcut icon" href="favicon.ico">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
     <!-- Bouncing animations with explosion -->
@@ -31,7 +35,9 @@
                 <a href="travel.html">Travel</a>
                 <a href="about.html">About</a>
                 <a href="write.html">Write</a>
+                <a href="my-posts.html" style="color: #fbbf24;">📝 My Posts</a>
                 <a href="contact.html">Contact</a>
+                <a href="admin-panel.html" style="color: #fbbf24;">Admin</a>
             </nav>
             <div class="animation-toggle">
                 <span>Animation</span>
@@ -40,11 +46,32 @@
                     <span class="slider round"></span>
                 </label>
             </div>
+            
+            <!-- User Authentication Controls -->
+            <div id="auth-button" style="display: none;">
+                <button onclick="showAuthModal()" style="background: rgba(0,123,255,0.8); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 15px;">
+                    🔐 Login
+                </button>
+            </div>
+            <div id="user-info" style="display: none; margin-left: 15px; align-items: center;"></div>
         </div>
     </header>
     <main class="container">
         <div class="about-content">
-            <h2>Write a New Post</h2>
+            <h2>✍️ Write a New Post</h2>
+            
+            <!-- Auth Notice -->
+            <div id="auth-notice" style="display: none; background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.4); color: #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                📝 You need to be logged in to write posts. 
+                <button onclick="showAuthModal()" style="background: rgba(0,123,255,0.8); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                    Login / Register
+                </button>
+            </div>
+
+            <!-- Success Message -->
+            <div id="success-message" style="display: none; background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.4); color: #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                ✅ Your post has been published successfully! It's now live on the blog.
+            </div>
             <form id="blog-form">
                 <div class="form-group">
                     <label for="title">Post Title</label>
@@ -55,31 +82,90 @@
                     <textarea id="content" rows="15" placeholder="Write your post content here..." required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="tags">Tags (optional)</label>
-                    <input type="text" id="tags" placeholder="web development, javascript, tutorial...">
-                </div>
-                <div class="form-group">
                     <label for="category">Category</label>
                     <select id="category" required>
-                        <option value="blog">Blog Post</option>
+                        <option value="">Select a category...</option>
                         <option value="personal">Personal</option>
-                        <option value="tech">Technology</option>
+                        <option value="technology">Technology</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="education">Education</option>
                         <option value="travel">Travel</option>
+                        <option value="other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="featured-image">Featured Image URL (optional)</label>
-                    <input type="url" id="featured-image" placeholder="https://example.com/image.jpg">
+                    <label for="excerpt">Short Description</label>
+                    <input type="text" id="excerpt" placeholder="Brief description of your post (will appear in previews)..." maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="excerpt">Short Description</label>
+                    <input type="text" id="excerpt" placeholder="Brief description of your post (will appear in previews)..." maxlength="200">
                 </div>
                 <div class="form-group">
                     <label>
                         <input type="checkbox" id="featured-post"> Mark as featured post
                     </label>
                 </div>
-                <button type="submit" class="btn-primary">Publish Post</button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button type="button" onclick="previewPost()" class="btn-secondary">👁️ Preview</button>
+                    <button type="submit" class="btn-primary">🚀 Publish Post</button>
+                </div>
             </form>
+            
+            <!-- Preview Section -->
+            <div id="preview-section" style="display: none; margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="text-align: center; margin-bottom: 15px; color: #333;">📖 Post Preview</h3>
+                <div id="post-preview" style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <!-- Preview content will be inserted here -->
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="hidePreview()" class="btn-secondary">❌ Close Preview</button>
+                </div>
+            </div>
         </div>
     </main>
+    
+    <!-- Auth Modal -->
+    <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: rgba(255,255,255,0.95); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); padding: 30px; max-width: 400px; width: 90%;">
+            <h2 id="modal-title" style="text-align: center; margin-bottom: 20px; color: #333;">🔐 Login to Write</h2>
+            
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="login-username" placeholder="Username" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <input type="password" id="login-password" placeholder="Password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: rgba(0,123,255,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Login</button>
+                <p style="text-align: center; color: #666;">
+                    Don't have an account? 
+                    <button type="button" onclick="showRegisterForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Register here</button>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="register-username" placeholder="Choose username" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <input type="password" id="register-password" placeholder="Create password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <input type="password" id="register-confirm-password" placeholder="Confirm password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: rgba(40,167,69,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Create Account</button>
+                <p style="text-align: center; color: #666;">
+                    Already have an account? 
+                    <button type="button" onclick="showLoginForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Login here</button>
+                </p>
+            </form>
+
+            <button onclick="hideAuthModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
+        </div>
+    </div>
     <footer>
         <div class="footer-content">
             <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
@@ -92,9 +178,306 @@
         </div>
     </footer>
     
+    <!-- Include required scripts -->
+    <script src="js/user-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/bounce.js"></script>
     <script src="js/features.js"></script>
+    
+    <script>
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadDraftPost();
+        });
+
+        function checkAuthStatus() {
+            const authNotice = document.getElementById('auth-notice');
+            
+            if (!window.userAuth.isLoggedIn()) {
+                authNotice.style.display = 'block';
+                // Disable form inputs
+                document.querySelectorAll('#blog-form input, #blog-form textarea, #blog-form select').forEach(input => {
+                    input.disabled = true;
+                    input.style.opacity = '0.5';
+                });
+            } else {
+                authNotice.style.display = 'none';
+                // Enable form inputs
+                document.querySelectorAll('#blog-form input, #blog-form textarea, #blog-form select').forEach(input => {
+                    input.disabled = false;
+                    input.style.opacity = '1';
+                });
+            }
+        }
+
+        // Override auth functions to refresh page state
+        const originalUpdateAuthUI = window.updateAuthUI;
+        window.updateAuthUI = function() {
+            if (originalUpdateAuthUI) originalUpdateAuthUI();
+            checkAuthStatus();
+        };
+
+        // Auto-save draft
+        function saveDraft() {
+            if (!window.userAuth.isLoggedIn()) return;
+            
+            const draft = {
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                excerpt: document.getElementById('excerpt').value,
+                content: document.getElementById('content').value,
+                lastSaved: new Date().toISOString()
+            };
+            
+            localStorage.setItem('postDraft', JSON.stringify(draft));
+        }
+
+        function loadDraftPost() {
+            const draft = localStorage.getItem('postDraft');
+            if (draft) {
+                const draftData = JSON.parse(draft);
+                document.getElementById('title').value = draftData.title || '';
+                document.getElementById('category').value = draftData.category || '';
+                document.getElementById('excerpt').value = draftData.excerpt || '';
+                document.getElementById('content').value = draftData.content || '';
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveDraft, 30000);
+
+        // Save on input change
+        document.querySelectorAll('#blog-form input, #blog-form textarea, #blog-form select').forEach(input => {
+            input.addEventListener('input', saveDraft);
+        });
+
+        function previewPost() {
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const excerpt = document.getElementById('excerpt').value;
+            const content = document.getElementById('content').value;
+            
+            if (!title || !content) {
+                alert('Please fill in at least the title and content to preview.');
+                return;
+            }
+            
+            const user = window.userAuth.getCurrentUser();
+            const previewHtml = `
+                <h2 style="color: #333; margin-bottom: 15px;">${title}</h2>
+                <div style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                    By ${user ? user.username : 'Anonymous'} • ${new Date().toLocaleDateString()} • ${category || 'Uncategorized'}
+                </div>
+                ${excerpt ? `<p style="font-style: italic; margin-bottom: 15px; color: #666; background: #f5f5f5; padding: 10px; border-radius: 5px;">${excerpt}</p>` : ''}
+                <div style="color: #333; line-height: 1.6; white-space: pre-wrap;">${content}</div>
+            `;
+            
+            document.getElementById('post-preview').innerHTML = previewHtml;
+            document.getElementById('preview-section').style.display = 'block';
+            document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hidePreview() {
+            document.getElementById('preview-section').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('blog-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!window.userAuth.isLoggedIn()) {
+                alert('Please login to submit a post.');
+                return;
+            }
+            
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const excerpt = document.getElementById('excerpt').value;
+            const content = document.getElementById('content').value;
+            const featured = document.getElementById('featured-post').checked;
+            
+            if (!title || !content) {
+                alert('Please fill in at least the title and content.');
+                return;
+            }
+            
+            const user = window.userAuth.getCurrentUser();
+            const post = {
+                title: title,
+                category: category || 'other',
+                excerpt: excerpt || '',
+                content: content,
+                author: user.username,
+                authorAvatar: user.avatar,
+                submittedAt: new Date().toISOString(),
+                publishedAt: new Date().toISOString(),
+                status: 'published',
+                featured: featured,
+                id: 'user_post_' + Date.now()
+            };
+            
+            try {
+                // Save to Firebase if available
+                if (window.db) {
+                    await window.db.collection('userPosts').add(post);
+                } else {
+                    // Save to localStorage as fallback
+                    const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    userPosts.push(post);
+                    localStorage.setItem('userPosts', JSON.stringify(userPosts));
+                }
+                
+                // Clear form and draft
+                document.getElementById('blog-form').reset();
+                localStorage.removeItem('postDraft');
+                
+                // Show success message
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('success-message').scrollIntoView({ behavior: 'smooth' });
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    document.getElementById('success-message').style.display = 'none';
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Error submitting post:', error);
+                alert('Error submitting post. Please try again.');
+            }
+        });
+
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize user auth
+            if (typeof UserAuth !== 'undefined') {
+                window.userAuth = new UserAuth();
+            }
+            checkAuthStatus();
+            loadDraftPost();
+        });
+
+        function checkAuthStatus() {
+            const authNotice = document.getElementById('auth-notice');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            if (!window.userAuth || !window.userAuth.isLoggedIn()) {
+                authNotice.style.display = 'block';
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.style.opacity = '0.5';
+                }
+            } else {
+                authNotice.style.display = 'none';
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.opacity = '1';
+                }
+            }
+        }
+
+        // Override auth functions to refresh page state
+        window.updateAuthUI = function() {
+            checkAuthStatus();
+        };
+
+        // Auto-save draft
+        function saveDraft() {
+            if (!window.userAuth || !window.userAuth.isLoggedIn()) return;
+            
+            const draft = {
+                title: document.getElementById('post-title').value,
+                category: document.getElementById('post-category').value,
+                excerpt: document.getElementById('post-excerpt').value,
+                content: document.getElementById('post-content').value,
+                lastSaved: new Date().toISOString()
+            };
+            
+            localStorage.setItem('postDraft', JSON.stringify(draft));
+        }
+
+        function loadDraftPost() {
+            const draft = localStorage.getItem('postDraft');
+            if (draft) {
+                const draftData = JSON.parse(draft);
+                document.getElementById('post-title').value = draftData.title || '';
+                document.getElementById('post-category').value = draftData.category || '';
+                document.getElementById('post-excerpt').value = draftData.excerpt || '';
+                document.getElementById('post-content').value = draftData.content || '';
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveDraft, 30000);
+
+        // Save on input change
+        document.querySelectorAll('#blog-form input, #blog-form textarea, #blog-form select').forEach(input => {
+            input.addEventListener('input', saveDraft);
+        });
+
+        // Auth modal functions
+        function showAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        function hideAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('modal-title').textContent = '🔐 Login to Write';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('modal-title').textContent = '📝 Create Account';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                if (window.userAuth) {
+                    window.userAuth.login(username, password);
+                    hideAuthModal();
+                    checkAuthStatus();
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            try {
+                if (window.userAuth) {
+                    window.userAuth.register(username, password, confirmPassword);
+                    hideAuthModal();
+                    checkAuthStatus();
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        }
+    </script>
+
+    <!-- Include required scripts -->
+    <script src="js/user-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/bounce.js"></script>
+    <script src="js/global-features.js"></script>
 </body>
 </html>
