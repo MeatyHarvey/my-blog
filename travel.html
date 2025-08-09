@@ -13,6 +13,10 @@
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     <link rel="shortcut icon" href="favicon.ico">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <!-- Bouncing animations with explosion -->
@@ -31,15 +35,35 @@
                 <a href="index.html">Home</a>
                 <a href="travel.html">Travel</a>
                 <a href="about.html">About</a>
-                <a href="write.html">Write</a>
+                <a href="write.html">✍️ Write</a>
+                <a href="my-posts.html" style="color: #fbbf24;">📝 My Posts</a>
                 <a href="contact.html">Contact</a>
+                <a href="admin.html" style="color: #fbbf24;">Admin</a>
             </nav>
-            <div class="animation-toggle">
-                <span>Animation</span>
-                <label class="switch">
-                    <input type="checkbox" id="animation-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
+            <div class="header-controls">
+                <!-- Comment Notification -->
+                <div id="comment-notification" class="notification" style="display: none;">
+                    0 new comments
+                </div>
+                <!-- Page View Counter -->
+                <div class="view-counter">
+                    <span id="view-count">Loading views...</span>
+                </div>
+                <div class="theme-toggle">
+                    <span>🌙</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>☀️</span>
+                </div>
+                <div class="animation-toggle">
+                    <span>Animation</span>
+                    <label class="switch">
+                        <input type="checkbox" id="animation-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </header>
@@ -90,6 +114,8 @@
     <script src="js/animations.js"></script>
     <script src="js/bounce.js"></script>
     <script src="js/features.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/global-features.js"></script>
 
 </body>
 </html>

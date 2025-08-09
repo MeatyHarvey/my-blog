@@ -33,6 +33,7 @@ function initializeFeatures() {
         initializeViewCounter();
         initializeCommentNotifications();
         initializeWebsiteUptime();
+        initializeLikeButtons();
     });
 }
 
@@ -453,4 +454,128 @@ function initializeWebsiteUptime() {
     
     // Update every minute
     setInterval(updateUptime, 60000);
+}
+
+// Like Button System
+function initializeLikeButtons() {
+    // Initialize like buttons for existing posts
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.like-btn')) {
+            e.preventDefault();
+            const likeBtn = e.target.closest('.like-btn');
+            const postId = likeBtn.getAttribute('data-post');
+            if (postId) {
+                toggleLike(postId, likeBtn);
+            }
+        }
+    });
+    
+    // Load existing likes for all posts
+    loadExistingLikes();
+}
+
+async function toggleLike(postId, likeBtn) {
+    const likeCountEl = likeBtn.querySelector('.like-count');
+    const heartEl = likeBtn.querySelector('.heart');
+    
+    if (!likeCountEl || !heartEl) return;
+    
+    const isLiked = likeBtn.classList.contains('liked');
+    const sessionKey = `liked_${postId}`;
+    
+    try {
+        let currentLikes = parseInt(likeCountEl.textContent) || 0;
+        
+        if (isLiked) {
+            // Unlike
+            currentLikes = Math.max(0, currentLikes - 1);
+            likeBtn.classList.remove('liked');
+            heartEl.textContent = '♡';
+            sessionStorage.removeItem(sessionKey);
+        } else {
+            // Like
+            currentLikes += 1;
+            likeBtn.classList.add('liked');
+            heartEl.textContent = '♥';
+            sessionStorage.setItem(sessionKey, 'true');
+        }
+        
+        likeCountEl.textContent = currentLikes;
+        
+        // Save to storage/Firebase
+        await saveLikeCount(postId, currentLikes);
+        
+        // Add visual feedback
+        likeBtn.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            likeBtn.style.transform = '';
+        }, 150);
+        
+    } catch (error) {
+        console.error('Error toggling like:', error);
+    }
+}
+
+async function saveLikeCount(postId, count) {
+    try {
+        if (useFirebase && typeof firebase !== 'undefined') {
+            const likeRef = db.collection('likes').doc(postId);
+            await likeRef.set({
+                count: count,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        } else {
+            const likes = JSON.parse(localStorage.getItem('postLikes') || '{}');
+            likes[postId] = count;
+            localStorage.setItem('postLikes', JSON.stringify(likes));
+        }
+    } catch (error) {
+        console.error('Error saving like count:', error);
+        // Fallback to localStorage
+        const likes = JSON.parse(localStorage.getItem('postLikes') || '{}');
+        likes[postId] = count;
+        localStorage.setItem('postLikes', JSON.stringify(likes));
+    }
+}
+
+async function loadExistingLikes() {
+    const likeButtons = document.querySelectorAll('.like-btn[data-post]');
+    
+    for (const likeBtn of likeButtons) {
+        const postId = likeBtn.getAttribute('data-post');
+        const likeCountEl = likeBtn.querySelector('.like-count');
+        const heartEl = likeBtn.querySelector('.heart');
+        
+        if (!postId || !likeCountEl || !heartEl) continue;
+        
+        try {
+            let likeCount = 0;
+            
+            // Load from Firebase or localStorage
+            if (useFirebase && typeof firebase !== 'undefined') {
+                const likeDoc = await db.collection('likes').doc(postId).get();
+                if (likeDoc.exists) {
+                    likeCount = likeDoc.data().count || 0;
+                }
+            } else {
+                const likes = JSON.parse(localStorage.getItem('postLikes') || '{}');
+                likeCount = likes[postId] || parseInt(likeCountEl.textContent) || 0;
+            }
+            
+            likeCountEl.textContent = likeCount;
+            
+            // Check if user has liked this post in this session
+            const sessionKey = `liked_${postId}`;
+            if (sessionStorage.getItem(sessionKey)) {
+                likeBtn.classList.add('liked');
+                heartEl.textContent = '♥';
+            } else {
+                likeBtn.classList.remove('liked');
+                heartEl.textContent = '♡';
+            }
+            
+        } catch (error) {
+            console.error('Error loading like count for', postId, ':', error);
+        }
+    }
 }

@@ -141,6 +141,19 @@
                     <span class="stat-number" id="total-comments-admin">0</span>
                     <span>Total Comments</span>
                 </div>
+                <div style="margin-top: 15px;">
+                    <span class="stat-number" id="total-likes-admin">0</span>
+                    <span>Total Likes</span>
+                </div>
+            </div>
+            
+            <!-- User Posts Management -->
+            <div class="dashboard-card">
+                <h3>📝 User Posts</h3>
+                <button class="refresh-btn" onclick="loadUserPostsAdmin()">Refresh</button>
+                <div id="user-posts-admin" class="recent-comments">
+                    <p style="color: #94a3b8;">Loading user posts...</p>
+                </div>
             </div>
             
             <!-- Recent Comments -->
@@ -203,6 +216,7 @@
                     loadRecentComments();
                     loadPageViews();
                     loadAllComments();
+                    loadUserPostsAdmin();
                 } else {
                     console.log('Admin dashboard: Using local storage fallback');
                     loadLocalStorageData();
@@ -241,6 +255,20 @@
                 
                 // Set total posts (static for now)
                 document.getElementById('total-posts-admin').textContent = '2';
+                
+                // Load total likes
+                if (useFirebase) {
+                    const likesSnapshot = await db.collection('likes').get();
+                    let totalLikes = 0;
+                    likesSnapshot.forEach(doc => {
+                        totalLikes += doc.data().count || 0;
+                    });
+                    document.getElementById('total-likes-admin').textContent = totalLikes;
+                } else {
+                    const likes = JSON.parse(localStorage.getItem('postLikes') || '{}');
+                    const totalLikes = Object.values(likes).reduce((total, count) => total + count, 0);
+                    document.getElementById('total-likes-admin').textContent = totalLikes;
+                }
                 
             } catch (error) {
                 console.error('Error loading dashboard stats:', error);
@@ -406,6 +434,88 @@
             } catch (error) {
                 console.error('Error loading all comments:', error);
                 container.innerHTML = '<p style="color: #ef4444;">Error loading comments.</p>';
+            }
+        }
+        
+        // Load user posts for admin management
+        async function loadUserPostsAdmin() {
+            const container = document.getElementById('user-posts-admin');
+            
+            try {
+                let userPosts = [];
+                
+                if (useFirebase) {
+                    const snapshot = await db.collection('userPosts')
+                        .orderBy('publishedAt', 'desc')
+                        .get();
+                    userPosts = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } else {
+                    const allPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    userPosts = allPosts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+                }
+                
+                if (userPosts.length === 0) {
+                    container.innerHTML = '<p style="color: #94a3b8;">No user posts yet.</p>';
+                    return;
+                }
+                
+                let html = '';
+                userPosts.forEach(post => {
+                    const date = new Date(post.publishedAt).toLocaleDateString();
+                    const status = post.status || 'published';
+                    const statusColor = status === 'published' ? '#4ade80' : '#f59e0b';
+                    
+                    html += `
+                        <div class="comment-item">
+                            <div class="comment-meta">
+                                <strong>${post.title}</strong> by ${post.author} • ${date}
+                                <span style="color: ${statusColor}; margin-left: 10px;">${status}</span>
+                                <button onclick="deleteUserPost('${post.id}')" style="background: #ef4444; color: white; border: none; padding: 2px 6px; border-radius: 3px; margin-left: 10px; cursor: pointer;">Delete</button>
+                            </div>
+                            <div class="comment-text">${post.excerpt || post.content.substring(0, 100) + '...'}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                
+                // Update total posts count
+                const totalPostsEl = document.getElementById('total-posts-admin');
+                if (totalPostsEl) {
+                    totalPostsEl.textContent = 2 + userPosts.length; // 2 Harvey's posts + user posts
+                }
+                
+            } catch (error) {
+                console.error('Error loading user posts:', error);
+                container.innerHTML = '<p style="color: #ef4444;">Error loading user posts.</p>';
+            }
+        }
+        
+        // Delete user post
+        async function deleteUserPost(postId) {
+            if (!confirm('Are you sure you want to delete this user post?')) {
+                return;
+            }
+            
+            try {
+                if (useFirebase) {
+                    await db.collection('userPosts').doc(postId).delete();
+                } else {
+                    let posts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    posts = posts.filter(post => post.id !== postId);
+                    localStorage.setItem('userPosts', JSON.stringify(posts));
+                }
+                
+                console.log('User post deleted successfully');
+                loadUserPostsAdmin();
+                loadDashboardStats();
+                
+            } catch (error) {
+                console.error('Error deleting user post:', error);
+                alert('Error deleting post. Please try again.');
             }
         }
         

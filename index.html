@@ -109,13 +109,13 @@
                 <!-- Updated blog posts with new features -->
                 <div class="post" data-category="personal">
                     <h2>I will be the special one</h2>
-                    <p class="post-meta">July 2, 2024 • <span class="view-count">152 views</span> • <span class="category-tag personal">Personal</span></p>
+                    <p class="post-meta">July 2, 2024 • <span class="view-count" id="view-special-one">Loading views...</span> • <span class="category-tag personal">Personal</span></p>
                     <p>I had a discussion with Bok Han about my desire to become a special person. He asked me to define what it means to be special. To ensure I don't forget, I'm noting down some concepts here.</p>
                     <div class="post-actions">
                         <a href="posts/2024-07-02-i-will-be-the-special-one.html" class="read-more">Read More</a>
                         <button class="like-btn" data-post="special-one">
                             <span class="heart">♡</span>
-                            <span class="like-count">24</span>
+                            <span class="like-count">0</span>
                         </button>
                         <div class="share-buttons">
                             <button class="share-btn" data-platform="twitter">🐦</button>
@@ -127,13 +127,13 @@
                 
                 <div class="post" data-category="personal">
                     <h2>Future Fear</h2>
-                    <p class="post-meta">October 26, 2024 • <span class="view-count">89 views</span> • <span class="category-tag personal">Personal</span></p>
+                    <p class="post-meta">October 26, 2024 • <span class="view-count" id="view-future-fear">Loading views...</span> • <span class="category-tag personal">Personal</span></p>
                     <p>I've been reflecting on the kind of life I want to lead while I'm in Korea. Observing those who are 25 or 26 and still in their third year of university, I realize that at 19, I'm the youngest among the exchange students. This is quite normal in Hong Kong, but it makes me wonder what my life will be like at their age.</p>
                     <div class="post-actions">
                         <a href="posts/2024-10-26-future-fear.html" class="read-more">Read More</a>
                         <button class="like-btn" data-post="future-fear">
                             <span class="heart">♡</span>
-                            <span class="like-count">18</span>
+                            <span class="like-count">0</span>
                         </button>
                         <div class="share-buttons">
                             <button class="share-btn" data-platform="twitter">🐦</button>
@@ -212,7 +212,88 @@
         // Load user posts on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadUserPostsOnMain();
+            loadPostViewCounts();
+            updateSidebarStats();
         });
+
+        // Load individual post view counts
+        async function loadPostViewCounts() {
+            const posts = [
+                { id: 'special-one', elementId: 'view-special-one' },
+                { id: 'future-fear', elementId: 'view-future-fear' }
+            ];
+            
+            for (const post of posts) {
+                const element = document.getElementById(post.elementId);
+                if (element) {
+                    try {
+                        let viewCount = 0;
+                        
+                        if (window.db) {
+                            const viewDoc = await window.db.collection('postViews').doc(post.id).get();
+                            if (viewDoc.exists) {
+                                viewCount = viewDoc.data().count || 0;
+                            }
+                        } else {
+                            const views = JSON.parse(localStorage.getItem('postViews') || '{}');
+                            viewCount = views[post.id] || 0;
+                        }
+                        
+                        element.textContent = `${viewCount} views`;
+                    } catch (error) {
+                        console.error('Error loading view count for', post.id, ':', error);
+                        element.textContent = '0 views';
+                    }
+                }
+            }
+        }
+
+        // Update sidebar statistics
+        async function updateSidebarStats() {
+            try {
+                let totalViews = 0;
+                let totalLikes = 0;
+                
+                if (window.db) {
+                    // Get total post views
+                    const postViewsSnapshot = await window.db.collection('postViews').get();
+                    postViewsSnapshot.forEach(doc => {
+                        totalViews += doc.data().count || 0;
+                    });
+                    
+                    // Get total page views
+                    const pageViewsSnapshot = await window.db.collection('views').get();
+                    pageViewsSnapshot.forEach(doc => {
+                        totalViews += doc.data().count || 0;
+                    });
+                    
+                    // Get total likes
+                    const likesSnapshot = await window.db.collection('likes').get();
+                    likesSnapshot.forEach(doc => {
+                        totalLikes += doc.data().count || 0;
+                    });
+                } else {
+                    // Local storage fallback
+                    const postViews = JSON.parse(localStorage.getItem('postViews') || '{}');
+                    const pageViews = JSON.parse(localStorage.getItem('pageViews') || '{}');
+                    const likes = JSON.parse(localStorage.getItem('postLikes') || '{}');
+                    
+                    totalViews = Object.values(postViews).reduce((sum, count) => sum + count, 0) +
+                                Object.values(pageViews).reduce((sum, count) => sum + count, 0);
+                    totalLikes = Object.values(likes).reduce((sum, count) => sum + count, 0);
+                }
+                
+                // Update sidebar stats
+                const totalViewsEl = document.getElementById('total-views');
+                const totalLikesEl = document.getElementById('total-likes');
+                
+                if (totalViewsEl) totalViewsEl.textContent = totalViews;
+                if (totalLikesEl) totalLikesEl.textContent = totalLikes;
+                
+            } catch (error) {
+                console.error('Error updating sidebar stats:', error);
+            }
+        }
 
         async function loadUserPostsOnMain() {
             try {
