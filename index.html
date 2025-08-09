@@ -366,7 +366,6 @@
                     console.log('📊 Querying Firebase for user posts...');
                     const snapshot = await window.db.collection('userPosts')
                         .where('status', '==', 'published')
-                        .orderBy('publishedAt', 'desc')
                         .limit(10)
                         .get();
                     
@@ -385,6 +384,9 @@
                             ...data
                         };
                     });
+                    
+                    // Sort manually by publishedAt in JavaScript
+                    userPosts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
                 } else {
                     console.log('📊 Using localStorage fallback...');
                     // Fallback to localStorage
