@@ -1351,10 +1351,10 @@ input:checked + .slider:before {
 /* Hexagon Button - Created by Bokhan Sir */
 .hexagon-button {
     position: relative;
-    width: 160px; /* Made bigger */
-    height: 92px; /* Made bigger */
+    width: 100px; /* Normal size */
+    height: 58px; /* Normal size */
     background: #d3d3d3; /* Light grey */
-    margin: 30px auto;
+    margin: 15px auto;
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
@@ -1365,7 +1365,7 @@ input:checked + .slider:before {
     justify-content: center;
     font-weight: bold;
     color: #333;
-    font-size: 16px; /* Bigger font */
+    font-size: 12px; /* Normal font */
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -1375,18 +1375,18 @@ input:checked + .slider:before {
     content: "";
     position: absolute;
     width: 0;
-    border-left: 80px solid transparent; /* Made bigger */
-    border-right: 80px solid transparent; /* Made bigger */
+    border-left: 50px solid transparent; /* Normal size */
+    border-right: 50px solid transparent; /* Normal size */
 }
 
 .hexagon-button:before {
     bottom: 100%;
-    border-bottom: 46px solid #d3d3d3; /* Made bigger */
+    border-bottom: 29px solid #d3d3d3; /* Normal size */
 }
 
 .hexagon-button:after {
     top: 100%;
-    border-top: 46px solid #d3d3d3; /* Made bigger */
+    border-top: 29px solid #d3d3d3; /* Normal size */
 }
 
 .hexagon-button:hover {
