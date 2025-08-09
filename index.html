@@ -224,9 +224,12 @@
     <script>
         // Load user posts on page load
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserPostsOnMain();
-            loadPostViewCounts();
-            updateSidebarStats();
+            // Add a small delay to ensure Firebase is fully initialized
+            setTimeout(() => {
+                loadUserPostsOnMain();
+                loadPostViewCounts();
+                updateSidebarStats();
+            }, 1000);
         });
 
         // Bokhan Sir's Special Button Function
@@ -351,36 +354,56 @@
         }
 
         async function loadUserPostsOnMain() {
+            console.log('🔍 Loading user posts...');
+            console.log('Firebase initialized:', window.firebaseInitialized);
+            console.log('Database available:', window.db !== null);
+            
             try {
                 let userPosts = [];
                 
                 // Try to load from Firebase first
                 if (window.db) {
+                    console.log('📊 Querying Firebase for user posts...');
                     const snapshot = await window.db.collection('userPosts')
                         .where('status', '==', 'published')
                         .orderBy('publishedAt', 'desc')
                         .limit(10)
                         .get();
-                    userPosts = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
+                    
+                    console.log('📊 Firebase query completed. Documents found:', snapshot.docs.length);
+                    
+                    userPosts = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        console.log('📄 Document data:', {
+                            id: doc.id,
+                            title: data.title,
+                            status: data.status,
+                            publishedAt: data.publishedAt
+                        });
+                        return {
+                            id: doc.id,
+                            ...data
+                        };
+                    });
                 } else {
+                    console.log('📊 Using localStorage fallback...');
                     // Fallback to localStorage
                     const allPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
                     userPosts = allPosts
                         .filter(post => post.status === 'published')
                         .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
                         .slice(0, 10);
+                    console.log('📊 localStorage posts found:', userPosts.length);
                 }
 
+                console.log('✅ Total user posts to display:', userPosts.length);
                 displayUserPostsOnMain(userPosts);
                 updateBlogStats(userPosts);
                 
             } catch (error) {
-                console.error('Error loading user posts:', error);
+                console.error('❌ Error loading user posts:', error);
                 document.getElementById('user-posts-container').innerHTML = 
-                    '<p style="color: rgba(255,255,255,0.8); text-align: center; padding: 20px;">No community posts yet. <a href="write.html" style="color: #4ECDC4;">Be the first to write!</a></p>';
+                    '<p style="color: rgba(255,255,255,0.8); text-align: center; padding: 20px;">Error loading posts. Check console for details. <a href="write.html" style="color: #4ECDC4;">Write a new post</a></p>';
             }
         }
 
