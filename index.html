@@ -366,6 +366,7 @@
                     console.log('📊 Querying Firebase for user posts...');
                     const snapshot = await window.db.collection('userPosts')
                         .where('status', '==', 'published')
+                        .orderBy('publishedAt', 'desc')
                         .limit(10)
                         .get();
                     
@@ -384,9 +385,6 @@
                             ...data
                         };
                     });
-                    
-                    // Sort manually by publishedAt in JavaScript
-                    userPosts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
                 } else {
                     console.log('📊 Using localStorage fallback...');
                     // Fallback to localStorage
@@ -404,8 +402,35 @@
                 
             } catch (error) {
                 console.error('❌ Error loading user posts:', error);
-                document.getElementById('user-posts-container').innerHTML = 
-                    '<p style="color: rgba(255,255,255,0.8); text-align: center; padding: 20px;">Error loading posts. Check console for details. <a href="write.html" style="color: #4ECDC4;">Write a new post</a></p>';
+                console.log('🔄 Attempting to use query without orderBy...');
+                
+                try {
+                    // Fallback: try without orderBy if index doesn't exist
+                    if (window.db) {
+                        const snapshot = await window.db.collection('userPosts')
+                            .where('status', '==', 'published')
+                            .limit(10)
+                            .get();
+                        
+                        const userPosts = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        
+                        // Sort manually
+                        userPosts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+                        
+                        console.log('✅ Fallback query successful:', userPosts.length);
+                        displayUserPostsOnMain(userPosts);
+                        updateBlogStats(userPosts);
+                    } else {
+                        throw new Error('No Firebase connection');
+                    }
+                } catch (fallbackError) {
+                    console.error('❌ Fallback query also failed:', fallbackError);
+                    document.getElementById('user-posts-container').innerHTML = 
+                        '<p style="color: rgba(255,255,255,0.8); text-align: center; padding: 20px;">Error loading posts. <a href="write.html" style="color: #4ECDC4;">Write a new post</a><br><small>Index may need to be created. Check admin panel.</small></p>';
+                }
             }
         }
 
