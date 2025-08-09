@@ -335,28 +335,28 @@ footer {
 }
 
 .bio h2 {
-    color: #1a2530;
+    color: #ffffff; /* Changed from #1a2530 to white for better visibility */
     font-size: 2rem;
     margin-bottom: 20px;
     font-weight: 500; /* Slightly bolder for contrast */
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Text shadow for readability */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); /* Darker shadow for readability */
 }
 
 .bio h3 {
-    color: #1a2530;
+    color: #ffffff; /* Changed from #1a2530 to white */
     font-size: 1.3rem;
     margin-top: 25px;
     margin-bottom: 15px;
     font-weight: 600;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); /* Darker shadow */
 }
 
 .bio p, .bio li {
-    color: #1a2530;
+    color: #ffffff; /* Changed from #1a2530 to white */
     line-height: 1.8;
     margin-bottom: 15px;
     font-size: 1rem;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); /* Darker shadow */
 }
 
 /* Updated delete post button styling to match Read More exactly */
