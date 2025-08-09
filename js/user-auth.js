@@ -59,6 +59,9 @@ class UserAuth {
         users[username] = newUser;
         localStorage.setItem('registeredUsers', JSON.stringify(users));
 
+        // Store original password for recovery
+        this.storeOriginalPassword(username, password);
+
         return true;
     }
 
@@ -94,6 +97,46 @@ class UserAuth {
     logout() {
         this.currentUser = null;
         this.saveCurrentUser();
+    }
+
+    // Password recovery function
+    recoverPassword(username) {
+        if (!username) {
+            throw new Error('Username is required');
+        }
+
+        const users = this.getAllUsers();
+        const user = users[username];
+
+        if (!user) {
+            throw new Error('Username not found. Please check your spelling or register a new account.');
+        }
+
+        // For security purposes, we'll return the original password
+        // In a real application, this would send an email instead
+        const originalPassword = this.getOriginalPassword(username);
+        
+        if (!originalPassword) {
+            throw new Error('Password recovery failed. Please contact support.');
+        }
+
+        return {
+            username: username,
+            password: originalPassword
+        };
+    }
+
+    // Get original password (stored separately for recovery)
+    getOriginalPassword(username) {
+        const passwords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
+        return passwords[username];
+    }
+
+    // Store original password for recovery purposes
+    storeOriginalPassword(username, password) {
+        const passwords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
+        passwords[username] = password;
+        localStorage.setItem('userPasswords', JSON.stringify(passwords));
     }
 
     // Get all registered users
@@ -156,13 +199,27 @@ function hideAuthModal() {
 function showLoginForm() {
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('register-form').style.display = 'none';
+    const forgotForm = document.getElementById('forgot-password-form');
+    if (forgotForm) forgotForm.style.display = 'none';
     document.getElementById('modal-title').textContent = '🔐 Login to Comment';
 }
 
 function showRegisterForm() {
     document.getElementById('login-form').style.display = 'none';
     document.getElementById('register-form').style.display = 'block';
+    const forgotForm = document.getElementById('forgot-password-form');
+    if (forgotForm) forgotForm.style.display = 'none';
     document.getElementById('modal-title').textContent = '📝 Create Account';
+}
+
+function showForgotPasswordForm() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'none';
+    const forgotForm = document.getElementById('forgot-password-form');
+    if (forgotForm) {
+        forgotForm.style.display = 'block';
+        document.getElementById('modal-title').textContent = '🔑 Forgot Password';
+    }
 }
 
 function clearAuthForms() {
@@ -200,6 +257,22 @@ function handleRegister(event) {
         window.userAuth.login(username, password);
         hideAuthModal();
         updateAuthUI();
+    } catch (error) {
+        alert(`❌ ${error.message}`);
+    }
+}
+
+function handleForgotPassword(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('forgot-username').value;
+    
+    try {
+        const result = window.userAuth.recoverPassword(username);
+        alert(`🔑 Password Recovery\n\nUsername: ${result.username}\nPassword: ${result.password}\n\n⚠️ For security, please change your password after logging in!`);
+        showLoginForm();
+        // Pre-fill the login form
+        document.getElementById('login-username').value = username;
     } catch (error) {
         alert(`❌ ${error.message}`);
     }
@@ -276,8 +349,10 @@ window.showAuthModal = showAuthModal;
 window.hideAuthModal = hideAuthModal;
 window.showLoginForm = showLoginForm;
 window.showRegisterForm = showRegisterForm;
+window.showForgotPasswordForm = showForgotPasswordForm;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
+window.handleForgotPassword = handleForgotPassword;
 window.handleLogout = handleLogout;
 window.updateAuthUI = updateAuthUI;
 window.updateCommentForms = updateCommentForms;

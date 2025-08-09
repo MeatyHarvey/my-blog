@@ -139,9 +139,29 @@
                     <input type="password" id="login-password" placeholder="Password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
                 </div>
                 <button type="submit" style="width: 100%; padding: 12px; background: rgba(0,123,255,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Login</button>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <button type="button" onclick="showForgotPasswordForm()" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline; font-size: 14px;">
+                        🔑 Forgot Password?
+                    </button>
+                </div>
                 <p style="text-align: center; color: #666;">
                     Don't have an account? 
                     <button type="button" onclick="showRegisterForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Register here</button>
+                </p>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form id="forgot-password-form" onsubmit="handleForgotPassword(event)" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <p style="color: #666; text-align: center; margin-bottom: 15px; font-size: 14px;">
+                        Enter your username to retrieve your password
+                    </p>
+                    <input type="text" id="forgot-username" placeholder="Enter your username" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #333;">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 8px; font-weight: 500; margin-bottom: 15px;">Find Password</button>
+                <p style="text-align: center; color: #666;">
+                    Remember your password? 
+                    <button type="button" onclick="showLoginForm()" style="background: none; border: none; color: #4ECDC4; cursor: pointer; text-decoration: underline;">Back to Login</button>
                 </p>
             </form>
 
@@ -429,13 +449,39 @@
         function showLoginForm() {
             document.getElementById('login-form').style.display = 'block';
             document.getElementById('register-form').style.display = 'none';
+            document.getElementById('forgot-password-form').style.display = 'none';
             document.getElementById('modal-title').textContent = '🔐 Login to Write';
         }
 
         function showRegisterForm() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
+            document.getElementById('forgot-password-form').style.display = 'none';
             document.getElementById('modal-title').textContent = '📝 Create Account';
+        }
+
+        function showForgotPasswordForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('forgot-password-form').style.display = 'block';
+            document.getElementById('modal-title').textContent = '🔑 Forgot Password';
+        }
+
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const username = document.getElementById('forgot-username').value;
+            
+            try {
+                if (window.userAuth) {
+                    const result = window.userAuth.recoverPassword(username);
+                    alert(`🔑 Password Recovery\n\nUsername: ${result.username}\nPassword: ${result.password}\n\n⚠️ For security, please change your password after logging in!`);
+                    showLoginForm();
+                    // Pre-fill the login form
+                    document.getElementById('login-username').value = username;
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
         }
 
         function handleLogin(event) {
