@@ -29,33 +29,44 @@ header .container {
     align-items: center;
     justify-content: space-between;
     padding: 5px 0; /* Reduced padding */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    min-height: 50px; /* Ensure consistent height */
 }
 
 header h1 {
     margin: 0;
-    font-size: 1.4rem; /* Slightly smaller */
+    font-size: 1.2rem; /* Made smaller to save space */
     font-weight: 300;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    min-width: 160px;
+    min-width: 120px; /* Reduced min-width */
     display: inline-block;
     text-align: left;
     position: relative;
+    flex-shrink: 0; /* Don't shrink the title */
 }
 
 nav {
     margin: 4px 0; /* Smaller margin */
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap; /* Prevent nav items from wrapping */
+    flex: 1; /* Take available space */
+    justify-content: center; /* Center the navigation */
+    overflow-x: auto; /* Allow horizontal scroll if needed on very small screens */
 }
 
 nav a {
-    margin: 0 8px; /* Tighter spacing between nav items */
+    margin: 0 6px; /* Reduced spacing between nav items */
     color: #ffffff;
     text-decoration: none;
-    padding: 4px 12px; /* Smaller padding */
+    padding: 4px 8px; /* Reduced padding */
     border-radius: 12px;
     transition: all 0.3s ease;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    font-size: 0.85rem; /* Smaller font */
+    font-size: 0.75rem; /* Made smaller */
     font-weight: 300; /* Light font weight */
+    white-space: nowrap; /* Prevent text wrapping */
+    flex-shrink: 0; /* Don't shrink nav items */
 }
 
 nav a:hover {
@@ -642,8 +653,8 @@ select:focus {
 .switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 20px;
+    width: 32px; /* Reduced width */
+    height: 16px; /* Reduced height */
 }
 
 .switch input {
@@ -667,9 +678,9 @@ select:focus {
 .slider:before {
     position: absolute;
     content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
+    height: 10px; /* Reduced height */
+    width: 10px; /* Reduced width */
+    left: 2px; /* Adjusted position */
     bottom: 2px;
     background-color: white;
     transition: .4s;
@@ -684,7 +695,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(19px);
+    transform: translateX(15px); /* Adjusted for smaller size */
 }
 
 /* Rounded sliders */
@@ -700,29 +711,34 @@ input:checked + .slider:before {
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px; /* Reduced gap further */
+    flex-shrink: 0; /* Don't shrink header controls */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    min-width: 180px; /* Minimum width to prevent too much compression */
 }
 
 /* Comment Notification */
 .notification {
     background: #ff4757;
     color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+    padding: 2px 6px; /* Reduced padding */
+    border-radius: 10px; /* Smaller border radius */
+    font-size: 0.7rem; /* Smaller font */
     font-weight: bold;
     animation: pulse 2s infinite;
     position: relative;
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 .notification-badge {
     background: #ff4757;
     color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+    padding: 2px 6px; /* Reduced padding */
+    border-radius: 10px;
+    font-size: 0.7rem; /* Smaller font */
     font-weight: bold;
     animation: pulse 2s infinite;
+    white-space: nowrap;
 }
 
 @keyframes pulse {
@@ -734,19 +750,35 @@ input:checked + .slider:before {
 /* View Counter */
 .view-counter {
     background: rgba(255, 255, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 0.8rem;
+    padding: 2px 6px; /* Reduced padding */
+    border-radius: 6px; /* Smaller border radius */
+    font-size: 0.7rem; /* Smaller font */
     color: #fff;
     backdrop-filter: blur(10px);
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 .theme-toggle {
     display: flex;
     align-items: center;
     color: #fff;
-    font-size: 0.9rem;
-    gap: 8px;
+    font-size: 0.7rem; /* Even smaller font */
+    gap: 4px; /* Reduced gap further */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.animation-toggle {
+    display: flex;
+    align-items: center;
+    margin-left: 0; /* Removed margin */
+    color: #fff;
+    font-size: 0.7rem; /* Even smaller font */
+    gap: 4px; /* Reduced gap further */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.animation-toggle span {
+    margin-right: 0; /* Removed margin */
 }
 
 /* Blog Controls */
@@ -1183,6 +1215,57 @@ input:checked + .slider:before {
     
     .stats {
         grid-template-columns: 1fr;
+    }
+    
+    /* Hide some header controls on mobile */
+    .view-counter,
+    .animation-toggle {
+        display: none;
+    }
+    
+    nav a {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+        margin: 0 4px;
+    }
+    
+    header h1 {
+        font-size: 1rem;
+        min-width: 100px;
+    }
+}
+
+/* Additional responsive breakpoint for very small screens */
+@media (max-width: 1200px) {
+    nav a {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+        margin: 0 4px;
+    }
+    
+    header h1 {
+        font-size: 1.1rem;
+        min-width: 110px;
+    }
+    
+    .header-controls {
+        gap: 10px;
+    }
+}
+
+/* Ensure navigation items stay in one row on medium screens */
+@media (max-width: 1400px) {
+    .header-controls .theme-toggle span:first-child,
+    .header-controls .theme-toggle span:last-child {
+        display: none; /* Hide emoji to save space */
+    }
+    
+    .animation-toggle span {
+        font-size: 0.7rem;
+    }
+    
+    .theme-toggle {
+        font-size: 0.7rem;
     }
 }  
 /* Delete Comment Button */  
