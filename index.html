@@ -186,6 +186,19 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Bokhan Sir's Special Button -->
+                <div class="sidebar-widget">
+                    <h3>🎯 Special Feature</h3>
+                    <div style="text-align: center;">
+                        <button class="hexagon-button" onclick="showBokhanMessage()">
+                            BUTTON
+                        </button>
+                        <p style="font-size: 0.8em; color: rgba(255,255,255,0.7); margin-top: 10px; font-style: italic;">
+                            Created by Bokhan Sir ✨
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -215,6 +228,48 @@
             loadPostViewCounts();
             updateSidebarStats();
         });
+
+        // Bokhan Sir's Special Button Function
+        function showBokhanMessage() {
+            // Remove any existing message
+            const existingMessage = document.querySelector('.bokhan-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // Create new message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'bokhan-message';
+            messageDiv.innerHTML = `
+                <div>
+                    🎉 This button is being pressed<br>
+                    by <strong>Bokhan Sir</strong>! 🎉
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(messageDiv);
+            
+            // Auto-remove after 3 seconds with fade animation
+            setTimeout(() => {
+                messageDiv.classList.add('fade-out');
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, 3000);
+            
+            // Add click-to-dismiss
+            messageDiv.addEventListener('click', () => {
+                messageDiv.classList.add('fade-out');
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            });
+        }
 
         // Load individual post view counts
         async function loadPostViewCounts() {

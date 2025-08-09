@@ -1346,4 +1346,112 @@ input:checked + .slider:before {
     display: flex;  
     align-items: center;  
     gap: 10px;  
+}
+
+/* Hexagon Button - Created by Bokhan Sir */
+.hexagon-button {
+    position: relative;
+    width: 120px;
+    height: 69px;
+    background: #d3d3d3; /* Light grey */
+    margin: 30px auto;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+    transform: rotate(0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.hexagon-button:before,
+.hexagon-button:after {
+    content: "";
+    position: absolute;
+    width: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+}
+
+.hexagon-button:before {
+    bottom: 100%;
+    border-bottom: 34.5px solid #d3d3d3;
+}
+
+.hexagon-button:after {
+    top: 100%;
+    border-top: 34.5px solid #d3d3d3;
+}
+
+.hexagon-button:hover {
+    background: #c0c0c0;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.hexagon-button:hover:before {
+    border-bottom-color: #c0c0c0;
+}
+
+.hexagon-button:hover:after {
+    border-top-color: #c0c0c0;
+}
+
+.hexagon-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Bokhan Message Popup */
+.bokhan-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #d3d3d3;
+    border-radius: 15px;
+    padding: 20px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    animation: bokhanPop 0.3s ease-out;
+    max-width: 90%;
+    word-wrap: break-word;
+}
+
+@keyframes bokhanPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.bokhan-message.fade-out {
+    animation: bokhanFade 0.3s ease-in forwards;
+}
+
+@keyframes bokhanFade {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
 } 
