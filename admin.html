@@ -175,7 +175,9 @@
         <div class="container">
             <h1>Admin Dashboard</h1>
             <nav>
-                <a href="index.html">← Back to Blog</a>
+                <a href="index.html">Home</a>
+                <a href="account.html" style="color: #4ECDC4;">👤 Account</a>
+                <a href="admin.html" style="color: #fbbf24;">Admin Dashboard</a>
             </nav>
         </div>
     </header>
@@ -190,7 +192,7 @@
             </div>
             <button onclick="authenticateAdmin()" class="refresh-btn" style="width: 100%; padding: 12px;">Login as Admin</button>
             <p style="color: rgba(255,255,255,0.8); font-size: 0.9em; margin-top: 15px;">
-                💡 <strong>Default password:</strong> admin123<br>
+                💡 <strong>Default password:</strong> harvey123<br>
                 (Change this in the JavaScript for security)
             </p>
         </div>
@@ -341,18 +343,23 @@
         let allComments = [];
         
         // Admin password - CHANGE THIS FOR SECURITY!
-        const ADMIN_PASSWORD = 'admin123';
+        const ADMIN_PASSWORD = 'harvey123';
         
         // Admin authentication functions
         function authenticateAdmin() {
             const password = document.getElementById('admin-password').value;
             
+            console.log('Attempting admin login with password:', password);
+            console.log('Expected password:', ADMIN_PASSWORD);
+            
             if (password === ADMIN_PASSWORD) {
                 isAdminAuthenticated = true;
                 localStorage.setItem('adminAuthenticated', 'true');
                 showAdminDashboard();
+                console.log('Admin login successful');
             } else {
                 alert('❌ Invalid admin password!');
+                console.log('Admin login failed');
             }
         }
 
@@ -362,11 +369,13 @@
             document.getElementById('admin-auth').style.display = 'block';
             document.getElementById('admin-dashboard').style.display = 'none';
             document.getElementById('admin-password').value = '';
+            console.log('Admin logged out');
         }
 
         function showAdminDashboard() {
             document.getElementById('admin-auth').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
+            console.log('Showing admin dashboard');
             initializeAdmin();
         }
         

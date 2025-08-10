@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Harvey's Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Complete favicon set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>👤 My Account</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="travel.html">Travel</a>
+                <a href="about.html">About</a>
+                <a href="write.html">Write</a>
+                <a href="my-posts.html">My Posts</a>
+                <a href="contact.html">Contact</a>
+                <a href="admin.html" style="color: #fbbf24;">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Login/Register Section -->
+        <div id="auth-section" class="post">
+            <h2>🔐 Account Access</h2>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h3>Login to Your Account</h3>
+                <div class="form-group">
+                    <label for="login-username">Username:</label>
+                    <input type="text" id="login-username" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+                <button onclick="loginUser()" class="btn-primary">🔑 Login</button>
+                <button onclick="showRegisterForm()" class="btn-secondary">📝 Create New Account</button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form" style="display: none;">
+                <h3>Create New Account</h3>
+                <div class="form-group">
+                    <label for="register-username">Username:</label>
+                    <input type="text" id="register-username" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email:</label>
+                    <input type="email" id="register-email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password:</label>
+                    <input type="password" id="register-password" placeholder="Choose a password">
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirm Password:</label>
+                    <input type="password" id="register-confirm" placeholder="Confirm your password">
+                </div>
+                <button onclick="registerUser()" class="btn-primary">🚀 Create Account</button>
+                <button onclick="showLoginForm()" class="btn-secondary">← Back to Login</button>
+            </div>
+        </div>
+
+        <!-- Account Dashboard -->
+        <div id="account-dashboard" style="display: none;">
+            <!-- Profile Section -->
+            <div class="post">
+                <h2>👤 Profile Information</h2>
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                    <div class="profile-avatar" onclick="editAvatar()" style="cursor: pointer; position: relative;">
+                        <div id="user-avatar" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3); transition: all 0.3s ease;">
+                            HB
+                        </div>
+                        <div style="position: absolute; bottom: 0; right: 0; background: #4ECDC4; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; border: 2px solid white;">✏️</div>
+                    </div>
+                    <div>
+                        <h3 id="user-display-name" style="margin: 0; color: white;">Loading...</h3>
+                        <p id="user-email" style="color: rgba(255,255,255,0.8); margin: 5px 0;">Loading...</p>
+                        <p id="user-join-date" style="color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0;">Member since: Loading...</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div class="stat-item" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                        <span class="stat-number" id="user-posts-count">0</span>
+                        <span class="stat-label">Posts Written</span>
+                    </div>
+                    <div class="stat-item" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                        <span class="stat-number" id="user-comments-count">0</span>
+                        <span class="stat-label">Comments Made</span>
+                    </div>
+                    <div class="stat-item" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                        <span class="stat-number" id="user-likes-received">0</span>
+                        <span class="stat-label">Likes Received</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="post">
+                <h3>⚙️ Account Settings</h3>
+                <div class="form-group">
+                    <label for="edit-username">Username:</label>
+                    <input type="text" id="edit-username" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label for="edit-bio">Bio:</label>
+                    <textarea id="edit-bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <button onclick="updateProfile()" class="btn-primary">💾 Save Changes</button>
+                <button onclick="changePassword()" class="btn-secondary">🔒 Change Password</button>
+                <button onclick="logoutUser()" class="btn-secondary" style="background: rgba(220, 53, 69, 0.8);">🚪 Logout</button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="post">
+                <h3>📊 Recent Activity</h3>
+                <div id="user-activity">
+                    <p style="color: rgba(255,255,255,0.8);">Loading your recent activity...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Avatar Selection Modal -->
+        <div id="avatar-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; backdrop-filter: blur(5px);">
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px;">
+                <div style="background: rgba(53, 66, 74, 0.95); backdrop-filter: blur(20px); border-radius: 20px; border: 2px solid rgba(255, 255, 255, 0.2); padding: 40px; max-width: 500px; width: 100%;">
+                    <h3 style="color: white; margin-bottom: 20px;">🎨 Choose Your Avatar</h3>
+                    
+                    <!-- Gradient Backgrounds -->
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: white; margin-bottom: 10px;">Background Color:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                            <div class="gradient-option" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); cursor: pointer; border: 3px solid transparent;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Initials Input -->
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: white; margin-bottom: 10px;">Initials:</h4>
+                        <input type="text" id="avatar-initials" maxlength="2" placeholder="HB" style="width: 100px; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase;">
+                    </div>
+                    
+                    <!-- Preview -->
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <h4 style="color: white; margin-bottom: 10px;">Preview:</h4>
+                        <div id="avatar-preview" style="width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3);">
+                            HB
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="saveAvatar()" class="btn-primary">💾 Save Avatar</button>
+                        <button onclick="closeAvatarModal()" class="btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/firebase-config.js"></script>
+    
+    <script>
+        let currentUser = null;
+        let selectedGradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+        // Initialize account system
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                checkUserSession();
+                setupAvatarEditor();
+            }, 1000);
+        });
+
+        // Check if user is logged in
+        function checkUserSession() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                showAccountDashboard();
+            }
+        }
+
+        // Show login form
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        // Show register form
+        function showRegisterForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+
+        // Register new user
+        async function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+
+            if (!username || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+
+            try {
+                // Check if username already exists
+                const existingUser = await checkUsernameExists(username);
+                if (existingUser) {
+                    alert('Username already exists. Please choose another one.');
+                    return;
+                }
+
+                const userData = {
+                    id: generateUserId(),
+                    username: username,
+                    email: email,
+                    password: password, // In real app, this should be hashed
+                    joinDate: new Date().toISOString(),
+                    avatar: {
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        initials: username.substring(0, 2).toUpperCase()
+                    },
+                    bio: '',
+                    stats: {
+                        postsCount: 0,
+                        commentsCount: 0,
+                        likesReceived: 0
+                    }
+                };
+
+                // Save to Firebase or localStorage
+                if (window.db) {
+                    await window.db.collection('users').doc(userData.id).set(userData);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                    users.push(userData);
+                    localStorage.setItem('blogUsers', JSON.stringify(users));
+                }
+
+                alert('✅ Account created successfully!');
+                currentUser = userData;
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                showAccountDashboard();
+
+            } catch (error) {
+                console.error('Error creating account:', error);
+                alert('❌ Error creating account. Please try again.');
+            }
+        }
+
+        // Login user
+        async function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            try {
+                let user = null;
+
+                if (window.db) {
+                    // Query Firebase for user
+                    const userQuery = await window.db.collection('users')
+                        .where('username', '==', username)
+                        .where('password', '==', password)
+                        .get();
+                    
+                    if (!userQuery.empty) {
+                        user = userQuery.docs[0].data();
+                    }
+                } else {
+                    // Check localStorage
+                    const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                    user = users.find(u => u.username === username && u.password === password);
+                }
+
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    showAccountDashboard();
+                    alert('✅ Login successful!');
+                } else {
+                    alert('❌ Invalid username or password');
+                }
+
+            } catch (error) {
+                console.error('Error logging in:', error);
+                alert('❌ Error logging in. Please try again.');
+            }
+        }
+
+        // Show account dashboard
+        function showAccountDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('account-dashboard').style.display = 'block';
+            loadUserProfile();
+        }
+
+        // Load user profile data
+        function loadUserProfile() {
+            if (!currentUser) return;
+
+            document.getElementById('user-display-name').textContent = currentUser.username;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-join-date').textContent = `Member since: ${new Date(currentUser.joinDate).toLocaleDateString()}`;
+            
+            // Update avatar
+            const avatar = document.getElementById('user-avatar');
+            avatar.style.background = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            avatar.textContent = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+
+            // Load form fields
+            document.getElementById('edit-username').value = currentUser.username;
+            document.getElementById('edit-email').value = currentUser.email;
+            document.getElementById('edit-bio').value = currentUser.bio || '';
+
+            // Load statistics
+            loadUserStats();
+        }
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                let postsCount = 0;
+                let commentsCount = 0;
+                let likesReceived = 0;
+
+                if (window.db) {
+                    // Count user posts
+                    const postsQuery = await window.db.collection('userPosts')
+                        .where('author', '==', currentUser.username)
+                        .get();
+                    postsCount = postsQuery.size;
+
+                    // Count user comments
+                    const commentsQuery = await window.db.collection('comments')
+                        .where('author', '==', currentUser.username)
+                        .get();
+                    commentsCount = commentsQuery.size;
+                } else {
+                    // Count from localStorage
+                    const userPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+                    postsCount = userPosts.filter(post => post.author === currentUser.username).length;
+
+                    const globalComments = JSON.parse(localStorage.getItem('globalComments') || '{}');
+                    Object.values(globalComments).forEach(postComments => {
+                        commentsCount += postComments.filter(comment => comment.author === currentUser.username).length;
+                    });
+                }
+
+                document.getElementById('user-posts-count').textContent = postsCount;
+                document.getElementById('user-comments-count').textContent = commentsCount;
+                document.getElementById('user-likes-received').textContent = likesReceived;
+
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+            }
+        }
+
+        // Update user profile
+        async function updateProfile() {
+            const newUsername = document.getElementById('edit-username').value.trim();
+            const newEmail = document.getElementById('edit-email').value.trim();
+            const newBio = document.getElementById('edit-bio').value.trim();
+
+            if (!newUsername || !newEmail) {
+                alert('Username and email are required');
+                return;
+            }
+
+            try {
+                currentUser.username = newUsername;
+                currentUser.email = newEmail;
+                currentUser.bio = newBio;
+
+                if (window.db) {
+                    await window.db.collection('users').doc(currentUser.id).update({
+                        username: newUsername,
+                        email: newEmail,
+                        bio: newBio
+                    });
+                } else {
+                    const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                    const userIndex = users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        users[userIndex] = currentUser;
+                        localStorage.setItem('blogUsers', JSON.stringify(users));
+                    }
+                }
+
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                alert('✅ Profile updated successfully!');
+                loadUserProfile();
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('❌ Error updating profile. Please try again.');
+            }
+        }
+
+        // Setup avatar editor
+        function setupAvatarEditor() {
+            const gradientOptions = document.querySelectorAll('.gradient-option');
+            gradientOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove previous selection
+                    gradientOptions.forEach(o => o.style.border = '3px solid transparent');
+                    // Select current
+                    this.style.border = '3px solid #4ECDC4';
+                    selectedGradient = this.dataset.gradient;
+                    updateAvatarPreview();
+                });
+            });
+
+            document.getElementById('avatar-initials').addEventListener('input', updateAvatarPreview);
+        }
+
+        // Update avatar preview
+        function updateAvatarPreview() {
+            const preview = document.getElementById('avatar-preview');
+            const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
+            
+            preview.style.background = selectedGradient;
+            preview.textContent = initials.substring(0, 2);
+        }
+
+        // Edit avatar
+        function editAvatar() {
+            if (!currentUser) return;
+            
+            document.getElementById('avatar-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Set current values
+            selectedGradient = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.getElementById('avatar-initials').value = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+            updateAvatarPreview();
+        }
+
+        // Save avatar
+        async function saveAvatar() {
+            const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
+            
+            currentUser.avatar = {
+                background: selectedGradient,
+                initials: initials.substring(0, 2)
+            };
+
+            try {
+                if (window.db) {
+                    await window.db.collection('users').doc(currentUser.id).update({
+                        avatar: currentUser.avatar
+                    });
+                } else {
+                    const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                    const userIndex = users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        users[userIndex] = currentUser;
+                        localStorage.setItem('blogUsers', JSON.stringify(users));
+                    }
+                }
+
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                loadUserProfile();
+                closeAvatarModal();
+                alert('✅ Avatar updated successfully!');
+
+            } catch (error) {
+                console.error('Error saving avatar:', error);
+                alert('❌ Error saving avatar. Please try again.');
+            }
+        }
+
+        // Close avatar modal
+        function closeAvatarModal() {
+            document.getElementById('avatar-modal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Change password
+        function changePassword() {
+            const newPassword = prompt('Enter new password:');
+            if (!newPassword) return;
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+
+            // Confirm password
+            const confirmPassword = prompt('Confirm new password:');
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            // Update password
+            currentUser.password = newPassword;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            alert('✅ Password changed successfully!');
+        }
+
+        // Logout user
+        function logoutUser() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('account-dashboard').style.display = 'none';
+                showLoginForm();
+                
+                // Clear form fields
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+            }
+        }
+
+        // Helper functions
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        async function checkUsernameExists(username) {
+            if (window.db) {
+                const userQuery = await window.db.collection('users')
+                    .where('username', '==', username)
+                    .get();
+                return !userQuery.empty;
+            } else {
+                const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                return users.some(u => u.username === username);
+            }
+        }
+
+        // Make functions globally available
+        window.checkUserSession = checkUserSession;
+        window.getCurrentUser = () => currentUser;
+    </script>
+
+    <style>
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-option:hover {
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+        
+        #avatar-initials {
+            text-transform: uppercase;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+            color: #4ECDC4;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+    </style>
+</body>
+</html>
