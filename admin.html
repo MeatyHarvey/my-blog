@@ -191,10 +191,6 @@
                 <input type="password" id="admin-password" placeholder="Enter admin password" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white;">
             </div>
             <button onclick="authenticateAdmin()" class="refresh-btn" style="width: 100%; padding: 12px;">Login as Admin</button>
-            <p style="color: rgba(255,255,255,0.8); font-size: 0.9em; margin-top: 15px;">
-                💡 <strong>Default password:</strong> harvey123<br>
-                (Change this in the JavaScript for security)
-            </p>
         </div>
 
         <!-- Admin Dashboard -->
@@ -350,17 +346,12 @@
         function authenticateAdmin() {
             const password = document.getElementById('admin-password').value;
             
-            console.log('Attempting admin login with password:', password);
-            console.log('Expected password:', ADMIN_PASSWORD);
-            
             if (password === ADMIN_PASSWORD) {
                 isAdminAuthenticated = true;
                 localStorage.setItem('adminAuthenticated', 'true');
                 showAdminDashboard();
-                console.log('Admin login successful');
             } else {
                 alert('❌ Invalid admin password!');
-                console.log('Admin login failed');
             }
         }
 
