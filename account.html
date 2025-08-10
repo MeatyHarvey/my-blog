@@ -83,7 +83,7 @@
                 <h2>👤 Profile Information</h2>
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
                     <div class="profile-avatar" onclick="editAvatar()" style="cursor: pointer; position: relative;">
-                        <div id="user-avatar" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3); transition: all 0.3s ease;">
+                        <div id="user-avatar" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3); transition: all 0.3s ease; background-size: cover; background-position: center;">
                             HB
                         </div>
                         <div style="position: absolute; bottom: 0; right: 0; background: #4ECDC4; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; border: 2px solid white;">✏️</div>
@@ -146,10 +146,36 @@
                 <div style="background: rgba(53, 66, 74, 0.95); backdrop-filter: blur(20px); border-radius: 20px; border: 2px solid rgba(255, 255, 255, 0.2); padding: 40px; max-width: 500px; width: 100%;">
                     <h3 style="color: white; margin-bottom: 20px;">🎨 Choose Your Avatar</h3>
                     
-                    <!-- Gradient Backgrounds -->
+                    <!-- Avatar Type Selection -->
                     <div style="margin-bottom: 20px;">
+                        <h4 style="color: white; margin-bottom: 10px;">Avatar Type:</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button id="gradient-avatar-btn" onclick="selectAvatarType('gradient')" style="padding: 10px 20px; border-radius: 8px; border: 2px solid #4ECDC4; background: #4ECDC4; color: white; cursor: pointer; font-weight: bold;">🎨 Gradient + Text</button>
+                            <button id="photo-avatar-btn" onclick="selectAvatarType('photo')" style="padding: 10px 20px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: white; cursor: pointer; font-weight: bold;">📷 Upload Photo</button>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload Section -->
+                    <div id="photo-upload-section" style="display: none; margin-bottom: 20px;">
+                        <h4 style="color: white; margin-bottom: 10px;">Upload Your Photo:</h4>
+                        <input type="file" id="avatar-photo-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                        <button onclick="document.getElementById('avatar-photo-input').click()" style="padding: 12px 24px; border-radius: 8px; border: 2px dashed rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;">
+                            📤 Choose Photo from Device
+                        </button>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin: 5px 0;">Supported: JPG, PNG, GIF (max 2MB)</p>
+                        <div id="photo-crop-area" style="display: none; margin-top: 15px;">
+                            <canvas id="photo-canvas" style="border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; max-width: 100%;"></canvas>
+                            <div style="margin-top: 10px;">
+                                <button onclick="cropPhoto()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #4ECDC4; background: #4ECDC4; color: white; cursor: pointer; margin-right: 10px;">✂️ Crop & Use</button>
+                                <button onclick="cancelPhotoUpload()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: white; cursor: pointer;">❌ Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gradient Backgrounds Section -->
+                    <div id="gradient-avatar-section" style="margin-bottom: 20px;">
                         <h4 style="color: white; margin-bottom: 10px;">Background Color:</h4>
-                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px;">
                             <div class="gradient-option" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; border: 3px solid transparent;"></div>
                             <div class="gradient-option" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); cursor: pointer; border: 3px solid transparent;"></div>
                             <div class="gradient-option" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); cursor: pointer; border: 3px solid transparent;"></div>
@@ -157,10 +183,8 @@
                             <div class="gradient-option" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); cursor: pointer; border: 3px solid transparent;"></div>
                             <div class="gradient-option" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); cursor: pointer; border: 3px solid transparent;"></div>
                         </div>
-                    </div>
-                    
-                    <!-- Initials Input -->
-                    <div style="margin-bottom: 20px;">
+                        
+                        <!-- Initials Input -->
                         <h4 style="color: white; margin-bottom: 10px;">Initials:</h4>
                         <input type="text" id="avatar-initials" maxlength="2" placeholder="HB" style="width: 100px; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase;">
                     </div>
@@ -168,7 +192,7 @@
                     <!-- Preview -->
                     <div style="margin-bottom: 20px; text-align: center;">
                         <h4 style="color: white; margin-bottom: 10px;">Preview:</h4>
-                        <div id="avatar-preview" style="width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3);">
+                        <div id="avatar-preview" style="width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid rgba(255,255,255,0.3); background-size: cover; background-position: center;">
                             HB
                         </div>
                     </div>
@@ -193,6 +217,10 @@
     <script>
         let currentUser = null;
         let selectedGradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        let currentAvatarType = 'gradient';
+        let uploadedPhotoData = null;
+        let photoCanvas = null;
+        let photoContext = null;
 
         // Initialize account system
         document.addEventListener('DOMContentLoaded', function() {
@@ -260,8 +288,10 @@
                     password: password, // In real app, this should be hashed
                     joinDate: new Date().toISOString(),
                     avatar: {
+                        type: 'gradient',
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        initials: username.substring(0, 2).toUpperCase()
+                        initials: username.substring(0, 2).toUpperCase(),
+                        photo: null
                     },
                     bio: '',
                     stats: {
@@ -352,8 +382,15 @@
             
             // Update avatar
             const avatar = document.getElementById('user-avatar');
-            avatar.style.background = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            avatar.textContent = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+            if (currentUser.avatar?.type === 'photo' && currentUser.avatar?.photo) {
+                avatar.style.backgroundImage = `url(${currentUser.avatar.photo})`;
+                avatar.style.background = 'none';
+                avatar.textContent = '';
+            } else {
+                avatar.style.backgroundImage = 'none';
+                avatar.style.background = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                avatar.textContent = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+            }
 
             // Load form fields
             document.getElementById('edit-username').value = currentUser.username;
@@ -464,10 +501,185 @@
         // Update avatar preview
         function updateAvatarPreview() {
             const preview = document.getElementById('avatar-preview');
-            const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
             
-            preview.style.background = selectedGradient;
-            preview.textContent = initials.substring(0, 2);
+            if (currentAvatarType === 'photo' && uploadedPhotoData) {
+                preview.style.backgroundImage = `url(${uploadedPhotoData})`;
+                preview.style.background = 'none';
+                preview.textContent = '';
+            } else {
+                const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
+                preview.style.backgroundImage = 'none';
+                preview.style.background = selectedGradient;
+                preview.textContent = initials.substring(0, 2);
+            }
+        }
+
+        // Select avatar type
+        function selectAvatarType(type) {
+            currentAvatarType = type;
+            
+            // Update button styles
+            const gradientBtn = document.getElementById('gradient-avatar-btn');
+            const photoBtn = document.getElementById('photo-avatar-btn');
+            
+            if (type === 'gradient') {
+                gradientBtn.style.background = '#4ECDC4';
+                gradientBtn.style.border = '2px solid #4ECDC4';
+                photoBtn.style.background = 'transparent';
+                photoBtn.style.border = '2px solid rgba(255,255,255,0.3)';
+                
+                document.getElementById('gradient-avatar-section').style.display = 'block';
+                document.getElementById('photo-upload-section').style.display = 'none';
+            } else {
+                photoBtn.style.background = '#4ECDC4';
+                photoBtn.style.border = '2px solid #4ECDC4';
+                gradientBtn.style.background = 'transparent';
+                gradientBtn.style.border = '2px solid rgba(255,255,255,0.3)';
+                
+                document.getElementById('gradient-avatar-section').style.display = 'none';
+                document.getElementById('photo-upload-section').style.display = 'block';
+            }
+            
+            updateAvatarPreview();
+        }
+
+        // Handle photo upload
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+                alert('❌ Please upload a valid image file (JPG, PNG, or GIF)');
+                return;
+            }
+            
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('❌ File size must be less than 2MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    setupPhotoCanvas(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Setup photo canvas for cropping
+        function setupPhotoCanvas(img) {
+            photoCanvas = document.getElementById('photo-canvas');
+            photoContext = photoCanvas.getContext('2d');
+            
+            // Calculate dimensions to fit the image in a 300x300 canvas
+            const size = 300;
+            const aspectRatio = img.width / img.height;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            
+            if (aspectRatio > 1) {
+                // Wide image
+                drawHeight = size;
+                drawWidth = size * aspectRatio;
+                offsetX = -(drawWidth - size) / 2;
+                offsetY = 0;
+            } else {
+                // Tall image
+                drawWidth = size;
+                drawHeight = size / aspectRatio;
+                offsetX = 0;
+                offsetY = -(drawHeight - size) / 2;
+            }
+            
+            photoCanvas.width = size;
+            photoCanvas.height = size;
+            
+            // Clear canvas and draw image
+            photoContext.clearRect(0, 0, size, size);
+            photoContext.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            
+            // Show crop area
+            document.getElementById('photo-crop-area').style.display = 'block';
+            
+            // Add circular crop overlay
+            drawCropOverlay();
+        }
+
+        // Draw circular crop overlay
+        function drawCropOverlay() {
+            const size = 300;
+            const radius = 120; // Crop circle radius
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            // Create overlay
+            photoContext.save();
+            photoContext.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            photoContext.fillRect(0, 0, size, size);
+            
+            // Cut out the circle
+            photoContext.globalCompositeOperation = 'destination-out';
+            photoContext.beginPath();
+            photoContext.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            photoContext.fill();
+            
+            photoContext.restore();
+            
+            // Draw circle border
+            photoContext.strokeStyle = '#4ECDC4';
+            photoContext.lineWidth = 3;
+            photoContext.beginPath();
+            photoContext.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            photoContext.stroke();
+        }
+
+        // Crop photo
+        function cropPhoto() {
+            const size = 300;
+            const radius = 120;
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const cropSize = radius * 2;
+            
+            // Create a new canvas for the cropped image
+            const cropCanvas = document.createElement('canvas');
+            const cropContext = cropCanvas.getContext('2d');
+            cropCanvas.width = cropSize;
+            cropCanvas.height = cropSize;
+            
+            // Get the original image data from the crop area
+            const imageData = photoContext.getImageData(
+                centerX - radius, 
+                centerY - radius, 
+                cropSize, 
+                cropSize
+            );
+            
+            // Put the image data on the crop canvas
+            cropContext.putImageData(imageData, 0, 0);
+            
+            // Convert to base64
+            uploadedPhotoData = cropCanvas.toDataURL('image/jpeg', 0.8);
+            
+            // Hide crop area
+            document.getElementById('photo-crop-area').style.display = 'none';
+            
+            // Update preview
+            updateAvatarPreview();
+            
+            alert('✅ Photo ready! Click "Save Avatar" to apply.');
+        }
+
+        // Cancel photo upload
+        function cancelPhotoUpload() {
+            uploadedPhotoData = null;
+            document.getElementById('photo-crop-area').style.display = 'none';
+            document.getElementById('avatar-photo-input').value = '';
+            updateAvatarPreview();
         }
 
         // Edit avatar
@@ -477,20 +689,45 @@
             document.getElementById('avatar-modal').style.display = 'block';
             document.body.style.overflow = 'hidden';
             
-            // Set current values
-            selectedGradient = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            document.getElementById('avatar-initials').value = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+            // Set current values based on avatar type
+            if (currentUser.avatar?.type === 'photo' && currentUser.avatar?.photo) {
+                currentAvatarType = 'photo';
+                uploadedPhotoData = currentUser.avatar.photo;
+                selectAvatarType('photo');
+            } else {
+                currentAvatarType = 'gradient';
+                selectedGradient = currentUser.avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.getElementById('avatar-initials').value = currentUser.avatar?.initials || currentUser.username.substring(0, 2).toUpperCase();
+                selectAvatarType('gradient');
+            }
+            
             updateAvatarPreview();
         }
 
         // Save avatar
         async function saveAvatar() {
-            const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
-            
-            currentUser.avatar = {
-                background: selectedGradient,
-                initials: initials.substring(0, 2)
-            };
+            if (currentAvatarType === 'photo') {
+                if (!uploadedPhotoData) {
+                    alert('❌ Please upload and crop a photo first');
+                    return;
+                }
+                
+                currentUser.avatar = {
+                    type: 'photo',
+                    photo: uploadedPhotoData,
+                    background: null,
+                    initials: null
+                };
+            } else {
+                const initials = document.getElementById('avatar-initials').value.toUpperCase() || 'HB';
+                
+                currentUser.avatar = {
+                    type: 'gradient',
+                    background: selectedGradient,
+                    initials: initials.substring(0, 2),
+                    photo: null
+                };
+            }
 
             try {
                 if (window.db) {
@@ -521,7 +758,27 @@
         function closeAvatarModal() {
             document.getElementById('avatar-modal').style.display = 'none';
             document.body.style.overflow = '';
+            
+            // Clean up photo upload state
+            document.getElementById('photo-crop-area').style.display = 'none';
+            document.getElementById('avatar-photo-input').value = '';
+            uploadedPhotoData = null;
         }
+
+        // Generate avatar HTML for any user (can be used globally)
+        function generateAvatarHTML(avatar, username, size = 40) {
+            if (avatar?.type === 'photo' && avatar?.photo) {
+                return `<div style="width: ${size}px; height: ${size}px; border-radius: 50%; background-image: url(${avatar.photo}); background-size: cover; background-position: center; border: 2px solid rgba(255,255,255,0.3);"></div>`;
+            } else {
+                const background = avatar?.background || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                const initials = avatar?.initials || username.substring(0, 2).toUpperCase();
+                const fontSize = Math.max(12, size * 0.4);
+                return `<div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: ${background}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: ${fontSize}px; border: 2px solid rgba(255,255,255,0.3);">${initials}</div>`;
+            }
+        }
+
+        // Make the function available globally
+        window.generateAvatarHTML = generateAvatarHTML;
 
         // Change password
         function changePassword() {

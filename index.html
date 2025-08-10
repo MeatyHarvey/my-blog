@@ -221,6 +221,7 @@
     <script src="js/features.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/global-features.js"></script>
+    <script src="js/avatar-utils.js"></script>
     
     <script>
         // Load user posts on page load
@@ -457,10 +458,8 @@
                 postsHtml += `
                     <div class="post user-post" data-category="${post.category}" style="border-left: 4px solid #4ECDC4;">
                         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <div style="width: 30px; height: 30px; border-radius: 50%; background: ${post.authorAvatar?.backgroundColor || '#4ECDC4'}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 10px;">
-                                ${post.authorAvatar?.initials || post.author.substring(0, 2).toUpperCase()}
-                            </div>
-                            <span style="color: rgba(255,255,255,0.9); font-weight: 500;">by ${post.author}</span>
+                            ${generateLegacyAvatarHTML(post.authorAvatar, post.author, 30)}
+                            <span style="color: rgba(255,255,255,0.9); font-weight: 500; margin-left: 10px;">by ${post.author}</span>
                         </div>
                         <h2>${post.title}</h2>
                         <p class="post-meta">${publishDate} • <span class="category-tag ${post.category}">${post.category}</span> ${post.featured ? '• <span style="color: #ffd700;">⭐ Featured</span>' : ''}</p>
@@ -507,10 +506,8 @@
                         <button onclick="this.closest('div').parentElement.remove()" style="background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px;">×</button>
                     </div>
                     <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${post.authorAvatar?.backgroundColor || '#4ECDC4'}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">
-                            ${post.authorAvatar?.initials || post.author.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div>
+                        ${generateLegacyAvatarHTML(post.authorAvatar, post.author, 40)}
+                        <div style="margin-left: 15px;">
                             <div style="color: white; font-weight: 500;">${post.author}</div>
                             <div style="color: rgba(255,255,255,0.7); font-size: 14px;">${new Date(post.publishedAt).toLocaleDateString()} • ${post.category}</div>
                         </div>
