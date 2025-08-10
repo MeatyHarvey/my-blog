@@ -168,6 +168,9 @@
                                 🖱️ <strong>Drag the circle to position your crop area</strong>
                             </p>
                             <canvas id="photo-canvas" style="border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; max-width: 100%;"></canvas>
+                            <div id="crop-status" style="padding: 8px; margin: 10px 0; border-radius: 6px; background: rgba(76, 205, 196, 0.2); border: 1px solid #4ECDC4; color: #4ECDC4; font-weight: bold; display: none;">
+                                ✅ Photo cropped and ready to save!
+                            </div>
                             <div style="margin-top: 10px;">
                                 <button onclick="cropPhoto()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #4ECDC4; background: #4ECDC4; color: white; cursor: pointer; margin-right: 10px;">✂️ Crop & Use</button>
                                 <button onclick="cancelPhotoUpload()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: white; cursor: pointer;">❌ Cancel</button>
@@ -738,17 +741,26 @@
             // Hide crop area
             document.getElementById('photo-crop-area').style.display = 'none';
             
-            // Update preview
+            // Show success status
+            document.getElementById('crop-status').style.display = 'block';
+            
+            // Update preview immediately 
             updateAvatarPreview();
             
-            alert('✅ Photo cropped and ready! Click "Save Avatar" to apply.');
+            // Show success message without blocking the flow
+            console.log('✅ Photo cropped successfully and ready to save');
         }
 
         // Cancel photo upload
         function cancelPhotoUpload() {
+            // Clear all photo-related data
             uploadedPhotoData = null;
             document.getElementById('photo-crop-area').style.display = 'none';
+            document.getElementById('crop-status').style.display = 'none';
             document.getElementById('avatar-photo-input').value = '';
+            
+            // Reset to gradient mode
+            selectAvatarType('gradient');
             updateAvatarPreview();
         }
 
@@ -821,6 +833,13 @@
 
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 loadUserProfile();
+                
+                // Clear photo upload state only after successful save
+                if (currentAvatarType === 'photo') {
+                    document.getElementById('avatar-photo-input').value = '';
+                    uploadedPhotoData = null;
+                }
+                
                 closeAvatarModal();
                 alert('✅ Avatar updated successfully!');
 
@@ -830,15 +849,13 @@
             }
         }
 
-        // Close avatar modal
+        // Close avatar modal (don't clear photo data - let save/cancel handle it)
         function closeAvatarModal() {
             document.getElementById('avatar-modal').style.display = 'none';
             document.body.style.overflow = '';
             
-            // Clean up photo upload state
+            // Hide crop area but don't clear photo data
             document.getElementById('photo-crop-area').style.display = 'none';
-            document.getElementById('avatar-photo-input').value = '';
-            uploadedPhotoData = null;
         }
 
         // Generate avatar HTML for any user (can be used globally)
