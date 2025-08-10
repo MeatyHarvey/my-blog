@@ -164,6 +164,9 @@
                         </button>
                         <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin: 5px 0;">Supported: JPG, PNG, GIF (max 2MB)</p>
                         <div id="photo-crop-area" style="display: none; margin-top: 15px;">
+                            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin-bottom: 10px;">
+                                🖱️ <strong>Drag the circle to position your crop area</strong>
+                            </p>
                             <canvas id="photo-canvas" style="border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; max-width: 100%;"></canvas>
                             <div style="margin-top: 10px;">
                                 <button onclick="cropPhoto()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #4ECDC4; background: #4ECDC4; color: white; cursor: pointer; margin-right: 10px;">✂️ Crop & Use</button>
@@ -576,94 +579,161 @@
             photoCanvas = document.getElementById('photo-canvas');
             photoContext = photoCanvas.getContext('2d');
             
-            // Calculate dimensions to fit the image in a 300x300 canvas
-            const size = 300;
-            const aspectRatio = img.width / img.height;
-            let drawWidth, drawHeight, offsetX, offsetY;
+            // Set canvas size
+            const canvasSize = 300;
+            photoCanvas.width = canvasSize;
+            photoCanvas.height = canvasSize;
             
-            if (aspectRatio > 1) {
-                // Wide image
-                drawHeight = size;
-                drawWidth = size * aspectRatio;
-                offsetX = -(drawWidth - size) / 2;
-                offsetY = 0;
-            } else {
-                // Tall image
-                drawWidth = size;
-                drawHeight = size / aspectRatio;
-                offsetX = 0;
-                offsetY = -(drawHeight - size) / 2;
-            }
+            // Calculate how to fit image in canvas
+            const scale = Math.max(canvasSize / img.width, canvasSize / img.height);
+            const scaledWidth = img.width * scale;
+            const scaledHeight = img.height * scale;
+            const offsetX = (canvasSize - scaledWidth) / 2;
+            const offsetY = (canvasSize - scaledHeight) / 2;
             
-            photoCanvas.width = size;
-            photoCanvas.height = size;
+            // Store image data globally for cropping
+            window.originalImage = img;
+            window.imageScale = scale;
+            window.imageOffsetX = offsetX;
+            window.imageOffsetY = offsetY;
+            window.scaledWidth = scaledWidth;
+            window.scaledHeight = scaledHeight;
             
-            // Clear canvas and draw image
-            photoContext.clearRect(0, 0, size, size);
-            photoContext.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            // Initialize crop position (centered)
+            window.cropX = canvasSize / 2;
+            window.cropY = canvasSize / 2;
+            window.cropRadius = 120;
+            
+            // Draw the image and crop overlay
+            redrawCanvas();
             
             // Show crop area
             document.getElementById('photo-crop-area').style.display = 'block';
             
-            // Add circular crop overlay
-            drawCropOverlay();
+            // Add mouse events for dragging
+            setupCanvasInteraction();
         }
 
-        // Draw circular crop overlay
-        function drawCropOverlay() {
-            const size = 300;
-            const radius = 120; // Crop circle radius
-            const centerX = size / 2;
-            const centerY = size / 2;
+        // Redraw canvas with image and crop overlay
+        function redrawCanvas() {
+            const canvasSize = 300;
             
-            // Create overlay
+            // Clear canvas
+            photoContext.clearRect(0, 0, canvasSize, canvasSize);
+            
+            // Draw the image
+            photoContext.drawImage(
+                window.originalImage,
+                window.imageOffsetX,
+                window.imageOffsetY,
+                window.scaledWidth,
+                window.scaledHeight
+            );
+            
+            // Draw semi-transparent overlay
             photoContext.save();
             photoContext.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            photoContext.fillRect(0, 0, size, size);
+            photoContext.fillRect(0, 0, canvasSize, canvasSize);
             
-            // Cut out the circle
+            // Cut out the crop circle
             photoContext.globalCompositeOperation = 'destination-out';
             photoContext.beginPath();
-            photoContext.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            photoContext.arc(window.cropX, window.cropY, window.cropRadius, 0, 2 * Math.PI);
             photoContext.fill();
             
             photoContext.restore();
             
-            // Draw circle border
+            // Draw crop circle border
             photoContext.strokeStyle = '#4ECDC4';
             photoContext.lineWidth = 3;
             photoContext.beginPath();
-            photoContext.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            photoContext.arc(window.cropX, window.cropY, window.cropRadius, 0, 2 * Math.PI);
             photoContext.stroke();
+            
+            // Draw center dot for dragging reference
+            photoContext.fillStyle = '#4ECDC4';
+            photoContext.beginPath();
+            photoContext.arc(window.cropX, window.cropY, 4, 0, 2 * Math.PI);
+            photoContext.fill();
         }
 
-        // Crop photo
+        // Setup canvas interaction (dragging)
+        function setupCanvasInteraction() {
+            let isDragging = false;
+            
+            photoCanvas.addEventListener('mousedown', function(e) {
+                const rect = photoCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Check if click is within crop circle
+                const dx = x - window.cropX;
+                const dy = y - window.cropY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= window.cropRadius) {
+                    isDragging = true;
+                    photoCanvas.style.cursor = 'move';
+                }
+            });
+            
+            photoCanvas.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const rect = photoCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Keep crop circle within canvas bounds
+                const minX = window.cropRadius;
+                const maxX = 300 - window.cropRadius;
+                const minY = window.cropRadius;
+                const maxY = 300 - window.cropRadius;
+                
+                window.cropX = Math.max(minX, Math.min(maxX, x));
+                window.cropY = Math.max(minY, Math.min(maxY, y));
+                
+                redrawCanvas();
+            });
+            
+            photoCanvas.addEventListener('mouseup', function() {
+                isDragging = false;
+                photoCanvas.style.cursor = 'pointer';
+            });
+            
+            photoCanvas.addEventListener('mouseleave', function() {
+                isDragging = false;
+                photoCanvas.style.cursor = 'pointer';
+            });
+            
+            // Set initial cursor
+            photoCanvas.style.cursor = 'pointer';
+        }
+
+        // Crop photo with current position
         function cropPhoto() {
-            const size = 300;
-            const radius = 120;
-            const centerX = size / 2;
-            const centerY = size / 2;
-            const cropSize = radius * 2;
+            // Create a new canvas for the cropped result
+            const resultCanvas = document.createElement('canvas');
+            const resultContext = resultCanvas.getContext('2d');
+            const cropSize = window.cropRadius * 2;
             
-            // Create a new canvas for the cropped image
-            const cropCanvas = document.createElement('canvas');
-            const cropContext = cropCanvas.getContext('2d');
-            cropCanvas.width = cropSize;
-            cropCanvas.height = cropSize;
+            resultCanvas.width = cropSize;
+            resultCanvas.height = cropSize;
             
-            // Get the original image data from the crop area
-            const imageData = photoContext.getImageData(
-                centerX - radius, 
-                centerY - radius, 
-                cropSize, 
-                cropSize
+            // Calculate source coordinates on the original image
+            const sourceX = (window.cropX - window.imageOffsetX - window.cropRadius) / window.imageScale;
+            const sourceY = (window.cropY - window.imageOffsetY - window.cropRadius) / window.imageScale;
+            const sourceSize = cropSize / window.imageScale;
+            
+            // Draw the cropped portion
+            resultContext.drawImage(
+                window.originalImage,
+                sourceX, sourceY, sourceSize, sourceSize,
+                0, 0, cropSize, cropSize
             );
             
-            // Put the image data on the crop canvas
-            cropContext.putImageData(imageData, 0, 0);
-            
             // Convert to base64
-            uploadedPhotoData = cropCanvas.toDataURL('image/jpeg', 0.8);
+            uploadedPhotoData = resultCanvas.toDataURL('image/jpeg', 0.8);
             
             // Hide crop area
             document.getElementById('photo-crop-area').style.display = 'none';
@@ -671,7 +741,7 @@
             // Update preview
             updateAvatarPreview();
             
-            alert('✅ Photo ready! Click "Save Avatar" to apply.');
+            alert('✅ Photo cropped and ready! Click "Save Avatar" to apply.');
         }
 
         // Cancel photo upload
@@ -706,6 +776,12 @@
 
         // Save avatar
         async function saveAvatar() {
+            // Check if user is logged in
+            if (!currentUser) {
+                alert('❌ Please log in first to save your avatar');
+                return;
+            }
+            
             if (currentAvatarType === 'photo') {
                 if (!uploadedPhotoData) {
                     alert('❌ Please upload and crop a photo first');
@@ -750,7 +826,7 @@
 
             } catch (error) {
                 console.error('Error saving avatar:', error);
-                alert('❌ Error saving avatar. Please try again.');
+                alert('❌ Error saving avatar: ' + error.message);
             }
         }
 
