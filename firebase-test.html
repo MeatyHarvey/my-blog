@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(34, 197, 94, 0.3); border: 1px solid #22c55e; }
+        .error { background: rgba(239, 68, 68, 0.3); border: 1px solid #ef4444; }
+        .info { background: rgba(59, 130, 246, 0.3); border: 1px solid #3b82f6; }
+        .btn {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #45b7aa; }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Firebase Connection Test</h1>
+    
+    <div class="test-box">
+        <h2>📡 Connection Status</h2>
+        <div id="connection-status" class="status info">Testing Firebase connection...</div>
+        <div id="firestore-status" class="status info">Testing Firestore database...</div>
+    </div>
+
+    <div class="test-box">
+        <h2>🧪 Database Test</h2>
+        <button class="btn" onclick="testWrite()">Test Write to Database</button>
+        <button class="btn" onclick="testRead()">Test Read from Database</button>
+        <button class="btn" onclick="testUserAccount()">Test User Account Storage</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>📊 Current Configuration</h2>
+        <pre id="config-display"></pre>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script>
+        // Test Firebase connection
+        function testConnection() {
+            const connectionStatus = document.getElementById('connection-status');
+            const firestoreStatus = document.getElementById('firestore-status');
+            
+            if (window.firebaseInitialized) {
+                connectionStatus.className = 'status success';
+                connectionStatus.innerHTML = '✅ Firebase Connected Successfully';
+                
+                if (window.db) {
+                    firestoreStatus.className = 'status success';
+                    firestoreStatus.innerHTML = '✅ Firestore Database Available';
+                } else {
+                    firestoreStatus.className = 'status error';
+                    firestoreStatus.innerHTML = '❌ Firestore Database Not Available';
+                }
+            } else {
+                connectionStatus.className = 'status error';
+                connectionStatus.innerHTML = '❌ Firebase Not Connected (Using localStorage fallback)';
+                firestoreStatus.className = 'status info';
+                firestoreStatus.innerHTML = 'ℹ️ Will use localStorage for data storage';
+            }
+        }
+
+        // Test database write
+        async function testWrite() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="status info">Testing database write...</div>';
+            
+            try {
+                const testData = {
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    message: 'Firebase test successful!'
+                };
+                
+                if (window.db) {
+                    await window.db.collection('test').doc('firebase-test').set(testData);
+                    results.innerHTML = '<div class="status success">✅ Successfully wrote to Firebase!</div>';
+                } else {
+                    localStorage.setItem('firebase-test', JSON.stringify(testData));
+                    results.innerHTML = '<div class="status info">✅ Successfully wrote to localStorage (Firebase not available)</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="status error">❌ Write failed: ${error.message}</div>`;
+            }
+        }
+
+        // Test database read
+        async function testRead() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="status info">Testing database read...</div>';
+            
+            try {
+                if (window.db) {
+                    const doc = await window.db.collection('test').doc('firebase-test').get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        results.innerHTML = `<div class="status success">✅ Successfully read from Firebase!<br>Data: ${JSON.stringify(data, null, 2)}</div>`;
+                    } else {
+                        results.innerHTML = '<div class="status info">📄 No test document found in Firebase</div>';
+                    }
+                } else {
+                    const data = localStorage.getItem('firebase-test');
+                    if (data) {
+                        results.innerHTML = `<div class="status info">✅ Successfully read from localStorage!<br>Data: ${data}</div>`;
+                    } else {
+                        results.innerHTML = '<div class="status info">📄 No test data found in localStorage</div>';
+                    }
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="status error">❌ Read failed: ${error.message}</div>`;
+            }
+        }
+
+        // Test user account storage
+        async function testUserAccount() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="status info">Testing user account storage...</div>';
+            
+            try {
+                const testUser = {
+                    id: 'test-user-' + Date.now(),
+                    username: 'testuser',
+                    email: 'test@example.com',
+                    avatar: {
+                        type: 'gradient',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        initials: 'TU'
+                    },
+                    joinDate: new Date().toISOString()
+                };
+                
+                if (window.db) {
+                    await window.db.collection('users').doc(testUser.id).set(testUser);
+                    results.innerHTML = '<div class="status success">✅ User account saved to Firebase successfully!<br>Global storage is working! 🌐</div>';
+                } else {
+                    const users = JSON.parse(localStorage.getItem('blogUsers') || '[]');
+                    users.push(testUser);
+                    localStorage.setItem('blogUsers', JSON.stringify(users));
+                    results.innerHTML = '<div class="status info">✅ User account saved to localStorage!<br>Would sync to Firebase when connected 🔄</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="status error">❌ User account test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Display configuration
+        function displayConfig() {
+            const configDisplay = document.getElementById('config-display');
+            const config = {
+                firebaseInitialized: window.firebaseInitialized,
+                firestoreAvailable: window.db !== null,
+                projectId: window.firebaseInitialized ? 'website-85d6d' : 'Not connected',
+                storageMethod: window.db ? 'Firebase + localStorage' : 'localStorage only'
+            };
+            configDisplay.textContent = JSON.stringify(config, null, 2);
+        }
+
+        // Run tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                testConnection();
+                displayConfig();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
