@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Comment Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+        .test-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .comment-form { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .form-group { margin: 15px 0; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        #console { background: #1e1e1e; color: #fff; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; margin-top: 20px; }
+        .comments-list { margin-top: 20px; }
+        .comment-item { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007bff; }
+        .comment-author { font-weight: bold; color: #495057; }
+        .comment-text { margin: 8px 0; color: #212529; }
+        .comment-time { font-size: 12px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔥 Blog Comment System Test</h1>
+        <p>This will test your actual blog comment system with the correct database structure.</p>
+        
+        <div id="status-container">
+            <div class="status info">Ready to test comments...</div>
+        </div>
+        
+        <!-- Test Comment Form (same structure as your blog) -->
+        <div class="comment-form">
+            <h3>📝 Post a Test Comment</h3>
+            <form class="comment-form" data-post-id="future-fear">
+                <div class="form-group">
+                    <input type="text" class="comment-author" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <textarea class="comment-text" placeholder="Write your comment here..." rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary comment-submit">Post Comment</button>
+            </form>
+        </div>
+        
+        <!-- Comments Display -->
+        <div class="comments-section">
+            <h3>💬 Comments for "Future Fear" Post</h3>
+            <div class="comments-list" id="comments-future-fear">
+                <div class="loading">Loading comments...</div>
+            </div>
+        </div>
+        
+        <!-- Test Buttons -->
+        <div style="margin: 20px 0;">
+            <button onclick="testCommentsDatabase()">🔍 Test Comments Database</button>
+            <button onclick="loadTestComments()">📖 Load Comments</button>
+            <button onclick="clearConsole()">🧹 Clear Console</button>
+        </div>
+        
+        <div id="console"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Load Firebase config and global features -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/global-features.js"></script>
+    
+    <script>
+        const consoleEl = document.getElementById('console');
+        const statusContainer = document.getElementById('status-container');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+            consoleEl.appendChild(logEntry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function clearConsole() {
+            consoleEl.innerHTML = '';
+        }
+        
+        // Test comments database specifically
+        async function testCommentsDatabase() {
+            log('🔍 Testing comments database structure...');
+            
+            if (!db) {
+                log('❌ Database not available');
+                updateStatus('❌ Database not available', 'error');
+                return;
+            }
+            
+            try {
+                // Test writing a comment to the comments collection
+                const testComment = {
+                    postId: 'future-fear',
+                    author: 'Test User',
+                    text: 'This is a test comment from the comment system!',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                log('📝 Writing test comment to comments collection...');
+                const docRef = await db.collection('comments').add(testComment);
+                log(`✅ Test comment written successfully! Document ID: ${docRef.id}`);
+                
+                // Test reading comments
+                log('📖 Reading comments for future-fear post...');
+                const snapshot = await db.collection('comments')
+                    .where('postId', '==', 'future-fear')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                log(`✅ Found ${snapshot.size} comment(s) for future-fear post`);
+                
+                updateStatus('✅ Comments database working correctly!', 'success');
+                
+                // Load comments to display
+                loadTestComments();
+                
+            } catch (error) {
+                log(`❌ Comments database test failed: ${error.message}`);
+                updateStatus(`❌ Comments database failed: ${error.message}`, 'error');
+                
+                if (error.code === 'permission-denied') {
+                    log('💡 Permission denied - you need to update Firestore security rules');
+                    updateStatus('❌ Permission denied - update Firestore rules', 'error');
+                }
+            }
+        }
+        
+        // Load and display comments
+        async function loadTestComments() {
+            log('📖 Loading comments for display...');
+            
+            if (!db) {
+                log('❌ Database not available for loading comments');
+                return;
+            }
+            
+            try {
+                const snapshot = await db.collection('comments')
+                    .where('postId', '==', 'future-fear')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const commentsList = document.getElementById('comments-future-fear');
+                
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                    log('📭 No comments found');
+                } else {
+                    let commentsHTML = '';
+                    snapshot.forEach(doc => {
+                        const comment = doc.data();
+                        const timestamp = comment.timestamp ? comment.timestamp.toDate().toLocaleString() : 'Just now';
+                        
+                        commentsHTML += `
+                            <div class="comment-item">
+                                <div class="comment-author">${comment.author}</div>
+                                <div class="comment-text">${comment.text}</div>
+                                <div class="comment-time">${timestamp}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    commentsList.innerHTML = commentsHTML;
+                    log(`✅ Loaded ${snapshot.size} comment(s) for display`);
+                }
+                
+            } catch (error) {
+                log(`❌ Failed to load comments: ${error.message}`);
+                document.getElementById('comments-future-fear').innerHTML = '<p class="error">Failed to load comments.</p>';
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            log('🚀 Blog comment test page loaded');
+            log(`Firebase available: ${typeof firebase !== 'undefined'}`);
+            log(`Database available: ${typeof db !== 'undefined' && db !== null}`);
+            log(`Global features available: ${typeof initializeGlobalFeatures !== 'undefined'}`);
+            
+            // Initialize global features if available
+            if (typeof initializeGlobalFeatures === 'function') {
+                initializeGlobalFeatures();
+            }
+            
+            // Load existing comments
+            setTimeout(loadTestComments, 1000);
+        });
+        
+        // Handle form submission
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-form')) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                log('📝 Comment form submitted');
+                updateStatus('Posting comment...', 'info');
+                
+                // Use the global comment system
+                if (typeof submitGlobalComment === 'function') {
+                    submitGlobalComment(e.target).then(() => {
+                        updateStatus('✅ Comment posted successfully!', 'success');
+                        setTimeout(loadTestComments, 1000); // Reload comments after posting
+                    }).catch(error => {
+                        log(`❌ Comment posting failed: ${error.message}`);
+                        updateStatus(`❌ Comment posting failed: ${error.message}`, 'error');
+                    });
+                } else {
+                    log('❌ submitGlobalComment function not found');
+                    updateStatus('❌ Comment system not loaded', 'error');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

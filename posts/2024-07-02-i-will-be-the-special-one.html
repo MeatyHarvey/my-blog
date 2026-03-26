@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I will be the special one - Harvey's Blog</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Complete favicon set for subfolders -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../android-chrome-512x512.png">
+    <link rel="shortcut icon" href="../favicon.ico">
+</head>
+<body>
+    <!-- DVD bouncing animation -->
+    <div id="bouncing-container">
+        <img id="bouncing-image" src="../images/babyrat.png" alt="Bouncing Baby Rat">
+    </div>
+    
+    <header>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../travel.html">Travel</a>
+                <a href="../about.html">About</a>
+                <a href="../write.html">Write</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="post single-post">
+            <h1>I will be the special one</h1>
+            <p class="post-meta">Published on July 2, 2025 by Harvey</p>
+            <div class="post-content">
+                <p>I had a discussion with Bok Han about my desire to become a special person. He asked me to define what it means to be special. To ensure I don't forget, I'm noting down some concepts here.</p>
+                
+                <p>Firstly, a special person possesses extensive knowledge in their areas of interest, enabling them to speak confidently and accurately on those topics. Secondly, a special person maintains a motivated mindset, consistently pushing themselves to improve both personally and professionally. Thirdly, a special person should embody the qualities of someone like Hikigaya, who doesn't conform to societal expectations and instead reminds themselves that they are better than the negative influences around them. They resist the urge to follow others and avoid becoming like them. Lastly, a special person achieves noteworthy results in their work, making a positive impact on people's lives and influencing their habits. The work they do should be seen as valuable and necessary for the future.</p>
+                
+                <p>My aspiration to become a special person stems from my desire not to be worthless or insignificant. I aim to be a useful individual whom others will rely on in the future.</p>
+            </div>
+            
+            <!-- Like and Share Section -->
+            <div class="post-actions">
+                <button class="like-btn" data-post="special-one">
+                    <span class="heart">♡</span> <span class="like-count">0</span>
+                </button>
+                <div class="share-buttons">
+                    <span>Share:</span>
+                    <button class="share-btn" data-platform="twitter">🐦</button>
+                    <button class="share-btn" data-platform="facebook">📘</button>
+                    <button class="share-btn" data-platform="copy">📋</button>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <form class="comment-form" data-post-id="special-one">
+                    <div class="form-group">
+                        <input type="text" class="comment-author" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="comment-text" placeholder="Write your comment here..." rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary comment-submit">Post Comment</button>
+                </form>
+                <div class="comments-list" id="comments-special-one">
+                    <div class="loading">Loading comments...</div>
+                </div>
+            </div>
+            
+            <div class="post-navigation">
+                <a href="../index.html" class="back-to-home">← Back to Home</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+            <div class="website-stats">
+                <div class="running-time">
+                    <span class="stats-label">Website running for:</span>
+                    <span id="website-uptime" class="stats-value">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Blog Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/global-features.js"></script>
+    <script src="../js/features.js"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/bounce.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+title: My Blog
+description: A simple blog to share my thoughts and experiences .
+baseurl: ""
+url: "https://harvey.github.io/my-blog"
+author:
+  name: harvey
+  email: iptszhang03@gmail.com
+theme: minima
+markdown: kramdown
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag

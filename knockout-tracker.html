@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knockout Tracker — Job Application Board</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        /* Knockout Tracker Custom Styles */
+        *,*::before,*::after{box-sizing:border-box}
+        
+        main.container {
+            background: transparent;
+        }
+        
+        .ko-header {
+            background: rgba(53, 66, 74, 0.90);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .ko-header-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+        .brand-block{display:flex;align-items:center;gap:14px}
+        .brand-icon{
+            width:46px;height:46px;border-radius:12px;
+            background: rgba(78, 205, 196, 0.3);
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            display:flex;align-items:center;justify-content:center;
+            font-size:22px;flex-shrink:0
+        }
+        .app-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1;color:#f0f0f0;margin-bottom:3px}
+        .app-sub{font-size:12px;color:#a0a0a0;letter-spacing:0.3px}
+        .stats-row{display:flex;gap:12px;flex-shrink:0}
+        .stat-card{
+            background: rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:12px;
+            padding:10px 18px;
+            min-width:100px;
+            transition:all .2s;
+            backdrop-filter: blur(10px);
+        }
+        .stat-card:hover{border-color:rgba(255, 255, 255, 0.3);background:rgba(255, 255, 255, 0.08)}
+        .stat-num{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;margin-bottom:2px}
+        .stat-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.8px}
+        .stat-card.s-blue .stat-num{color:#60a5fa}
+        .stat-card.s-amber .stat-num{color:#fbbf24}
+        .stat-card.s-green .stat-num{color:#4ade80}
+        
+        .ko-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+        .toolbar-meta{font-size:12px;color:#888;letter-spacing:0.5px;text-transform:uppercase}
+        
+        /* Buttons */
+        .btn-primary{
+            background: rgba(78, 205, 196, 0.8);
+            color:#1a1a1a;
+            border:none;
+            padding:9px 20px;
+            border-radius:6px;
+            font-family:'DM Sans',sans-serif;
+            font-size:13px;
+            font-weight:600;
+            cursor:pointer;
+            transition:all .15s;
+            letter-spacing:0.2px
+        }
+        .btn-primary:hover{opacity:.9;background:rgba(78, 205, 196, 1)}
+        .btn-primary:active{transform:scale(.97)}
+        .btn-ghost{
+            background:transparent;
+            color:#c0c0c0;
+            border:1px solid rgba(255, 255, 255, 0.2);
+            padding:8px 16px;
+            border-radius:6px;
+            font-family:'DM Sans',sans-serif;
+            font-size:13px;
+            cursor:pointer;
+            transition:all .15s
+        }
+        .btn-ghost:hover{border-color:rgba(78, 205, 196, 0.5);color:#f0f0f0}
+        .btn-danger{
+            background: rgba(248, 113, 113, 0.15);
+            color:#ff6b6b;
+            border:1px solid rgba(248, 113, 113, 0.3);
+            padding:8px 16px;
+            border-radius:6px;
+            font-family:'DM Sans',sans-serif;
+            font-size:13px;
+            cursor:pointer;
+            transition:all .15s
+        }
+        .btn-danger:hover{background:rgba(248, 113, 113, 0.25)}
+        
+        /* Empty state */
+        .empty-state{text-align:center;padding:80px 20px}
+        .empty-badge{
+            display:inline-block;
+            font-size:44px;
+            margin-bottom:16px;
+            background: rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            width:80px;
+            height:80px;
+            border-radius:20px;
+            line-height:80px;
+            text-align:center
+        }
+        .empty-title{font-size:17px;font-weight:500;color:#c0c0c0;margin-bottom:6px}
+        .empty-desc{font-size:13px;color:#888}
+        
+        /* Job cards */
+        .jobs-list{display:flex;flex-direction:column;gap:10px}
+        .job-card{
+            background: rgba(255, 255, 255, 0.07);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:12px;
+            overflow:hidden;
+            transition:all .2s;
+            backdrop-filter: blur(15px);
+        }
+        .job-card:hover{border-color:rgba(255, 255, 255, 0.25);background:rgba(255, 255, 255, 0.1)}
+        .job-card.c-offer{border-color:rgba(251, 191, 36, 0.35);background:rgba(251, 191, 36, 0.08)}
+        .job-card.c-offer:hover{border-color:rgba(251, 191, 36, 0.55)}
+        .job-card.c-rejected{opacity:.6}
+        .job-inner{display:flex;align-items:center;padding:14px 18px;gap:14px;min-height:76px}
+        
+        .company-av{
+            width:40px;
+            height:40px;
+            border-radius:8px;
+            background: rgba(78, 205, 196, 0.2);
+            border:1px solid rgba(78, 205, 196, 0.4);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:600;
+            font-size:14px;
+            color:#4ECDC4;
+            flex-shrink:0
+        }
+        .job-meta{min-width:210px;flex-shrink:0}
+        .company-name{font-weight:500;font-size:14px;color:#f0f0f0;margin-bottom:1px}
+        .role-name{font-size:12px;color:#a0a0a0}
+        .date-applied{font-size:11px;color:#777;margin-top:2px}
+        
+        /* Bracket */
+        .bracket-wrapper{flex:1;overflow-x:auto;padding:6px 0}
+        .bracket-wrapper::-webkit-scrollbar{height:3px}
+        .bracket-wrapper::-webkit-scrollbar-track{background:transparent}
+        .bracket-wrapper::-webkit-scrollbar-thumb{background:rgba(255, 255, 255, 0.2);border-radius:2px}
+        .bracket{display:flex;align-items:flex-start;min-width:max-content;padding:0 4px 2px}
+        
+        .stage-node{
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:5px;
+            cursor:default;
+            user-select:none
+        }
+        .stage-node.clickable{cursor:pointer}
+        .stage-node.clickable:hover .stage-circ{transform:scale(1.12)}
+        
+        .stage-circ{
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:13px;
+            font-weight:600;
+            transition:all .15s;
+            position:relative;
+            flex-shrink:0
+        }
+        .stage-lbl{
+            font-size:10px;
+            color:#888;
+            text-align:center;
+            max-width:68px;
+            line-height:1.25;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis
+        }
+        
+        .sn-applied .stage-circ{background:rgba(96, 165, 250, 0.2);border:2px solid #60a5fa;color:#60a5fa}
+        .sn-applied .stage-lbl{color:rgba(96, 165, 250, 0.8)}
+        .sn-passed .stage-circ{background:rgba(74, 222, 128, 0.2);border:2px solid #4ade80;color:#4ade80}
+        .sn-passed .stage-lbl{color:rgba(74, 222, 128, 0.8)}
+        .sn-failed .stage-circ{background:rgba(248, 113, 113, 0.2);border:2px solid #ff6b6b;color:#ff6b6b}
+        .sn-failed .stage-lbl{color:rgba(248, 113, 113, 0.8)}
+        .sn-pending .stage-circ{background:rgba(255, 255, 255, 0.08);border:2px solid rgba(255, 255, 255, 0.2);color:#a0a0a0}
+        .sn-pending .stage-lbl{color:#a0a0a0}
+        .sn-current .stage-circ{
+            background:rgba(251, 191, 36, 0.25);
+            border:2px solid #fbbf24;
+            color:#fbbf24;
+            animation:pulse 2.2s ease-in-out infinite
+        }
+        .sn-current .stage-lbl{color:#fbbf24}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251, 191, 36, .35)}60%{box-shadow:0 0 0 7px rgba(251, 191, 36, 0)}}
+        .sn-locked .stage-circ{background:rgba(255, 255, 255, .02);border:2px dashed rgba(255, 255, 255, .08);color:rgba(255, 255, 255, .2)}
+        .sn-locked .stage-lbl{color:#555;opacity:.5}
+        .sn-offer .stage-circ{
+            background:rgba(251, 191, 36, 0.25);
+            border:2px solid #fbbf24;
+            color:#fbbf24;
+            box-shadow:0 0 16px rgba(251, 191, 36, .3)
+        }
+        .sn-offer .stage-lbl{color:#fbbf24}
+        
+        .conn{
+            width:32px;
+            flex-shrink:0;
+            height:2px;
+            margin-top:16px;
+            position:relative;
+            align-self:flex-start
+        }
+        .conn.cn-pass{background:#4ade80;opacity:.6}
+        .conn.cn-pass::after{
+            content:'';
+            position:absolute;
+            right:-1px;
+            top:50%;
+            transform:translateY(-50%);
+            border-left:5px solid #4ade80;
+            border-top:3px solid transparent;
+            border-bottom:3px solid transparent;
+            opacity:.6
+        }
+        .conn.cn-curr{
+            background:none;
+            border-top:2px dashed rgba(251, 191, 36, .4)
+        }
+        .conn.cn-lock{
+            background:none;
+            border-top:2px dashed rgba(255, 255, 255, .08)
+        }
+        
+        .job-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;padding-left:10px}
+        .job-badge{
+            padding:3px 10px;
+            border-radius:20px;
+            font-size:10px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:0.6px;
+            white-space:nowrap
+        }
+        .b-offer{background:rgba(251, 191, 36, 0.25);color:#fbbf24;border:1px solid rgba(251, 191, 36, .4)}
+        .b-active{background:rgba(96, 165, 250, 0.2);color:#60a5fa;border:1px solid rgba(96, 165, 250, .3)}
+        .b-rejected{background:rgba(248, 113, 113, 0.2);color:#ff6b6b;border:1px solid rgba(248, 113, 113, .3)}
+        .icon-btn{
+            background:transparent;
+            border:1px solid transparent;
+            border-radius:6px;
+            width:30px;
+            height:30px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            color:#888;
+            font-size:14px;
+            transition:all .15s
+        }
+        .icon-btn:hover{border-color:rgba(255, 255, 255, 0.2);color:#c0c0c0;background:rgba(255, 255, 255, 0.08)}
+        .hint-bar{
+            text-align:center;
+            font-size:11px;
+            color:#777;
+            padding:10px 0 0;
+            border-top:1px solid rgba(255, 255, 255, 0.1);
+            margin-top:8px;
+            opacity:.7
+        }
+        
+        /* Modal */
+        .modal-overlay{
+            position:fixed;
+            inset:0;
+            background:rgba(0, 0, 0, .85);
+            backdrop-filter:blur(8px);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:100;
+            padding:20px
+        }
+        .modal-overlay.hidden{display:none}
+        .modal{
+            background: rgba(53, 66, 74, 0.95);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:16px;
+            width:100%;
+            max-width:530px;
+            max-height:88vh;
+            overflow-y:auto;
+            padding:28px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        .modal::-webkit-scrollbar{width:5px}
+        .modal::-webkit-scrollbar-thumb{background:rgba(255, 255, 255, 0.15);border-radius:3px}
+        .modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+        .modal-title{font-size:17px;font-weight:600;color:#f0f0f0}
+        .modal-x{
+            background:transparent;
+            border:none;
+            color:#888;
+            font-size:22px;
+            cursor:pointer;
+            width:32px;
+            height:32px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:6px;
+            transition:all .15s;
+            line-height:1
+        }
+        .modal-x:hover{background:rgba(255, 255, 255, 0.1);color:#f0f0f0}
+        
+        .fg{margin-bottom:14px}
+        .fl{display:block;font-size:11px;font-weight:500;color:#a0a0a0;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+        .fi{
+            width:100%;
+            background:rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:6px;
+            color:#f0f0f0;
+            font-family:'DM Sans',sans-serif;
+            font-size:14px;
+            padding:9px 12px;
+            outline:none;
+            transition:all .15s
+        }
+        .fi:focus{border-color:rgba(78, 205, 196, 0.6);background:rgba(78, 205, 196, 0.08)}
+        .fi::placeholder{color:#666}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        
+        .stages-sec{margin-top:20px;padding-top:20px;border-top:1px solid rgba(255, 255, 255, 0.1)}
+        .stages-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+        .stages-ht{font-size:12px;font-weight:500;color:#a0a0a0;text-transform:uppercase;letter-spacing:0.5px}
+        .sugg-wrap{margin-bottom:12px}
+        .sugg-note{font-size:11px;color:#888;margin-bottom:7px}
+        .sugg-chips{display:flex;flex-wrap:wrap;gap:6px}
+        .chip{
+            padding:4px 11px;
+            background:rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:20px;
+            font-size:11px;
+            color:#a0a0a0;
+            cursor:pointer;
+            transition:all .15s
+        }
+        .chip:hover{border-color:rgba(78, 205, 196, 0.5);color:#4ECDC4;background:rgba(78, 205, 196, 0.15)}
+        .stages-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+        .stage-row{display:flex;align-items:center;gap:8px}
+        .stage-idx{font-size:11px;color:#666;min-width:18px;text-align:right}
+        .stage-inp{
+            flex:1;
+            background:rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:6px;
+            color:#f0f0f0;
+            font-family:'DM Sans',sans-serif;
+            font-size:13px;
+            padding:7px 10px;
+            outline:none;
+            transition:border-color .15s
+        }
+        .stage-inp:focus{border-color:rgba(78, 205, 196, 0.6)}
+        .stage-inp::placeholder{color:#666}
+        .stage-sel{
+            max-width:115px;
+            background:rgba(255, 255, 255, 0.05);
+            border:1px solid rgba(255, 255, 255, 0.15);
+            border-radius:6px;
+            color:#f0f0f0;
+            font-family:'DM Sans',sans-serif;
+            font-size:12px;
+            padding:7px 8px;
+            outline:none;
+            cursor:pointer;
+            transition:border-color .15s
+        }
+        .stage-sel:focus{border-color:rgba(78, 205, 196, 0.6)}
+        .stage-sel option{background:rgba(53, 66, 74, 0.95);color:#f0f0f0}
+        .stage-rm{
+            background:transparent;
+            border:1px solid transparent;
+            border-radius:6px;
+            width:28px;
+            height:28px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            color:#888;
+            font-size:14px;
+            transition:all .15s
+        }
+        .stage-rm:hover{border-color:#ff6b6b;color:#ff6b6b;background:rgba(248, 113, 113, 0.15)}
+        .add-stage-btn{
+            width:100%;
+            background:transparent;
+            border:1px dashed rgba(255, 255, 255, 0.2);
+            border-radius:6px;
+            color:#888;
+            font-family:'DM Sans',sans-serif;
+            font-size:13px;
+            padding:9px;
+            cursor:pointer;
+            transition:all .15s
+        }
+        .add-stage-btn:hover{border-color:rgba(78, 205, 196, 0.6);color:#4ECDC4}
+        .no-stages{font-size:12px;color:#777;text-align:center;padding:10px 0}
+        
+        .modal-ft{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-top:22px;
+            padding-top:18px;
+            border-top:1px solid rgba(255, 255, 255, 0.1)
+        }
+        .modal-ft-right{display:flex;gap:8px}
+    </style>
+</head>
+<body>
+    <!-- Bouncing animations with explosion -->
+    <div id="bouncing-container">
+        <img id="kumamon-image" src="images/kumamon.png" alt="Bouncing Kumamon">
+        <img id="babyrat-image" src="images/babyrat.png" alt="Bouncing Baby Rat">
+        <div id="explosion-container" style="display: none; position: fixed; z-index: 1000;">
+            <img id="explosion-image" src="images/explosion-kumamon.png" alt="Explosion">
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="travel.html">Travel</a>
+                <a href="about.html">About</a>
+                <a href="knockout-tracker.html" style="color: #fbbf24;">🥊 Tracker</a>
+                <a href="write.html">Write</a>
+                <a href="account.html" style="color: #4ECDC4;">👤 Account</a>
+                <a href="contact.html">Contact</a>
+                <a href="admin.html" style="color: #fbbf24;">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="ko-header">
+            <div class="ko-header-inner">
+                <div class="brand-block">
+                    <div class="brand-icon">⚽</div>
+                    <div>
+                        <div class="app-title">Knockout Tracker</div>
+                        <div class="app-sub">Monitor your job hunt — UCL bracket style</div>
+                    </div>
+                </div>
+                <div class="stats-row" id="stats-row"></div>
+            </div>
+        </div>
+
+        <div class="ko-toolbar">
+            <div class="toolbar-meta" id="job-count">0 Applications</div>
+            <button class="btn-primary" onclick="openAddModal()">+ Add Application</button>
+        </div>
+        <div class="jobs-list" id="jobs-list"></div>
+        <div class="hint-bar" id="hint-bar" style="display:none">
+            Click any stage node on a card to update its status &nbsp;·&nbsp; pending → passed → rejected
+        </div>
+    </main>
+
+    <div class="modal-overlay hidden" id="modal-overlay" onclick="overlayClick(event)">
+        <div class="modal" id="modal"></div>
+    </div>
+
+    <datalist id="sdl">
+        <option value="Online Assessment"><option value="Aptitude Test"><option value="Group Discussion">
+        <option value="Technical Interview"><option value="HR Interview"><option value="Video Interview">
+        <option value="Case Study"><option value="Final Round"><option value="Offer">
+    </datalist>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container" style="text-align: center; padding: 20px 0; color: #888; font-size: 0.85rem;">
+            <p>&copy; 2024-2026 Harvey's Blog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/animations.js"></script>
+    <script>
+        /* ── STATE ──────────────────────────────────────────────────────────── */
+        let jobs = [];
+        let editingId = null;
+        let modalStages = [];
+        
+        const SUGGESTIONS = [
+            'Online Assessment','Aptitude Test','Group Discussion',
+            'Technical Interview','HR Interview','Video Interview',
+            'Case Study','Final Round','Offer'
+        ];
+        
+        /* ── STORAGE ────────────────────────────────────────────────────────── */
+        async function load() {
+            try {
+                const stored = localStorage.getItem('ko-tracker-v1');
+                if (stored) jobs = JSON.parse(stored);
+            } catch(e) { jobs = []; }
+            render();
+        }
+        
+        async function save() {
+            try { localStorage.setItem('ko-tracker-v1', JSON.stringify(jobs)); }
+            catch(e) { console.warn('Save failed:', e); }
+        }
+        
+        /* ── UTILS ──────────────────────────────────────────────────────────── */
+        const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+        const initials = s => s.trim().split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase() || '?';
+        const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        function fmtDate(iso) {
+            if (!iso) return '';
+            try { return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+            catch(e){ return iso; }
+        }
+        
+        /* ── BUSINESS LOGIC ─────────────────────────────────────────────────── */
+        function jobStatus(job) {
+            const s = job.stages;
+            if (!s.length) return 'applied';
+            if (s.some(st => st.name.toLowerCase().includes('offer') && st.status==='passed')) return 'offer';
+            let lf=-1, lp=-1;
+            s.forEach((st,i)=>{ if(st.status==='failed') lf=i; if(st.status==='passed') lp=i; });
+            if (lf > lp) return 'rejected';
+            if (lp >= 0) return 'active';
+            return 'applied';
+        }
+        
+        function stats() {
+            const applied = jobs.length;
+            const interviews = jobs.filter(j => j.stages.some(s=>s.status==='passed')).length;
+            const offers = jobs.filter(j =>
+                j.stages.some(s=>s.name.toLowerCase().includes('offer')&&s.status==='passed')
+            ).length;
+            return { applied, interviews, offers };
+        }
+        
+        /* ── RENDER ─────────────────────────────────────────────────────────── */
+        function render() { renderStats(); renderJobs(); }
+        
+        function renderStats() {
+            const { applied, interviews, offers } = stats();
+            document.getElementById('stats-row').innerHTML = `
+                <div class="stat-card s-blue"><div class="stat-num">${applied}</div><div class="stat-lbl">Applied</div></div>
+                <div class="stat-card s-amber"><div class="stat-num">${interviews}</div><div class="stat-lbl">Interviews</div></div>
+                <div class="stat-card s-green"><div class="stat-num">${offers}</div><div class="stat-lbl">Offers</div></div>
+            `;
+            const jc = document.getElementById('job-count');
+            if (jc) jc.textContent = `${jobs.length} Application${jobs.length!==1?'s':''}`;
+            const hb = document.getElementById('hint-bar');
+            if (hb) hb.style.display = jobs.length ? 'block' : 'none';
+        }
+        
+        function nodeIcon(status) {
+            return {applied:'●',passed:'✓',failed:'✗',pending:'○',current:'●',locked:'·',offer:'★'}[status]||'○';
+        }
+        
+        function renderBracket(job) {
+            let foundCurrent = false;
+            const nodes = [
+                { id:'__ap__', name:'Applied', status:'applied' },
+                ...job.stages
+            ];
+        
+            let html = '';
+            for (let i = 0; i < nodes.length; i++) {
+                const nd = nodes[i];
+                const prev = nodes[i-1];
+        
+                const prevOk = !prev || prev.status==='applied' || prev.status==='passed';
+                const isLocked = !prevOk;
+        
+                let vStatus;
+                if (nd.status === 'applied') vStatus = 'applied';
+                else if (isLocked) vStatus = 'locked';
+                else if (nd.name.toLowerCase().includes('offer') && nd.status==='passed') vStatus = 'offer';
+                else if (nd.status==='passed') vStatus = 'passed';
+                else if (nd.status==='failed') vStatus = 'failed';
+                else if (!foundCurrent && prevOk) { vStatus = 'current'; foundCurrent = true; }
+                else vStatus = 'pending';
+        
+                if (i > 0) {
+                    const p = nodes[i-1];
+                    const pOk = p.status==='applied'||p.status==='passed';
+                    const pPend = p.status==='pending';
+                    const connCls = pOk ? 'cn-pass' : (pPend&&!isLocked?'cn-curr':'cn-lock');
+                    html += `<div class="conn ${connCls}"></div>`;
+                }
+        
+                const canClick = nd.id !== '__ap__' && !isLocked;
+                const tipTxt = canClick ? `${nd.name} — click to update status` : nd.name;
+        
+                html += `<div class="stage-node sn-${vStatus} ${canClick?'clickable':''}"
+                    ${canClick?`onclick="cycleStatus('${job.id}','${nd.id}')" title="${esc(tipTxt)}"`:``}>
+                    <div class="stage-circ">${nodeIcon(vStatus)}</div>
+                    <div class="stage-lbl">${esc(nd.name)}</div>
+                </div>`;
+            }
+            return html;
+        }
+        
+        function renderJobs() {
+            const el = document.getElementById('jobs-list');
+            if (!jobs.length) {
+                el.innerHTML = `<div class="empty-state">
+                    <div class="empty-badge">🏆</div>
+                    <div class="empty-title">No applications yet</div>
+                    <div class="empty-desc">Start tracking your job hunt — add your first application to begin</div>
+                </div>`;
+                return;
+            }
+        
+            const order = {offer:0,active:1,applied:2,rejected:3};
+            const sorted = [...jobs].sort((a,b)=>(order[jobStatus(a)]??4)-(order[jobStatus(b)]??4));
+        
+            el.innerHTML = sorted.map(job => {
+                const st = jobStatus(job);
+                const cardCls = st==='offer'?'c-offer':st==='rejected'?'c-rejected':'';
+                let badge = '';
+                if (st==='offer') badge = `<span class="job-badge b-offer">🏆 Offer</span>`;
+                else if (st==='rejected') badge = `<span class="job-badge b-rejected">Rejected</span>`;
+                else if (st==='active') {
+                    const rounds = job.stages.filter(s=>s.status==='passed').length;
+                    const curr = job.stages.findIndex(s=>s.status==='pending');
+                    if (curr >= 0) badge = `<span class="job-badge b-active">Round ${curr+1}</span>`;
+                }
+        
+                return `<div class="job-card ${cardCls}">
+                    <div class="job-inner">
+                        <div class="company-av">${esc(initials(job.company))}</div>
+                        <div class="job-meta">
+                            <div class="company-name">${esc(job.company)}</div>
+                            <div class="role-name">${esc(job.role)}</div>
+                            ${job.dateApplied?`<div class="date-applied">${fmtDate(job.dateApplied)}</div>`:''}
+                        </div>
+                        <div class="bracket-wrapper">
+                            <div class="bracket">${renderBracket(job)}</div>
+                        </div>
+                        <div class="job-right">
+                            ${badge}
+                            <button class="icon-btn" title="Edit application" onclick="openEditModal('${job.id}')">✏</button>
+                            <button class="icon-btn" title="Delete" onclick="confirmDelete('${job.id}')">🗑</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        
+        /* ── STAGE STATUS CYCLE ─────────────────────────────────────────────── */
+        function cycleStatus(jobId, stageId) {
+            const job = jobs.find(j=>j.id===jobId);
+            if (!job) return;
+            const stage = job.stages.find(s=>s.id===stageId);
+            if (!stage) return;
+            const cycle = ['pending','passed','failed'];
+            stage.status = cycle[(cycle.indexOf(stage.status)+1)%cycle.length];
+            save(); render();
+        }
+        
+        function confirmDelete(jobId) {
+            if (confirm('Remove this application from your tracker?')) {
+                jobs = jobs.filter(j=>j.id!==jobId);
+                save(); render();
+            }
+        }
+        
+        /* ── MODAL ──────────────────────────────────────────────────────────── */
+        function openAddModal() {
+            editingId = null; modalStages = [];
+            showModal('Add Application','','',new Date().toISOString().split('T')[0]);
+        }
+        
+        function openEditModal(jobId) {
+            const job = jobs.find(j=>j.id===jobId);
+            if (!job) return;
+            editingId = jobId;
+            modalStages = job.stages.map(s=>({...s}));
+            showModal('Edit Application', job.company, job.role, job.dateApplied||'');
+        }
+        
+        function showModal(title, company, role, date) {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            refreshModal(title, company, role, date);
+        }
+        
+        function refreshModal(title, company, role, date) {
+            document.getElementById('modal').innerHTML = `
+                <div class="modal-hd">
+                    <div class="modal-title">${title}</div>
+                    <button class="modal-x" onclick="closeModal()">×</button>
+                </div>
+                <div class="form-row">
+                    <div class="fg">
+                        <label class="fl">Company *</label>
+                        <input class="fi" id="fi-co" type="text" placeholder="e.g. Goldman Sachs" value="${esc(company)}">
+                    </div>
+                    <div class="fg">
+                        <label class="fl">Role *</label>
+                        <input class="fi" id="fi-ro" type="text" placeholder="e.g. Analyst" value="${esc(role)}">
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl">Date Applied</label>
+                    <input class="fi" id="fi-dt" type="date" value="${date}">
+                </div>
+                <div class="stages-sec">
+                    <div class="stages-hd">
+                        <div class="stages-ht">Interview Stages</div>
+                    </div>
+                    <div class="sugg-wrap">
+                        <div class="sugg-note">Quick add a stage:</div>
+                        <div class="sugg-chips">${SUGGESTIONS.map(s=>`<div class="chip" onclick="addSugg('${esc(s)}')">${esc(s)}</div>`).join('')}</div>
+                    </div>
+                    <div class="stages-list" id="msl">${renderMStages()}</div>
+                    <button class="add-stage-btn" onclick="addCustom()">+ Add custom stage</button>
+                </div>
+                <div class="modal-ft">
+                    <div>${editingId?`<button class="btn-danger" onclick="confirmDelete('${editingId}');closeModal()">Delete</button>`:'&nbsp;'}</div>
+                    <div class="modal-ft-right">
+                        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+                        <button class="btn-primary" onclick="saveJob()">Save Application</button>
+                    </div>
+                </div>`;
+        }
+        
+        function renderMStages() {
+            if (!modalStages.length) return `<div class="no-stages">No stages yet — use quick add above or add custom below</div>`;
+            return modalStages.map((s,i)=>`
+                <div class="stage-row">
+                    <span class="stage-idx">${i+1}</span>
+                    <input class="stage-inp" id="si-${i}" value="${esc(s.name)}" placeholder="Stage name…"
+                        oninput="modalStages[${i}].name=this.value" list="sdl">
+                    <select class="stage-sel fi" onchange="modalStages[${i}].status=this.value">
+                        <option value="pending" ${s.status==='pending'?'selected':''}>Pending</option>
+                        <option value="passed" ${s.status==='passed'?'selected':''}>Passed ✓</option>
+                        <option value="failed" ${s.status==='failed'?'selected':''}>Rejected ✗</option>
+                    </select>
+                    <button class="stage-rm" onclick="rmStage(${i})">✕</button>
+                </div>`).join('');
+        }
+        
+        function refreshStageList() { document.getElementById('msl').innerHTML = renderMStages(); }
+        function addSugg(name) { modalStages.push({id:uid(),name,status:'pending'}); refreshStageList(); }
+        function addCustom() {
+            modalStages.push({id:uid(),name:'',status:'pending'}); refreshStageList();
+            const ins = document.querySelectorAll('.stage-inp'); if(ins.length) ins[ins.length-1].focus();
+        }
+        function rmStage(i) { modalStages.splice(i,1); refreshStageList(); }
+        
+        function saveJob() {
+            const co = document.getElementById('fi-co').value.trim();
+            const ro = document.getElementById('fi-ro').value.trim();
+            const dt = document.getElementById('fi-dt').value;
+            if (!co||!ro) { alert('Please fill in company name and role.'); return; }
+            document.querySelectorAll('.stage-inp').forEach((el,i)=>{ if(modalStages[i]) modalStages[i].name=el.value.trim(); });
+            const valStages = modalStages.filter(s=>s.name.trim());
+            if (editingId) {
+                const idx = jobs.findIndex(j=>j.id===editingId);
+                if(idx>=0) jobs[idx]={...jobs[idx],company:co,role:ro,dateApplied:dt,stages:valStages};
+            } else {
+                jobs.push({id:uid(),company:co,role:ro,dateApplied:dt,stages:valStages});
+            }
+            save(); render(); closeModal();
+        }
+        
+        function overlayClick(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+            editingId=null; modalStages=[];
+        }
+        
+        /* ── INIT ───────────────────────────────────────────────────────────── */
+        load();
+    </script>
+</body>
+</html>

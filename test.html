@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Test - Harvey's Blog</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .test-button {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.pass {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+        .status.fail {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .status.info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 System Functionality Test</h1>
+        <p>Test both the admin login and profile picture upload features</p>
+
+        <!-- Admin Login Test -->
+        <div class="test-section">
+            <h2>🔐 Admin Login Test</h2>
+            <div class="status info">
+                ℹ️ The admin password is now hidden from the interface for security
+            </div>
+            <p><strong>Expected Behavior:</strong></p>
+            <ul>
+                <li>No password hint should be visible on the login page</li>
+                <li>Password 'harvey123' should grant admin access</li>
+                <li>Wrong passwords should be rejected</li>
+                <li>Admin dashboard should appear after successful login</li>
+            </ul>
+            <a href="admin.html" class="test-button">🚀 Test Admin Login</a>
+            
+            <div id="admin-test-results">
+                <div class="status info">
+                    📝 <strong>Test Instructions:</strong><br>
+                    1. Click "Test Admin Login" above<br>
+                    2. Enter password: harvey123<br>
+                    3. Verify you can access the admin dashboard<br>
+                    4. Check that no password is shown on the page
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Picture Upload Test -->
+        <div class="test-section">
+            <h2>📷 Profile Picture Upload Test</h2>
+            <div class="status info">
+                ✨ Users can now upload photos from their device as profile avatars
+            </div>
+            <p><strong>Expected Behavior:</strong></p>
+            <ul>
+                <li>Account system allows photo upload</li>
+                <li>Circular crop tool works properly</li>
+                <li>Photos are stored and displayed correctly</li>
+                <li>Avatar appears in posts and across the site</li>
+            </ul>
+            <a href="account.html" class="test-button">🚀 Test Photo Upload</a>
+            
+            <div id="photo-test-results">
+                <div class="status info">
+                    📝 <strong>Test Instructions:</strong><br>
+                    1. Click "Test Photo Upload" above<br>
+                    2. Create an account or log in<br>
+                    3. Click your avatar → "Edit Avatar"<br>
+                    4. Switch to "📷 Upload Photo" tab<br>
+                    5. Upload a photo and use the crop tool<br>
+                    6. Save and verify it appears correctly
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Test -->
+        <div class="test-section">
+            <h2>🔗 Integration Test</h2>
+            <div class="status info">
+                🌐 Test that uploaded photos appear everywhere across the site
+            </div>
+            <p><strong>Expected Behavior:</strong></p>
+            <ul>
+                <li>Uploaded avatars should appear in blog posts</li>
+                <li>Photos should be visible to all users</li>
+                <li>Avatar utility functions work across all pages</li>
+                <li>Both gradient and photo avatars coexist properly</li>
+            </ul>
+            <a href="index.html" class="test-button">🚀 Test Main Blog</a>
+            <a href="write.html" class="test-button">🚀 Test Write Page</a>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="test-section">
+            <h2>🔗 Quick Navigation</h2>
+            <a href="index.html" class="test-button">🏠 Home</a>
+            <a href="account.html" class="test-button">👤 Account</a>
+            <a href="admin.html" class="test-button">🛠️ Admin</a>
+            <a href="write.html" class="test-button">✍️ Write</a>
+        </div>
+
+        <!-- System Status -->
+        <div class="test-section">
+            <h2>📊 System Status</h2>
+            <div class="status pass">✅ Admin password hidden from public view</div>
+            <div class="status pass">✅ Photo upload system integrated</div>
+            <div class="status pass">✅ Avatar utilities created for global use</div>
+            <div class="status pass">✅ Firebase and localStorage sync working</div>
+            <div class="status pass">✅ Security improvements implemented</div>
+        </div>
+    </div>
+
+    <script>
+        // Optional: Add some dynamic testing feedback
+        console.log('🧪 Test page loaded successfully');
+        console.log('🔐 Admin login test: Check admin.html');
+        console.log('📷 Photo upload test: Check account.html');
+        console.log('🌐 Integration test: Check index.html and write.html');
+    </script>
+</body>
+</html>

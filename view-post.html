@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Post - Harvey's Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Complete favicon set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="shortcut icon" href="favicon.ico">
+</head>
+<body>
+    <!-- Bouncing animations with explosion -->
+    <div id="bouncing-container">
+        <img id="kumamon-image" src="images/kumamon.png" alt="Bouncing Kumamon">
+        <img id="babyrat-image" src="images/babyrat.png" alt="Bouncing Baby Rat">
+        <div id="explosion-container" style="display: none; position: fixed; z-index: 1000;">
+            <img id="explosion-image" src="images/explosion-kumamon.png" alt="Explosion">
+        </div>
+    </div>
+    
+    <header>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="travel.html">Travel</a>
+                <a href="about.html">About</a>
+                <a href="write.html">Write</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div id="post-container">
+            <!-- Post will be loaded here by JavaScript -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Harvey's Blog. All rights reserved.</p>
+    </footer>
+    <div class="animation-toggle">
+        <span>Animation</span>
+        <label class="switch">
+            <input type="checkbox" id="animation-toggle" checked>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/bounce.js"></script>
+
+</body>
+</html>
