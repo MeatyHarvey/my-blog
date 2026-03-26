@@ -514,8 +514,7 @@
         let jobs = [];
         let editingId = null;
         let modalStages = [];
-        let currentUser = null;
-        let firestoreUnsubscribe = null;
+        const USER = 'harvey';  // Fixed username - no login needed!
         
         const SUGGESTIONS = [
             'Online Assessment','Aptitude Test','Group Discussion',
@@ -523,38 +522,16 @@
             'Case Study','Final Round','Offer'
         ];
         
-        /* ── FIREBASE SETUP ─────────────────────────────────────────────────── */
-        async function initUser() {
-            try {
-                const userData = localStorage.getItem('currentUser');
-                if (userData) {
-                    currentUser = JSON.parse(userData);
-                    console.log('✅ User loaded:', currentUser.username);
-                    setupRealtimeSync();
-                } else {
-                    console.log('No user logged in');
-                    document.getElementById('jobs-list').innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-badge">🔐</div>
-                            <div class="empty-title">Please log in first</div>
-                            <div class="empty-desc"><a href="account.html" style="color: #4ECDC4; text-decoration: underline;">Go to Account page</a> to log in and sync your job applications globally</div>
-                        </div>`;
-                }
-            } catch(e) { 
-                console.error('User init error:', e);
-            }
-        }
-        
         /* ── FIRESTORE SYNC ─────────────────────────────────────────────────── */
         function setupRealtimeSync() {
-            if (!currentUser || !window.db) {
-                console.warn('Cannot setup sync: no user or db');
+            if (!window.db) {
+                console.log('Firebase not ready, using localStorage only');
                 load();
                 return;
             }
             
             // Listen to real-time updates from Firestore
-            firestoreUnsubscribe = window.db.collection('users').doc(currentUser.username)
+            window.db.collection('users').doc(USER)
                 .collection('jobs')
                 .onSnapshot(snapshot => {
                     jobs = [];
@@ -564,83 +541,70 @@
                     render();
                     console.log('✅ Jobs synced from Firebase:', jobs.length);
                 }, error => {
-                    console.warn('Firestore sync error:', error);
+                    console.warn('Firestore sync initial error - using localStorage:', error);
                     load();
                 });
         }
         
         async function load() {
-            if (!currentUser || !window.db) {
-                render();
-                return;
-            }
-            
             try {
-                const snapshot = await window.db.collection('users').doc(currentUser.username)
-                    .collection('jobs').get();
-                jobs = [];
-                snapshot.forEach(doc => {
-                    jobs.push({ id: doc.id, ...doc.data() });
-                });
-                console.log('✅ Loaded', jobs.length, 'jobs');
-            } catch(e) { 
-                console.error('Load error:', e);
-                jobs = []; 
-            }
+                const stored = localStorage.getItem('job-finding-jobs');
+                if (stored) jobs = JSON.parse(stored);
+            } catch(e) { jobs = []; }
             render();
         }
         
         async function save() {
-            if (!currentUser || !window.db) {
-                console.warn('Cannot save: no user or db available');
-                return;
-            }
-            
-            try {
-                // Jobs are auto-saved via modal actions, this ensures sync
-                console.log('💾 Jobs saving...');
+            try { 
+                localStorage.setItem('job-finding-jobs', JSON.stringify(jobs));
             } catch(e) { 
                 console.warn('Save failed:', e); 
             }
         }
         
         async function addJobToFirestore(job) {
-            if (!currentUser || !window.db) {
-                console.error('Cannot add job: missing user or db');
+            save();  // Always save locally
+            
+            if (!window.db) {
+                console.log('📱 Saved locally (Firebase offline)');
                 return;
             }
             
             try {
-                await window.db.collection('users').doc(currentUser.username)
+                await window.db.collection('users').doc(USER)
                     .collection('jobs').doc(job.id).set(job);
-                console.log('✅ Job added to Firestore:', job.id);
+                console.log('✅ Job synced to Firebase');
             } catch(e) {
-                console.error('Error adding job:', e);
-                alert('Error saving job: ' + e.message);
+                console.error('Error syncing:', e);
+                alert('Saved locally. Sync error: ' + e.message);
             }
         }
         
         async function updateJobInFirestore(job) {
-            if (!currentUser || !window.db) return;
+            save();  // Always save locally
+            
+            if (!window.db) return;
             
             try {
-                await window.db.collection('users').doc(currentUser.username)
+                await window.db.collection('users').doc(USER)
                     .collection('jobs').doc(job.id).update(job);
-                console.log('✅ Job updated in Firestore:', job.id);
+                console.log('✅ Job updated in Firebase');
             } catch(e) {
-                console.error('Error updating job:', e);
+                console.error('Error updating:', e);
             }
         }
         
         async function deleteJobFromFirestore(jobId) {
-            if (!currentUser || !window.db) return;
+            save();  // Always save locally
+            
+            if (!window.db) return;
             
             try {
-                await window.db.collection('users').doc(currentUser.username)
+                await window.db.collection('users').doc(USER)
                     .collection('jobs').doc(jobId).delete();
-                console.log('✅ Job deleted from Firestore:', jobId);
+                console.log('✅ Job deleted from Firebase');
             } catch(e) {
-                console.error('Error deleting job:', e);
+                console.error('Error deleting:', e);
             }
         }
         
@@ -741,10 +705,6 @@
         
         function renderJobs() {
             const el = document.getElementById('jobs-list');
-            if (!currentUser) {
-                // Already shows login message in initUser
-                return;
-            }
             
             if (!jobs.length) {
                 el.innerHTML = `<div class="empty-state">
@@ -810,10 +770,6 @@
         
         /* ── MODAL ──────────────────────────────────────────────────────────── */
         function openAddModal() {
-            if (!currentUser) {
-                alert('Please log in first');
-                return;
-            }
             editingId = null; modalStages = [];
             showModal('Add Application','','',new Date().toISOString().split('T')[0]);
         }
@@ -924,7 +880,7 @@
         }
         
         /* ── INIT ───────────────────────────────────────────────────────────── */
-        initUser();
+        setupRealtimeSync();
     </script>
 </body>
 </html>
