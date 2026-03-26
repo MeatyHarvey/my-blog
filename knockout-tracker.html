@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knockout Tracker — Job Application Board</title>
+    <title>Job Finding — Track Your Applications</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <style>
         /* Knockout Tracker Custom Styles */
         *,*::before,*::after{box-sizing:border-box}
@@ -454,7 +457,7 @@
                 <a href="index.html">Home</a>
                 <a href="travel.html">Travel</a>
                 <a href="about.html">About</a>
-                <a href="knockout-tracker.html" style="color: #fbbf24;">🥊 Tracker</a>
+                <a href="knockout-tracker.html" style="color: #fbbf24;">📊 Job Finding</a>
                 <a href="write.html">Write</a>
                 <a href="account.html" style="color: #4ECDC4;">👤 Account</a>
                 <a href="contact.html">Contact</a>
@@ -467,10 +470,10 @@
         <div class="ko-header">
             <div class="ko-header-inner">
                 <div class="brand-block">
-                    <div class="brand-icon">⚽</div>
+                    <div class="brand-icon">📊</div>
                     <div>
-                        <div class="app-title">Knockout Tracker</div>
-                        <div class="app-sub">Monitor your job hunt — UCL bracket style</div>
+                        <div class="app-title">Job Finding</div>
+                        <div class="app-sub">Track applications across all your devices</div>
                     </div>
                 </div>
                 <div class="stats-row" id="stats-row"></div>
@@ -505,11 +508,14 @@
     </footer>
 
     <script src="js/animations.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script>
         /* ── STATE ──────────────────────────────────────────────────────────── */
         let jobs = [];
         let editingId = null;
         let modalStages = [];
+        let currentUser = null;
+        let firestoreUnsubscribe = null;
         
         const SUGGESTIONS = [
             'Online Assessment','Aptitude Test','Group Discussion',
@@ -517,18 +523,125 @@
             'Case Study','Final Round','Offer'
         ];
         
-        /* ── STORAGE ────────────────────────────────────────────────────────── */
-        async function load() {
+        /* ── FIREBASE SETUP ─────────────────────────────────────────────────── */
+        async function initUser() {
             try {
-                const stored = localStorage.getItem('ko-tracker-v1');
-                if (stored) jobs = JSON.parse(stored);
-            } catch(e) { jobs = []; }
+                const userData = localStorage.getItem('currentUser');
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                    console.log('✅ User loaded:', currentUser.username);
+                    setupRealtimeSync();
+                } else {
+                    console.log('No user logged in');
+                    document.getElementById('jobs-list').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-badge">🔐</div>
+                            <div class="empty-title">Please log in first</div>
+                            <div class="empty-desc"><a href="account.html" style="color: #4ECDC4; text-decoration: underline;">Go to Account page</a> to log in and sync your job applications globally</div>
+                        </div>`;
+                }
+            } catch(e) { 
+                console.error('User init error:', e);
+            }
+        }
+        
+        /* ── FIRESTORE SYNC ─────────────────────────────────────────────────── */
+        function setupRealtimeSync() {
+            if (!currentUser || !window.db) {
+                console.warn('Cannot setup sync: no user or db');
+                load();
+                return;
+            }
+            
+            // Listen to real-time updates from Firestore
+            firestoreUnsubscribe = window.db.collection('users').doc(currentUser.username)
+                .collection('jobs')
+                .onSnapshot(snapshot => {
+                    jobs = [];
+                    snapshot.forEach(doc => {
+                        jobs.push({ id: doc.id, ...doc.data() });
+                    });
+                    render();
+                    console.log('✅ Jobs synced from Firebase:', jobs.length);
+                }, error => {
+                    console.warn('Firestore sync error:', error);
+                    load();
+                });
+        }
+        
+        async function load() {
+            if (!currentUser || !window.db) {
+                render();
+                return;
+            }
+            
+            try {
+                const snapshot = await window.db.collection('users').doc(currentUser.username)
+                    .collection('jobs').get();
+                jobs = [];
+                snapshot.forEach(doc => {
+                    jobs.push({ id: doc.id, ...doc.data() });
+                });
+                console.log('✅ Loaded', jobs.length, 'jobs');
+            } catch(e) { 
+                console.error('Load error:', e);
+                jobs = []; 
+            }
             render();
         }
         
         async function save() {
-            try { localStorage.setItem('ko-tracker-v1', JSON.stringify(jobs)); }
-            catch(e) { console.warn('Save failed:', e); }
+            if (!currentUser || !window.db) {
+                console.warn('Cannot save: no user or db available');
+                return;
+            }
+            
+            try {
+                // Jobs are auto-saved via modal actions, this ensures sync
+                console.log('💾 Jobs saving...');
+            } catch(e) { 
+                console.warn('Save failed:', e); 
+            }
+        }
+        
+        async function addJobToFirestore(job) {
+            if (!currentUser || !window.db) {
+                console.error('Cannot add job: missing user or db');
+                return;
+            }
+            
+            try {
+                await window.db.collection('users').doc(currentUser.username)
+                    .collection('jobs').doc(job.id).set(job);
+                console.log('✅ Job added to Firestore:', job.id);
+            } catch(e) {
+                console.error('Error adding job:', e);
+                alert('Error saving job: ' + e.message);
+            }
+        }
+        
+        async function updateJobInFirestore(job) {
+            if (!currentUser || !window.db) return;
+            
+            try {
+                await window.db.collection('users').doc(currentUser.username)
+                    .collection('jobs').doc(job.id).update(job);
+                console.log('✅ Job updated in Firestore:', job.id);
+            } catch(e) {
+                console.error('Error updating job:', e);
+            }
+        }
+        
+        async function deleteJobFromFirestore(jobId) {
+            if (!currentUser || !window.db) return;
+            
+            try {
+                await window.db.collection('users').doc(currentUser.username)
+                    .collection('jobs').doc(jobId).delete();
+                console.log('✅ Job deleted from Firestore:', jobId);
+            } catch(e) {
+                console.error('Error deleting job:', e);
+            }
         }
         
         /* ── UTILS ──────────────────────────────────────────────────────────── */
@@ -628,6 +741,11 @@
         
         function renderJobs() {
             const el = document.getElementById('jobs-list');
+            if (!currentUser) {
+                // Already shows login message in initUser
+                return;
+            }
+            
             if (!jobs.length) {
                 el.innerHTML = `<div class="empty-state">
                     <div class="empty-badge">🏆</div>
@@ -681,18 +799,21 @@
             if (!stage) return;
             const cycle = ['pending','passed','failed'];
             stage.status = cycle[(cycle.indexOf(stage.status)+1)%cycle.length];
-            save(); render();
+            updateJobInFirestore(job);
         }
         
         function confirmDelete(jobId) {
             if (confirm('Remove this application from your tracker?')) {
-                jobs = jobs.filter(j=>j.id!==jobId);
-                save(); render();
+                deleteJobFromFirestore(jobId);
             }
         }
         
         /* ── MODAL ──────────────────────────────────────────────────────────── */
         function openAddModal() {
+            if (!currentUser) {
+                alert('Please log in first');
+                return;
+            }
             editingId = null; modalStages = [];
             showModal('Add Application','','',new Date().toISOString().split('T')[0]);
         }
@@ -781,13 +902,19 @@
             if (!co||!ro) { alert('Please fill in company name and role.'); return; }
             document.querySelectorAll('.stage-inp').forEach((el,i)=>{ if(modalStages[i]) modalStages[i].name=el.value.trim(); });
             const valStages = modalStages.filter(s=>s.name.trim());
+            
             if (editingId) {
                 const idx = jobs.findIndex(j=>j.id===editingId);
-                if(idx>=0) jobs[idx]={...jobs[idx],company:co,role:ro,dateApplied:dt,stages:valStages};
+                if(idx>=0) {
+                    jobs[idx]={...jobs[idx],company:co,role:ro,dateApplied:dt,stages:valStages};
+                    updateJobInFirestore(jobs[idx]);
+                }
             } else {
-                jobs.push({id:uid(),company:co,role:ro,dateApplied:dt,stages:valStages});
+                const newJob = {id:uid(),company:co,role:ro,dateApplied:dt,stages:valStages};
+                jobs.push(newJob);
+                addJobToFirestore(newJob);
             }
-            save(); render(); closeModal();
+            closeModal();
         }
         
         function overlayClick(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
@@ -797,7 +924,7 @@
         }
         
         /* ── INIT ───────────────────────────────────────────────────────────── */
-        load();
+        initUser();
     </script>
 </body>
 </html>
