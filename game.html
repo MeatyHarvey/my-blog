@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game - Harvey's Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        :root {
+            --font-sans: Arial, Helvetica, sans-serif;
+            --border-radius-lg: 18px;
+            --color-border-tertiary: rgba(53, 66, 74, 0.18);
+            --color-text-primary: #1a2530;
+            --color-text-secondary: #5f6b74;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #f7fbff 0%, #e6f2ff 42%, #d8ecff 100%);
+            color: #1a2530;
+            font-family: var(--font-sans);
+        }
+
+        main {
+            padding: 30px 0 40px;
+        }
+
+        .game-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .game-intro {
+            margin-bottom: 20px;
+            padding: 22px 24px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(53, 66, 74, 0.12);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(53, 66, 74, 0.08);
+        }
+
+        .game-intro h2 {
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+        }
+
+        .game-intro p {
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .game-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .game-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(53, 66, 74, 0.18);
+            color: #1a2530;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .game-link.primary {
+            color: white;
+            background: linear-gradient(135deg, #111827, #374151);
+        }
+
+        #gw { position: relative; width: 100%; max-width: 680px; margin: 0 auto; font-family: var(--font-sans); user-select: none; }
+        #gc { display: block; width: 100%; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+        #ov { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+        .screen { pointer-events: all; text-align: center; background: rgba(255,255,255,0.96); border-radius: var(--border-radius-lg); padding: 22px 28px; border: 0.5px solid var(--color-border-tertiary); max-width: 310px; }
+        .st { font-size: 19px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+        .ss2 { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 14px; line-height: 1.6; }
+        .pb { background: #111; color: #fff; border: none; border-radius: 8px; padding: 9px 24px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+        .pb:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Harvey's Blog</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="travel.html">Travel</a>
+                <a href="about.html">About</a>
+                <a href="knockout-tracker.html" style="color: #fbbf24;">📊 Job Finding</a>
+                <a href="write.html">Write</a>
+                <a href="game.html" style="color: #4ECDC4;">🎮 Game</a>
+                <a href="account.html" style="color: #4ECDC4;">👤 Account</a>
+                <a href="contact.html">Contact</a>
+                <a href="admin.html" style="color: #fbbf24;">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="game-page">
+            <div class="game-intro">
+                <h2>🏃 Don't Get Diddied</h2>
+                <p>Pick your faces, start the run, and make it to the sea before Diddy catches you. Jump over obstacles, double-jump when you need to, and survive the final stretch.</p>
+                <div class="game-links">
+                    <a class="game-link primary" href="#game">Play now</a>
+                    <a class="game-link" href="index.html">Back to Home</a>
+                </div>
+            </div>
+
+            <div id="game">
+                <style>
+                    * { box-sizing: border-box; margin: 0; padding: 0; }
+                    #gw { position: relative; width: 100%; max-width: 680px; margin: 0 auto; font-family: var(--font-sans); user-select: none; }
+                    #gc { display: block; width: 100%; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+                    #ov { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+                    .screen { pointer-events: all; text-align: center; background: rgba(255,255,255,0.96); border-radius: var(--border-radius-lg); padding: 22px 28px; border: 0.5px solid var(--color-border-tertiary); max-width: 310px; }
+                    .st { font-size: 19px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+                    .ss2 { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 14px; line-height: 1.6; }
+                    .pb { background: #111; color: #fff; border: none; border-radius: 8px; padding: 9px 24px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+                    .pb:hover { opacity: 0.8; }
+                </style>
+
+                <div id="gw">
+                    <canvas id="gc" width="680" height="260"></canvas>
+                    <div id="ov">
+                        <div id="startScreen" class="screen">
+                            <div class="st">🏃 Don't Get Diddied</div>
+                            <div style="display:flex;gap:16px;margin-bottom:12px;justify-content:center;">
+                                <div style="text-align:center;">
+                                    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">Your face</div>
+                                    <label style="width:54px;height:54px;border-radius:50%;border:2px dashed #bbb;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f8f8;" id="pLabel">
+                                        <span id="pPlus" style="font-size:22px;color:#bbb">+</span>
+                                        <img id="pImg" style="display:none;width:54px;height:54px;object-fit:cover;">
+                                        <input type="file" accept="image/*" id="pFile" style="display:none">
+                                    </label>
+                                </div>
+                                <div style="text-align:center;">
+                                    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">Diddy's face</div>
+                                    <label style="width:54px;height:54px;border-radius:50%;border:2px dashed #bbb;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f8f8;" id="dLabel">
+                                        <span id="dPlus" style="font-size:22px;color:#bbb">+</span>
+                                        <img id="dImg" style="display:none;width:54px;height:54px;object-fit:cover;">
+                                        <input type="file" accept="image/*" id="dFile" style="display:none">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ss2">Run for 60 seconds to reach the sea and escape!<br>Diddy chases from the left. After 30s he throws baby oil (badly).<br>Jump over obstacles — double jump allowed!</div>
+                            <button class="pb" id="startBtn">Start Running</button>
+                            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px;">Space / Tap to jump</div>
+                        </div>
+                        <div id="gameoverScreen" class="screen" style="display:none;">
+                            <div style="font-size:22px;font-weight:500;color:#c0392b;margin-bottom:4px;">👆 You Got Diddied!</div>
+                            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Johnson's Baby Oil: Applied ✓</div>
+                            <div style="font-size:16px;font-weight:500;margin-bottom:14px;">Score: <span id="fs">0</span></div>
+                            <button class="pb" id="restartBtn">Run Again</button>
+                        </div>
+                        <div id="winScreen" class="screen" style="display:none;">
+                            <div style="font-size:22px;font-weight:500;color:#1a7a3c;margin-bottom:6px;">🌊 You Escaped!</div>
+                            <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:4px;">Congratulations!</div>
+                            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">You swam away from Diddy and his baby oil.<br>You are free! 🏊</div>
+                            <button class="pb" id="winRestartBtn">Play Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    const canvas = document.getElementById('gc');
+    const ctx = canvas.getContext('2d');
+    const W = 680, H = 260;
+    const GND = H - 50;
+    const TOTAL_FRAMES = 60 * 60;
+    const SEA_START_FRAME = 50 * 60;
+
+    let playerPhoto = null, diddyPhoto = null;
+
+    function setupUpload(fileId, imgId, plusId, cb) {
+      document.getElementById(fileId).addEventListener('change', e => {
+        const f = e.target.files[0]; if (!f) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image(); img.onload = () => cb(img); img.src = ev.target.result;
+          document.getElementById(imgId).src = ev.target.result;
+          document.getElementById(imgId).style.display = 'block';
+          document.getElementById(plusId).style.display = 'none';
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+    document.getElementById('pLabel').onclick = () => document.getElementById('pFile').click();
+    document.getElementById('dLabel').onclick = () => document.getElementById('dFile').click();
+    setupUpload('pFile','pImg','pPlus', img => playerPhoto = img);
+    setupUpload('dFile','dImg','dPlus', img => diddyPhoto = img);
+
+    let state = 'start';
+    let frame = 0, score = 0, speed = 2.4;
+    let obstacles = [], bottles = [], oilDrops = [], clouds = [];
+    let diddyX = -140;
+    let goPhase, goTimer;
+    let hardMode = false;
+    let obsCd = 110, bottleCd = 260;
+    let winTimer = 0;
+
+    const P = {
+      x: 150, y: GND, vy: 0, onGround: true, jumpCount: 0,
+      reset() { this.y = GND; this.vy = 0; this.onGround = true; this.jumpCount = 0; }
+    };
+
+    function jump() {
+      if (state === 'playing' && P.jumpCount < 2) {
+        P.vy = -11.5;
+        P.onGround = false; P.jumpCount++;
+      }
+    }
+
+    function drawPhotoCircle(img, cx, cy, r) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+      ctx.drawImage(img, cx-r, cy-r, r*2, r*2);
+      ctx.restore();
+    }
+
+    function drawBottle(x, y, sc, angle) {
+      sc = sc || 1; angle = angle || 0;
+      ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.scale(sc,sc);
+      ctx.beginPath(); ctx.roundRect(-7,-26,14,26,3);
+      ctx.fillStyle='rgba(220,240,255,0.75)'; ctx.fill();
+      ctx.strokeStyle='#88b0cc'; ctx.lineWidth=1.2; ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(-5,-16,10,16,2);
+      ctx.fillStyle='rgba(210,170,40,0.5)'; ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(-5,-22,10,10);
+      ctx.fillStyle='#c8102e'; ctx.font='bold 3.5px sans-serif'; ctx.textAlign='center';
+      ctx.fillText("JOHNSON'S",0,-16);
+      ctx.fillStyle='#444'; ctx.font='3px sans-serif'; ctx.fillText('baby oil',0,-12);
+      ctx.textAlign='left';
+      ctx.beginPath(); ctx.roundRect(-6,-33,12,8,3);
+      ctx.fillStyle='#e0559a'; ctx.fill();
+      ctx.strokeStyle='#c03080'; ctx.lineWidth=1; ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(-4,-32,4,5,2);
+      ctx.fillStyle='rgba(255,200,230,0.55)'; ctx.fill();
+      ctx.restore();
+    }
+
+    function stickman(cx, cy, t, photo, bodyColor, shoeColor, holdBottle) {
+      const step = t * 0.25;
+      const thighSwing = Math.sin(step) * 35;
+      const THIGH=16, SHIN=15;
+      const hipX=cx, hipY=cy-20;
+      const shoulderY=cy-42, headCY=cy-55;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+
+      const bThA=(-thighSwing)*Math.PI/180;
+      const bkX=hipX+Math.sin(bThA)*THIGH, bkY=hipY+Math.cos(bThA)*THIGH;
+      const bfX=bkX+Math.sin(bThA+0.5)*SHIN, bfY=bkY+Math.cos(bThA+0.5)*SHIN;
+      ctx.strokeStyle='#aaa'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(bkX,bkY); ctx.lineTo(bfX,bfY); ctx.stroke();
+      ctx.fillStyle='#ccc'; ctx.strokeStyle='#999'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.ellipse(bfX+5,bfY,6,3,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+      const fThA=(thighSwing)*Math.PI/180;
+      const fkX=hipX+Math.sin(fThA)*THIGH, fkY=hipY+Math.cos(fThA)*THIGH;
+      const ffX=fkX+Math.sin(fThA-0.4)*SHIN, ffY=fkY+Math.cos(fThA-0.4)*SHIN;
+      ctx.strokeStyle='#333'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(fkX,fkY); ctx.lineTo(ffX,ffY); ctx.stroke();
+      ctx.fillStyle=shoeColor; ctx.strokeStyle='#882020'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.ellipse(ffX+5,ffY,7,3.5,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+      ctx.strokeStyle=bodyColor; ctx.lineWidth=3.5;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY); ctx.lineTo(hipX,hipY); ctx.stroke();
+
+      const armSwing=Math.sin(step+Math.PI)*25;
+      const UPPER=13, LOWER=11;
+      const bAA=armSwing*Math.PI/180;
+      const beX=cx+Math.sin(bAA)*UPPER, beY=shoulderY+4+Math.cos(bAA)*UPPER;
+      const bhX=beX+Math.sin(bAA+0.3)*LOWER, bhY=beY+Math.cos(bAA+0.3)*LOWER;
+      ctx.strokeStyle='#aaa'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+4); ctx.lineTo(beX,beY); ctx.lineTo(bhX,bhY); ctx.stroke();
+
+      const fAA=(-armSwing)*Math.PI/180;
+      const feX=cx+Math.sin(fAA)*UPPER, feY=shoulderY+4+Math.cos(fAA)*UPPER;
+      const fhX=feX+Math.sin(fAA-0.3)*LOWER, fhY=feY+Math.cos(fAA-0.3)*LOWER;
+      ctx.strokeStyle='#333'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+4); ctx.lineTo(feX,feY); ctx.lineTo(fhX,fhY); ctx.stroke();
+      if (holdBottle) drawBottle(fhX+6,fhY,0.8,0);
+
+      ctx.fillStyle='#FDBCB4'; ctx.strokeStyle='#c09080'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(cx,headCY,12,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      if (photo) {
+        drawPhotoCircle(photo,cx,headCY,11);
+        ctx.beginPath(); ctx.arc(cx,headCY,11,0,Math.PI*2);
+        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1; ctx.stroke();
+      } else {
+        ctx.fillStyle='#333';
+        ctx.beginPath(); ctx.arc(cx+5,headCY-2,1.8,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#555'; ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.arc(cx+4,headCY+3,4,0,Math.PI); ctx.stroke();
+      }
+    }
+
+    function diddyman(cx, cy, t, photo, holdBottle) {
+      const step = t * 0.22;
+      const thighSwing = Math.sin(step) * 28;
+      const THIGH=17, SHIN=16;
+      const hipX=cx, hipY=cy-21;
+      const shoulderY=cy-46, headCY=cy-60;
+      const skin = '#6b4423';
+      ctx.lineCap='round'; ctx.lineJoin='round';
+
+      const bThA=(-thighSwing)*Math.PI/180;
+      const bkX=hipX+Math.sin(bThA)*THIGH, bkY=hipY+Math.cos(bThA)*THIGH;
+      const bfX=bkX+Math.sin(bThA+0.5)*SHIN, bfY=bkY+Math.cos(bThA+0.5)*SHIN;
+      ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=4.5;
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(bkX,bkY); ctx.lineTo(bfX,bfY); ctx.stroke();
+      ctx.fillStyle='#222'; ctx.strokeStyle='#000'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.ellipse(bfX+5,bfY,7,3.5,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+      const fThA=(thighSwing)*Math.PI/180;
+      const fkX=hipX+Math.sin(fThA)*THIGH, fkY=hipY+Math.cos(fThA)*THIGH;
+      const ffX=fkX+Math.sin(fThA-0.4)*SHIN, ffY=fkY+Math.cos(fThA-0.4)*SHIN;
+      ctx.strokeStyle='#000'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(fkX,fkY); ctx.lineTo(ffX,ffY); ctx.stroke();
+      ctx.fillStyle='#222'; ctx.strokeStyle='#000'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.ellipse(ffX+5,ffY,8,4,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+      ctx.strokeStyle='#111'; ctx.lineWidth=9;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY); ctx.lineTo(hipX,hipY); ctx.stroke();
+      ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY); ctx.lineTo(hipX,hipY); ctx.stroke();
+      ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(cx-5,shoulderY+3); ctx.quadraticCurveTo(cx,shoulderY+9,cx+5,shoulderY+3); ctx.stroke();
+
+      const armSwing=Math.sin(step+Math.PI)*22;
+      const UPPER=15, LOWER=13;
+      const bAA=armSwing*Math.PI/180;
+      const beX=cx+Math.sin(bAA)*UPPER, beY=shoulderY+5+Math.cos(bAA)*UPPER;
+      const bhX=beX+Math.sin(bAA+0.3)*LOWER, bhY=beY+Math.cos(bAA+0.3)*LOWER;
+      ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=4.2;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+5); ctx.lineTo(beX,beY); ctx.lineTo(bhX,bhY); ctx.stroke();
+      ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(bhX,bhY,3,0,Math.PI*2); ctx.fill();
+
+      const fAA=(-armSwing)*Math.PI/180;
+      const feX=cx+Math.sin(fAA)*UPPER, feY=shoulderY+5+Math.cos(fAA)*UPPER;
+      const fhX=feX+Math.sin(fAA-0.3)*LOWER, fhY=feY+Math.cos(fAA-0.3)*LOWER;
+      ctx.strokeStyle='#000'; ctx.lineWidth=4.6;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+5); ctx.lineTo(feX,feY); ctx.lineTo(fhX,fhY); ctx.stroke();
+      ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(fhX,fhY,3,0,Math.PI*2); ctx.fill();
+      if (holdBottle) drawBottle(fhX+6,fhY,0.8,0);
+
+      ctx.fillStyle=skin; ctx.strokeStyle='#3e2412'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(cx,headCY,13,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      if (photo) {
+        drawPhotoCircle(photo,cx,headCY,12);
+        ctx.beginPath(); ctx.arc(cx,headCY,12,0,Math.PI*2);
+        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1; ctx.stroke();
+      } else {
+        ctx.fillStyle='#0a0a0a';
+        ctx.beginPath(); ctx.roundRect(cx-10,headCY-3,8,6,2); ctx.fill();
+        ctx.beginPath(); ctx.roundRect(cx+2,headCY-3,8,6,2); ctx.fill();
+        ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx-2,headCY-1); ctx.lineTo(cx+2,headCY-1); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-10,headCY-1); ctx.lineTo(cx-13,headCY-2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx+10,headCY-1); ctx.lineTo(cx+13,headCY-2); ctx.stroke();
+        ctx.fillStyle='#1a1a1a';
+        ctx.beginPath(); ctx.ellipse(cx,headCY+8,3,3.5,0,0,Math.PI*2); ctx.fill();
+      }
+    }
+
+    function stickmanSwim(cx, cy, t) {
+      const wave=Math.sin(t*0.18)*4;
+      ctx.save(); ctx.translate(0,wave);
+      const stroke=Math.sin(t*0.25);
+      ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1.5;
+      for(let i=0;i<2;i++){
+        const rOff=(t*3+i*14)%30;
+        ctx.beginPath(); ctx.ellipse(cx-20-rOff,cy+2,8+rOff*0.4,3,0,0,Math.PI*2); ctx.stroke();
+      }
+      ctx.strokeStyle='#1a5eb8'; ctx.lineWidth=3.5; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(cx-18,cy); ctx.lineTo(cx+10,cy); ctx.stroke();
+      ctx.strokeStyle='#333'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(cx-10,cy-4); ctx.lineTo(cx-18+stroke*22,cy-Math.abs(stroke)*14); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+2,cy-4); ctx.lineTo(cx+10-stroke*11,cy+Math.abs(stroke)*8); ctx.stroke();
+      const kick=Math.sin(t*0.4)*10;
+      ctx.strokeStyle='#333'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(cx+10,cy); ctx.lineTo(cx+22,cy-kick); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+10,cy); ctx.lineTo(cx+22,cy+kick); ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.85)';
+      ctx.beginPath(); ctx.arc(cx+22,cy-kick,2,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+22,cy+kick,2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FDBCB4'; ctx.strokeStyle='#c09080'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(cx-22,cy-2,11,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      if (playerPhoto) drawPhotoCircle(playerPhoto,cx-22,cy-2,10);
+      ctx.restore();
+    }
+
+    function diddyAngryShore(cx, cy, t) {
+      const stomp = Math.abs(Math.sin(t*0.3))*4;
+      const shake = Math.sin(t*0.9)*2;
+      const skin = '#6b4423';
+      ctx.save(); ctx.translate(shake,0);
+      const hipX=cx, hipY=cy-21-stomp, shoulderY=cy-46-stomp, headCY=cy-60-stomp;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.strokeStyle='#000'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(hipX-13,cy-2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(hipX,hipY); ctx.lineTo(hipX+13,cy-2); ctx.stroke();
+      ctx.fillStyle='#222'; ctx.beginPath(); ctx.ellipse(hipX-18,cy-2,7,3.5,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#222'; ctx.beginPath(); ctx.ellipse(hipX+18,cy-2,7,3.5,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#111'; ctx.lineWidth=9;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY); ctx.lineTo(hipX,hipY); ctx.stroke();
+      ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY); ctx.lineTo(hipX,hipY); ctx.stroke();
+      ctx.strokeStyle='#FFD700'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(cx-5,shoulderY+3); ctx.quadraticCurveTo(cx,shoulderY+9,cx+5,shoulderY+3); ctx.stroke();
+      const armA = 50+Math.sin(t*0.5)*15;
+      const aL=armA*Math.PI/180, aR=-armA*Math.PI/180;
+      ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=4.2;
+      const lhX=cx+Math.sin(aL)*22, lhY=shoulderY-Math.cos(aL)*22;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+3); ctx.lineTo(lhX,lhY); ctx.stroke();
+      const rhX=cx+Math.sin(aR)*22, rhY=shoulderY-Math.cos(aR)*22;
+      ctx.beginPath(); ctx.moveTo(cx,shoulderY+3); ctx.lineTo(rhX,rhY); ctx.stroke();
+      ctx.fillStyle=skin;
+      ctx.beginPath(); ctx.arc(lhX,lhY,4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(rhX,rhY,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=skin; ctx.strokeStyle='#3e2412'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(cx,headCY,13,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      if (diddyPhoto) {
+        drawPhotoCircle(diddyPhoto,cx,headCY,12);
+        ctx.beginPath(); ctx.arc(cx,headCY,12,0,Math.PI*2);
+        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1; ctx.stroke();
+      } else {
+        ctx.fillStyle='#0a0a0a';
+        ctx.beginPath(); ctx.roundRect(cx-10,headCY-3,8,6,2); ctx.fill();
+        ctx.beginPath(); ctx.roundRect(cx+2,headCY-3,8,6,2); ctx.fill();
+        ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx-2,headCY-1); ctx.lineTo(cx+2,headCY-1); ctx.stroke();
+        ctx.fillStyle='#1a1a1a';
+        ctx.beginPath(); ctx.ellipse(cx,headCY+8,3,3.5,0,0,Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawObstacle(o) {
+      if (o.type==='spike') {
+        ctx.fillStyle='#7f8c8d';
+        ctx.beginPath(); ctx.moveTo(o.x,GND); ctx.lineTo(o.x+o.w/2,GND-o.h); ctx.lineTo(o.x+o.w,GND); ctx.fill();
+        ctx.fillStyle='#bdc3c7';
+        ctx.beginPath(); ctx.moveTo(o.x+5,GND); ctx.lineTo(o.x+o.w/2+3,GND-o.h+9); ctx.lineTo(o.x+o.w-5,GND); ctx.fill();
+      } else if (o.type==='box') {
+        ctx.fillStyle='#d35400'; ctx.fillRect(o.x,o.y,o.w,o.h);
+        ctx.fillStyle='#e67e22'; ctx.fillRect(o.x+3,o.y+3,o.w-6,o.h-6);
+        ctx.strokeStyle='#a04000'; ctx.lineWidth=1.5; ctx.strokeRect(o.x,o.y,o.w,o.h);
+        ctx.fillStyle='#fff'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('!',o.x+o.w/2,o.y+o.h/2+4); ctx.textAlign='left';
+      } else if (o.type==='bird') {
+        ctx.fillStyle='#c0392b';
+        ctx.beginPath(); ctx.ellipse(o.x+o.w/2,o.y+8,o.w/2,8,0,0,Math.PI*2); ctx.fill();
+        const fl2=Math.floor(frame/5)%2;
+        ctx.fillStyle='#922b21';
+        ctx.beginPath(); ctx.ellipse(o.x+o.w/2-12,o.y+(fl2?9:3),11,5,fl2?0.3:-0.3,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(o.x+o.w/2+12,o.y+(fl2?9:3),11,5,fl2?-0.3:0.3,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#ff0'; ctx.beginPath(); ctx.moveTo(o.x,o.y+7); ctx.lineTo(o.x-7,o.y+10); ctx.lineTo(o.x,o.y+13); ctx.fill();
+      }
+    }
+
+    function pBox() { return {x:P.x-9,y:P.y-60,w:18,h:60}; }
+    function oBox(o) {
+      if (o.type==='spike') return {x:o.x+8,y:o.y+4,w:o.w-16,h:o.h-6};
+      return {x:o.x+5,y:o.y+5,w:o.w-10,h:o.h-8};
+    }
+    function hit(a,b){ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y; }
+
+    function triggerDeath() {
+      if (state!=='playing') return;
+      state='gameover'; goPhase='chase'; goTimer=0; oilDrops=[];
+    }
+    function updateDeath() {
+      goTimer++;
+      if (goPhase==='chase') {
+        if (diddyX<P.x-38) diddyX+=8;
+        else { goPhase='pour'; for(let i=0;i<18;i++) oilDrops.push({x:P.x+(Math.random()-.5)*28,y:P.y-36-Math.random()*16,vy:1.4+Math.random(),alpha:0.95}); }
+      } else {
+        oilDrops.forEach(d=>{ d.y+=d.vy; d.vy+=0.3; d.alpha-=0.007; });
+        if (goTimer>110) { document.getElementById('fs').textContent=score; document.getElementById('gameoverScreen').style.display='block'; }
+      }
+    }
+
+    function getSeaX() {
+      if (frame < SEA_START_FRAME) return W+200;
+      const t=(frame-SEA_START_FRAME)/(TOTAL_FRAMES-SEA_START_FRAME);
+      return W - t*(W-P.x+20);
+    }
+
+    function drawBg() {
+      const seaX=getSeaX();
+      const seaVisible=seaX<W;
+      const seaProgress=Math.max(0,Math.min(1,(W-seaX)/(W-P.x+20)));
+      ctx.fillStyle=`rgb(${Math.round(135-seaProgress*30)},${Math.round(206-seaProgress*40)},235)`;
+      ctx.fillRect(0,0,W,H);
+      clouds.forEach(c=>{
+        ctx.fillStyle='rgba(255,255,255,0.85)';
+        ctx.beginPath(); ctx.ellipse(c.x,c.y,36,15,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(c.x-20,c.y+4,20,11,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(c.x+20,c.y+4,24,11,0,0,Math.PI*2); ctx.fill();
+      });
+      ctx.fillStyle='#8BC34A'; ctx.fillRect(0,GND,seaVisible?seaX:W,H-GND);
+      ctx.fillStyle='#7AB040'; ctx.fillRect(0,GND,seaVisible?seaX:W,5);
+      for(let i=0;i<14;i++){
+        const gx=((frame*speed*0.5+i*52)%(W+40))-20;
+        if(!seaVisible||gx<seaX-10){ ctx.fillStyle='#6A9E30'; ctx.fillRect(gx,GND,13,4); }
+      }
+      if (seaVisible) {
+        ctx.fillStyle='#1a6fb5'; ctx.fillRect(seaX,GND,W-seaX,H-GND);
+        for(let w2=0;w2<5;w2++){
+          const wx=seaX+((frame*2+w2*70)%Math.max(1,W-seaX));
+          ctx.fillStyle='rgba(80,160,255,0.5)';
+          ctx.beginPath(); ctx.ellipse(wx,GND+4,22,6,0,0,Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle='rgba(100,180,255,0.15)'; ctx.fillRect(seaX,GND,W-seaX,10);
+        if (seaX<W-60) {
+          ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center';
+          ctx.fillText('🌊 JUMP IN!', seaX+(W-seaX)/2, GND-10); ctx.textAlign='left';
+        }
+      }
+    }
+
+    function drawHUD() {
+      const secs=Math.max(0,60-Math.floor(frame/60));
+      ctx.fillStyle='rgba(0,0,0,0.22)'; ctx.fillRect(6,6,116,22);
+      ctx.fillStyle='#fff'; ctx.font='500 12px sans-serif';
+      ctx.fillText('Score: '+score+'  ⏱ '+secs+'s',12,21);
+      if (hardMode) {
+        ctx.fillStyle='rgba(192,57,43,0.88)'; ctx.fillRect(6,32,140,18);
+        ctx.fillStyle='#fff'; ctx.font='bold 10px sans-serif';
+        ctx.fillText('⚠ HARD MODE — OIL BOTTLES!',10,45);
+      }
+      const gap=Math.max(0,P.x-diddyX-40);
+      const prog=Math.min(1,gap/280);
+      ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.fillRect(W-90,7,82,13);
+      ctx.fillStyle=prog<0.3?'#e74c3c':prog<0.6?'#f39c12':'#2ecc71';
+      ctx.fillRect(W-90,7,82*prog,13);
+      ctx.fillStyle='#fff'; ctx.font='8px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Diddy gap',W-49,18); ctx.textAlign='left';
+    }
+
+    const SWIM_START = 18;
+    const SWIM_DURATION = 180;
+    const SWIM_END = SWIM_START + SWIM_DURATION;
+    const REVEAL_AT = SWIM_END + 20;
+    const OVERLAY_AT = REVEAL_AT + 60;
+
+    function drawWinScene() {
+      winTimer++;
+      ctx.fillStyle='#7ec8e3'; ctx.fillRect(0,0,W,H);
+      const seaY=Math.max(0,GND-Math.max(0,(winTimer-10)*3.2));
+      ctx.fillStyle='#1a6fb5'; ctx.fillRect(0,seaY,W,H-seaY);
+      if(seaY>0){ ctx.fillStyle='#8BC34A'; ctx.fillRect(0,GND,W,seaY>GND?0:H-GND); }
+      for(let w2=0;w2<8;w2++){
+        const wx=((winTimer*2+w2*85)%(W+80))-40;
+        ctx.fillStyle='rgba(80,160,255,0.4)';
+        ctx.beginPath(); ctx.ellipse(wx,seaY+6,30,8,0,0,Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(W-60,48,26,0,Math.PI*2); ctx.fill();
+      for(let r=0;r<8;r++){
+        const a=r/8*Math.PI*2; ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(W-60+Math.cos(a)*30,48+Math.sin(a)*30); ctx.lineTo(W-60+Math.cos(a)*42,48+Math.sin(a)*42); ctx.stroke();
+      }
+
+      diddyAngryShore(55,GND,winTimer);
+      if(winTimer>26){
+        ctx.fillStyle='#fff'; ctx.strokeStyle='#ddd'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.roundRect(8,GND-104,92,24,6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#c0392b'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('NOOO COME BACK!! 😤',54,GND-87); ctx.textAlign='left';
+        drawBottle(82,GND-30-Math.abs(Math.sin(winTimer*0.1))*30,0.85,winTimer*0.1);
+      }
+
+      const swimProgress = Math.max(0, Math.min(1, (winTimer-SWIM_START)/SWIM_DURATION));
+      const swimX = 110 + swimProgress*(W-150);
+      const swimY = Math.min(seaY+24, GND-10);
+      if(winTimer>SWIM_START-5 && winTimer<REVEAL_AT+10) stickmanSwim(swimX,swimY,winTimer);
+
+      if(winTimer>=REVEAL_AT){
+        const a=Math.min(1,(winTimer-REVEAL_AT)/18);
+        ctx.fillStyle=`rgba(0,0,0,${a*0.25})`; ctx.fillRect(0,0,W,H);
+        ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.font='bold 23px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('🏊 You Escaped Diddy! 🏊',W/2,H/2-14);
+        ctx.font='14px sans-serif'; ctx.fillText('He never caught you. Swim free! 🌊',W/2,H/2+12); ctx.textAlign='left';
+      }
+      if(winTimer>OVERLAY_AT) document.getElementById('winScreen').style.display='block';
+    }
+
+    function spawnObs() {
+      const t=Math.random();
+      if(t<0.40){ obstacles.push({type:'spike',x:W+20,y:GND-28,w:24,h:28}); }
+      else if(t<0.70){ obstacles.push({type:'bird',x:W+20,y:55+Math.random()*50,w:26,h:16}); }
+      else { const h=20+Math.floor(Math.random()*18); obstacles.push({type:'box',x:W+20,y:GND-h,w:24,h}); }
+    }
+
+    let raf;
+    function loop() {
+      ctx.clearRect(0,0,W,H);
+      if(state==='win'){ drawWinScene(); raf=requestAnimationFrame(loop); return; }
+      drawBg();
+
+      if(state==='playing'){
+        frame++; score=Math.floor(frame/6);
+        speed = 2.4 + Math.min(score*0.001, 1.2);
+        hardMode=frame>30*60;
+
+        clouds.forEach(c=>{ c.x-=speed*0.2; if(c.x<-70) c.x=W+70; });
+
+        P.vy+=0.55; P.y+=P.vy;
+        if(P.y>=GND){ P.y=GND; P.vy=0; P.onGround=true; P.jumpCount=0; }
+
+        const targetGap = 120;
+        const gap2=P.x-diddyX-targetGap;
+        if(gap2>0) diddyX+=Math.min(speed*0.48, gap2);
+
+        if(frame<SEA_START_FRAME-60){
+          obsCd--;
+          if(obsCd<=0){ spawnObs(); obsCd=Math.floor(90+Math.random()*80-score*0.02); if(obsCd<55) obsCd=55; }
+        }
+        obstacles.forEach(o=>o.x-=speed);
+        obstacles=obstacles.filter(o=>o.x>-60);
+
+        if(hardMode){
+          bottleCd--;
+          if(bottleCd<=0){
+            bottleCd=130+Math.floor(Math.random()*100);
+            const accurate=Math.random()<0.05;
+            const tX=accurate?P.x:(Math.random()<0.5?P.x+100+Math.random()*150:P.x-80-Math.random()*100);
+            const tY=accurate?(P.y-20):(Math.random()*H);
+            const tof=38;
+            bottles.push({x:diddyX+14,y:GND-20,vx:(tX-diddyX)/tof,vy:(tY-(GND-20))/tof-0.45*tof/2,rot:0,rotV:0.13+Math.random()*0.1});
+          }
+        }
+        bottles.forEach(b=>{ b.x+=b.vx; b.vy+=0.45; b.y+=b.vy; b.rot+=b.rotV; });
+        bottles=bottles.filter(b=>b.y<GND+30&&b.x<W+60);
+
+        const seaX=getSeaX();
+        const pb=pBox();
+        if(P.x<seaX){
+          for(let o of obstacles){ if(hit(pb,oBox(o))){ triggerDeath(); break; } }
+          for(let b of bottles){ if(Math.abs(b.x-P.x)<11&&Math.abs(b.y-(P.y-28))<20){ triggerDeath(); break; } }
+          if(diddyX>=P.x-36) triggerDeath();
+        }
+
+        if(P.x>=seaX-10&&frame>=SEA_START_FRAME){ state='win'; winTimer=0; raf=requestAnimationFrame(loop); return; }
+
+        obstacles.forEach(o=>drawObstacle(o));
+        bottles.forEach(b=>{ ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.rot); drawBottle(0,0,1,0); ctx.restore(); });
+        diddyman(diddyX,GND,frame,diddyPhoto,true);
+        stickman(P.x,P.y,frame,playerPhoto,'#1a5eb8','#e74c3c',false);
+        drawHUD();
+
+      } else if(state==='gameover'){
+        obstacles.forEach(o=>drawObstacle(o));
+        updateDeath();
+        diddyman(diddyX,GND,frame,diddyPhoto,goPhase==='chase');
+        stickman(P.x,P.y,frame,playerPhoto,'#1a5eb8','#e74c3c',false);
+        if(goPhase==='pour'&&goTimer>18){
+          ctx.fillStyle=`rgba(241,196,15,${Math.min(0.38,(goTimer-18)*0.013)})`;
+          ctx.beginPath(); ctx.ellipse(P.x,P.y-28,12,22,0,0,Math.PI*2); ctx.fill();
+        }
+        oilDrops.forEach(d=>{ ctx.fillStyle=`rgba(220,180,40,${d.alpha})`; ctx.beginPath(); ctx.ellipse(d.x,d.y,3.5,5.5,0,0,Math.PI*2); ctx.fill(); });
+        if(goPhase==='pour'&&goTimer>52){
+          const a=Math.min(1,(goTimer-52)/15);
+          ctx.fillStyle=`rgba(192,57,43,${a})`; ctx.font='bold 19px sans-serif'; ctx.textAlign='center';
+          ctx.fillText('👆 YOU GOT DIDDIED! 👆',W/2,H/2-8); ctx.textAlign='left';
+        }
+        drawHUD();
+      }
+
+      raf=requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+      state='playing'; frame=0; score=0; speed=2.4;
+      obstacles=[]; bottles=[]; oilDrops=[]; hardMode=false;
+      diddyX=-140; goPhase=null; goTimer=0; winTimer=0;
+      obsCd=110; bottleCd=260;
+      P.reset();
+      clouds=[{x:100,y:28},{x:280,y:18},{x:460,y:32},{x:620,y:22}];
+      document.getElementById('startScreen').style.display='none';
+      document.getElementById('gameoverScreen').style.display='none';
+      document.getElementById('winScreen').style.display='none';
+      if(!raf) loop();
+    }
+
+    document.getElementById('startBtn').onclick=startGame;
+    document.getElementById('restartBtn').onclick=()=>{ document.getElementById('gameoverScreen').style.display='none'; startGame(); };
+    document.getElementById('winRestartBtn').onclick=()=>{ document.getElementById('winScreen').style.display='none'; startGame(); };
+    document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); jump(); } });
+    canvas.addEventListener('click',()=>{ if(state==='playing') jump(); });
+    canvas.addEventListener('touchstart',e=>{ e.preventDefault(); if(state==='playing') jump(); },{passive:false});
+
+    loop();
+    </script>
+</body>
+</html>

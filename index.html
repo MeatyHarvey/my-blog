@@ -36,6 +36,7 @@
                 <a href="about.html">About</a>
                 <a href="knockout-tracker.html" style="color: #fbbf24;">📊 Job Finding</a>
                 <a href="write.html">Write</a>
+                <a href="game.html" style="color: #4ECDC4;">🎮 Game</a>
                 <a href="account.html" style="color: #4ECDC4;">👤 Account</a>
                 <a href="contact.html">Contact</a>
                 <a href="admin.html" style="color: #fbbf24;">Admin</a>
@@ -198,6 +199,18 @@
                         <p style="font-size: 0.8em; color: rgba(255,255,255,0.7); margin-top: 10px; font-style: italic;">
                             Inspired by Bokhan Sir ✨
                         </p>
+                    </div>
+                </div>
+
+                <div class="sidebar-widget">
+                    <h3>🎮 Mini Game</h3>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.95em; line-height: 1.6; margin-bottom: 15px;">
+                        Try the new running game and see if you can escape to the sea.
+                    </p>
+                    <div style="text-align: center;">
+                        <a href="game.html" class="read-more" style="display: inline-block; background: rgba(76, 205, 196, 0.85); color: white; border-color: rgba(76, 205, 196, 0.85);">
+                            Play the Game
+                        </a>
                     </div>
                 </div>
             </div>
@@ -450,16 +463,22 @@
                 return;
             }
 
-            let postsHtml = '';
-            posts.forEach(post => {
+            const featuredPosts = posts.filter(post => post.featured);
+            const regularPosts = posts.filter(post => !post.featured);
+
+            function renderUserPostCard(post, isFeatured = false) {
                 const publishDate = new Date(post.publishedAt).toLocaleDateString();
                 const excerpt = post.excerpt || post.content.substring(0, 150) + '...';
-                
-                postsHtml += `
-                    <div class="post user-post" data-category="${post.category}" style="border-left: 4px solid #4ECDC4;">
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            ${generateLegacyAvatarHTML(post.authorAvatar, post.author, 30)}
-                            <span style="color: rgba(255,255,255,0.9); font-weight: 500; margin-left: 10px;">by ${post.author}</span>
+                const featuredBadge = isFeatured ? '<span class="featured-badge">⭐ Featured</span>' : '';
+
+                return `
+                    <div class="post user-post${isFeatured ? ' featured-post' : ''}" data-category="${post.category}" style="border-left: 4px solid ${isFeatured ? '#ffd700' : '#4ECDC4'};">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center;">
+                                ${generateLegacyAvatarHTML(post.authorAvatar, post.author, 30)}
+                                <span style="color: rgba(255,255,255,0.9); font-weight: 500; margin-left: 10px;">by ${post.author}</span>
+                            </div>
+                            ${featuredBadge}
                         </div>
                         <h2>${post.title}</h2>
                         <p class="post-meta">${publishDate} • <span class="category-tag ${post.category}">${post.category}</span> ${post.featured ? '• <span style="color: #ffd700;">⭐ Featured</span>' : ''}</p>
@@ -476,9 +495,31 @@
                         </div>
                     </div>
                 `;
-            });
+            }
 
-            container.innerHTML = postsHtml;
+            const featuredHtml = featuredPosts.length > 0 ? `
+                <div class="featured-posts-section">
+                    <h3>⭐ Featured Posts</h3>
+                    <p class="featured-posts-description">Highlighted community posts that deserve a little extra attention.</p>
+                    <div class="featured-posts-grid">
+                        ${featuredPosts.map(post => renderUserPostCard(post, true)).join('')}
+                    </div>
+                </div>
+            ` : '';
+
+            const regularHtml = `
+                <div class="community-posts-section">
+                    ${featuredPosts.length > 0 ? '<h3>📰 Latest Community Posts</h3>' : ''}
+                    <div class="community-posts-list">
+                        ${regularPosts.length > 0
+                            ? regularPosts.map(post => renderUserPostCard(post, false)).join('')
+                            : '<p style="color: rgba(255,255,255,0.8); text-align: center; padding: 20px;">No regular posts yet.</p>'
+                        }
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = featuredHtml + regularHtml;
         }
 
         function viewUserPost(postId) {

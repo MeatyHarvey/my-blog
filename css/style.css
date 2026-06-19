@@ -99,6 +99,57 @@ main.container {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+.featured-posts-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+}
+
+.featured-posts-section h3,
+.community-posts-section h3 {
+    color: #1a2530;
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
+}
+
+.featured-posts-description {
+    color: #51606d;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.featured-posts-grid,
+.community-posts-list {
+    display: grid;
+    gap: 16px;
+}
+
+.featured-post {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 215, 0, 0.45);
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.12);
+    position: relative;
+}
+
+.featured-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 215, 0, 0.18);
+    color: #7a5d00;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    white-space: nowrap;
+}
+
 .post h2 {
     color: #1a2530;
     font-size: 1.5rem; /* Smaller post titles */
